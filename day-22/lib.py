@@ -109,3 +109,11 @@ class Recharge(Spell):
         caster['Mana Points'] += 101
 
 spells = [MagicMissle, Drain, Shield, Poison, Recharge]
+
+class HardMode(Spell):
+    Duration = float('inf')
+
+    def tick(self, caster, target):
+        self.toggle = not getattr(self, 'toggle', False)
+        if self.toggle:
+            caster.damage(1)
