@@ -81,19 +81,7 @@ def fight(player, boss, spell_iterator):
         player.damage(boss['Damage'])
         check_game_over(player, boss)
 
-if __name__ == '__main__':
-    boss = lib.Entity()
-    for line in sys.stdin:
-        key, val = line.strip().split(': ')
-        boss[key] = int(val)
-
-    player = lib.Entity(**{
-        'Hit Points': 50,
-        'Mana Points': 500,
-        'Active Spells': [],
-        'History': [],
-    })
-
+def monte_carlo(player, boss, timeout = TIME_TO_RUN):
     start = time.time()
     best_player = {'Mana Spent': float('inf')}
     simulations = 0
@@ -116,5 +104,22 @@ if __name__ == '__main__':
                     print('New best:', current_player['Mana Spent'])
                     best_player = current_player
 
-print('{} simulations run, player won {}'.format(simulations, wins))
-pprint.pprint(best_player)
+    return simulations, wins, best_player
+
+if __name__ == '__main__':
+    boss = lib.Entity()
+    for line in sys.stdin:
+        key, val = line.strip().split(': ')
+        boss[key] = int(val)
+
+    player = lib.Entity(**{
+        'Hit Points': 50,
+        'Mana Points': 500,
+        'Active Spells': [],
+        'History': [],
+    })
+
+    simulations, wins, best_player = monte_carlo(player, boss)
+
+    print('{} simulations run, player won {}'.format(simulations, wins))
+    pprint.pprint(best_player)
