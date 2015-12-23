@@ -11,7 +11,7 @@ import time
 DEBUG_PRINT_FREQUENCY = 5
 
 def usage():
-    print('Usage: --mode (mana_spent|boss_mode)')
+    print('Usage: --mode (mana_spent|boss_hp)')
     sys.exit(0)
 
 def solve(player, boss, scoring_function, early_exit):
@@ -108,7 +108,7 @@ def solve_mode(player, boss):
             return player['Mana Spent']
         return solve(player, boss, score, True)
 
-    elif mode == 'boss_mode':
+    elif mode == 'boss_hp':
         def score(player, boss):
             return player['Mana Spent'] + boss['Hit Points'] * 50
         return solve(player, boss, score, False)
