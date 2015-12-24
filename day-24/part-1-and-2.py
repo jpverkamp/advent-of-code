@@ -18,7 +18,7 @@ def subset_sum_of_n(target, items, count):
     elif count == 0:
         return
     else:
-        for i, item in enumerate(items):
+        for i, item in enumerate(sorted(items)):
             if item <= target:
                 for recur in subset_sum_of_n(target - item, items - {item}, count - 1):
                     yield {item} | recur
@@ -39,5 +39,5 @@ def split_into(packages, n_groups):
 if __name__ == '__main__':
     packages = {int(line.strip()) for line in sys.stdin}
     n_groups = int(sys.argv[1])
-    
+
     print(split_into(packages, n_groups))
