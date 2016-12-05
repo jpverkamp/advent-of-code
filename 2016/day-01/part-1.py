@@ -1,15 +1,19 @@
 #!/usr/bin/env python3
 
-import sys
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('input_file')
+args = parser.parse_args()
 
 location = 0+0j
 facing = 1+0j
 
 rotations = {'R': 0+1j, 'L': 0-1j}
 
-commands = sys.stdin.read().split(', ')
-for command in commands:
-    facing *= rotations[command[0]]
-    location += facing * int(command[1:])
+with open(args.input_file, 'r') as fin:
+    for command in fin.read().split(', '):
+        facing *= rotations[command[0]]
+        location += facing * int(command[1:])
 
 print(abs(int(location.real)) + abs(int(location.imag)))
