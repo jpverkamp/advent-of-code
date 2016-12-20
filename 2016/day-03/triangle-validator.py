@@ -8,6 +8,18 @@ args = parser.parse_args()
 
 possible_triangles = 0
 
+with open(args.input_file, 'r') as fin:
+    for line in fin:
+        sides = list(sorted(map(int, line.split())))
+        if sides[0] + sides[1] > sides[2]:
+            possible_triangles += 1
+
+print('part 1:', possible_triangles)
+
+# ---
+
+possible_triangles = 0
+
 def rotate(stream):
     while True:
         triple = []
@@ -24,4 +36,4 @@ with open(args.input_file, 'r') as fin:
         if sides[0] + sides[1] > sides[2]:
             possible_triangles += 1
 
-print(possible_triangles)
+print('part 2:', possible_triangles)

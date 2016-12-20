@@ -23,27 +23,32 @@ def naturals(i = 0):
 def md5(str):
     return hashlib.md5(str.encode()).hexdigest()
 
-password = list('--------')
+easy_password = ''
+hard_password = ['-'] * 8
 
-print('index     hash    password')
+format_string = '{: <10}' * 4
+
+print(format_string.format('index', 'hash', 'easy', 'hard'))
 for i in naturals():
     hash = md5(args.salt + str(i))
-    sys.stdout.write('{: <9} {} {}\r'.format(i, hash[:7], ''.join(password)))
+    print(format_string.format(i, hash[:6], easy_password, ''.join(hard_password)), end = '\r')
     sys.stdout.flush()
 
     if hash[:5] == '00000':
+        if len(easy_password) < 8:
+            easy_password += hash[5]
+
         index = hash[5]
         if index not in '01234567':
             continue
 
         index = int(index)
-        if password[index] != '-':
+        if hard_password[index] != '-':
             continue
 
-        password[index] = hash[6]
+        hard_password[index] = hash[6]
 
-    if not(any(c == '-' for c in password)):
+    if not(any(c == '-' for c in hard_password)):
         break
 
-sys.stdout.write('{: <9} {} {}\n'.format(i, hash[:7], ''.join(password)))
-sys.stdout.flush()
+print(format_string.format(i, hash[:6], easy_password, ''.join(hard_password)))
