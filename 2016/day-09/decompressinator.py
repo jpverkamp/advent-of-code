@@ -6,7 +6,6 @@ import regex as re
 
 parser = argparse.ArgumentParser()
 parser.add_argument('input')
-parser.add_argument('-v', '--version', type = int, default = 1)
 args = parser.parse_args()
 
 re_compressed_block = re.compile(r'\((?P<length>\d+)x(?P<count>\d+)\)')
@@ -16,8 +15,6 @@ if os.path.exists(args.input):
         content = re.sub('\s+', '', fin.read())
 else:
     content = args.input
-
-
 
 def decompressed_length(content, version):
     index = 0
