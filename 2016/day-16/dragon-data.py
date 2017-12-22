@@ -13,7 +13,6 @@ args = parser.parse_args()
 if args.debug:
     logging.basicConfig(level = logging.INFO)
 
-
 def dragon(ls, length):
     logging.info('Expanding: {}'.format(ls))
 
@@ -30,7 +29,6 @@ def checksum(ls):
         return checksum([(1 if a == b else 0) for (a, b) in zip(ls[0::2], ls[1::2])])
     else:
         return ls
-
 
 ls = list(map(int, args.seed))
 sum = checksum(dragon(ls, args.length))
