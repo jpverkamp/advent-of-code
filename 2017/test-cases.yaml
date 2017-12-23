@@ -17,3 +17,6 @@ day-04:
 day-05:
     - python3 21-jump-street.py input.txt --part 1
     - python3 21-jump-street.py input.txt --part 2
+
+day-06:
+    - python3 tightrope.py input.txt
