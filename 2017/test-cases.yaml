@@ -23,3 +23,6 @@ day-06:
 
 day-07:
     - python3 tree.py input.txt
+
+day-08:
+    - python3 conditiputer.py input.txt
