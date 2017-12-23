@@ -1,6 +1,55 @@
+import argparse
+import fileinput
 import itertools
-import logging
 import re
+
+_arg_parser = argparse.ArgumentParser()
+_arg_parser.add_argument('--part', type = int, default = 1, choices = (1, 2))
+_arg_parser.add_argument('--debug', action = 'store_true')
+
+_DEBUG_MODE = False
+
+def add_argument(*args, **kwargs):
+    _arg_parser.add_argument(*args, **kwargs)
+
+def param(name, cache = {}):
+    '''
+    Get parameters from the command line by name.
+
+    arg('input') will generate lines of input from fileinput
+    '''
+
+    global _DEBUG_MODE
+
+    if not cache:
+        cache['args'], cache['unknown'] = _arg_parser.parse_known_args()
+
+        if cache['args'].debug:
+            _DEBUG_MODE = True
+
+    if name == 'input' and not hasattr(cache['args'], 'input'):
+        return fileinput.input(cache['unknown'])
+    else:
+        return getattr(cache['args'], name)
+
+def log(message, *args, **kwargs):
+    if _DEBUG_MODE:
+        print(message.format(*args, **kwargs))
+
+def input(include_empty_lines = False, include_comments = False):
+    for line in param('input'):
+        line = line.strip()
+
+        if not line and not include_empty_lines:
+            continue
+
+        if line.startswith('#') and not include_comments:
+            continue
+
+        yield line
+
+def part(i):
+    return int(param('part')) == int(i)
 
 def math(expression, variables):
     '''Safely evaluate a mathematical expression with the given variables.'''
@@ -76,6 +125,6 @@ class SpiralGrid():
             index, point = next(self._generator)
             self._indexes[index] = point
             self._points[point] = index
-            logging.info('Generated new point in spiral grid: {} = {}'.format(index, point))
+            log('Generated new point in spiral grid: {} = {}', index, point)
 
         return field[key]

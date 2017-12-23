@@ -1,28 +1,17 @@
 #!/usr/bin/env python3
 
-import argparse
 import itertools
-import fileinput
-import logging
 
 import sys; sys.path.insert(0, '..'); import lib
+lib.add_argument('index')
 
-parser = argparse.ArgumentParser()
-parser.add_argument('index')
-parser.add_argument('--part', default = (1, 2), type = int, nargs = '+', choices = (1, 2))
-parser.add_argument('--debug', action = 'store_true')
-args = parser.parse_args()
-
-if args.debug:
-    logging.basicConfig(level = logging.INFO)
-
-if 1 in args.part:
+if lib.part(1):
     grid = lib.SpiralGrid()
 
-    x, y = grid[args.index]
+    x, y = grid[lib.param('index')]
     print(abs(x) + abs(y))
 
-if 2 in args.part:
+if lib.part(2):
     grid = lib.SpiralGrid()
 
     values = {}
@@ -40,9 +29,9 @@ if 2 in args.part:
         )
         values[x, y] = sum_of_neighbors
 
-        logging.info('Point {} {} has value {}'.format(i, (x, y), sum_of_neighbors))
+        lib.log('Point {} {} has value {}', i, (x, y), sum_of_neighbors)
 
         # As soon as we see one bigger than the given index, bail out
-        if sum_of_neighbors > int(args.index):
+        if sum_of_neighbors > int(lib.param('index')):
             print(sum_of_neighbors)
             break
