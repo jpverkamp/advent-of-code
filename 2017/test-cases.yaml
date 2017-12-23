@@ -36,3 +36,6 @@ day-10:
 
 day-11:
     - python3 its-full-of-hexagons.py input.txt
+
+day-12:
+    - python3 gridlock.py input.txt

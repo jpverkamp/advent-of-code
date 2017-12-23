@@ -21,6 +21,6 @@ for folder in sorted(data):
 			folder,
 			command,
 			end - start,
-			output,
+			output.replace('\n', '; '),
 			sep = '\t',
 		)
