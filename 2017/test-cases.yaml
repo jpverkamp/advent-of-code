@@ -29,3 +29,7 @@ day-08:
 
 day-09:
     - python3 garbage-gobbler.py input.txt
+
+day-10:
+    - python3 knot-cool.py input.txt --marks 256 | sed -n '1p'
+    - python3 knot-cool.py input.txt --ascii-key --additional-key-bytes 17 31 73 47 23 --marks 256 --rounds 64 | sed -n '2p'
