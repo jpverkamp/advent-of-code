@@ -1,0 +1,4 @@
+
+day-01:
+    - python3 ahctpat.py input.txt
+    - python3 ahctpat.py input.txt --function "size // 2"
