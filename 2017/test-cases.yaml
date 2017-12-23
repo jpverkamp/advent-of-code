@@ -13,3 +13,7 @@ day-03:
 day-04:
     - python3 password-validator.py input.txt
     - python3 password-validator.py input.txt --no-anagrams
+
+day-05:
+    - python3 21-jump-street.py input.txt --part 1
+    - python3 21-jump-street.py input.txt --part 2
