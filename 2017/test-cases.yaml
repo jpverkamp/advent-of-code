@@ -6,6 +6,10 @@ day-02:
     - python3 check-it.py input.txt --part 1
     - python3 check-it.py input.txt --part 2
 
+day-03:
+    - python3 spiraly.py 347991 --part 1
+    - python3 spiraly.py 347991 --part 2
+
 day-04:
     - python3 password-validator.py input.txt
     - python3 password-validator.py input.txt --no-anagrams
