@@ -26,3 +26,6 @@ day-07:
 
 day-08:
     - python3 conditiputer.py input.txt
+
+day-09:
+    - python3 garbage-gobbler.py input.txt
