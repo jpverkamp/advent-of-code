@@ -20,3 +20,6 @@ day-05:
 
 day-06:
     - python3 tightrope.py input.txt
+
+day-07:
+    - python3 tree.py input.txt
