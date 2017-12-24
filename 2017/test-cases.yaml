@@ -43,3 +43,6 @@ day-12:
 day-13:
     - python3 firewall-puncher.py input.txt --tick 0
     - python3 firewall-puncher.py input.txt --safest
+
+day-14:
+    - python3 knot-hash-gridinator.py --key nbysizxe

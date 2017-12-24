@@ -1,6 +1,8 @@
 import argparse
 import fileinput
+import functools
 import itertools
+import operator
 import re
 
 _arg_parser = argparse.ArgumentParser()
@@ -139,3 +141,33 @@ class SpiralGrid():
             log('Generated new point in spiral grid: {} = {}', index, point)
 
         return field[key]
+
+def knothash(value, rounds = 64):
+    lengths = [ord(c) for c in value] + [17, 31, 73, 47, 23]
+    rope = list(range(256))
+
+    origin = 0
+    skip = -1
+
+    for round in range(rounds):
+        for length in lengths:
+            skip += 1
+            skip %= len(rope)
+
+            rope = rope[length:] + list(reversed(rope[:length]))
+            rope = rope[skip:] + rope[:skip]
+            origin -= length + skip
+
+    origin %= len(rope)
+    rope = rope[origin:] + rope[:origin]
+
+    dense_hash = [
+        functools.reduce(operator.xor, rope[i : i+16])
+        for i in range(0, 256, 16)
+    ]
+    hex_hash = ''.join(f'{i:02x}' for i in dense_hash)
+
+    return hex_hash
+
+def hex2bits(hex):
+    return ''.join(bit for c in hex for bit in '{:04b}'.format(int(c, 16)))
