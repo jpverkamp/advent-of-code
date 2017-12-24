@@ -7,10 +7,21 @@ _arg_parser = argparse.ArgumentParser()
 _arg_parser.add_argument('--part', type = int, default = 1, choices = (1, 2))
 _arg_parser.add_argument('--debug', action = 'store_true')
 
+_argument_groups = {}
+
 _DEBUG_MODE = False
 
 def add_argument(*args, **kwargs):
-    _arg_parser.add_argument(*args, **kwargs)
+    if 'group' in kwargs:
+        group = kwargs['group']
+        del kwargs['group']
+
+        if group not in _argument_groups:
+            _argument_groups[group] = _arg_parser.add_mutually_exclusive_group()
+
+        _argument_groups[group].add_argument(*args, **kwargs)
+    else:
+        _arg_parser.add_argument(*args, **kwargs)
 
 def param(name, cache = {}):
     '''

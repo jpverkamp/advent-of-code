@@ -39,3 +39,7 @@ day-11:
 
 day-12:
     - python3 gridlock.py input.txt
+
+day-13:
+    - python3 firewall-puncher.py input.txt --tick 0
+    - python3 firewall-puncher.py input.txt --safest
