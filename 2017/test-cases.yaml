@@ -46,3 +46,7 @@ day-13:
 
 day-14:
     - python3 knot-hash-gridinator.py --key nbysizxe
+
+day-15:
+    - python3 two-generators.py --seeds 618 814
+    - python3 two-generators.py --seeds 618 814 --filters 4 8 --pairs 5000000
