@@ -50,3 +50,9 @@ day-14:
 day-15:
     - python3 two-generators.py --seeds 618 814
     - python3 two-generators.py --seeds 618 814 --filters 4 8 --pairs 5000000
+
+day-16:
+    - python3 swing-your-partner.py input.txt
+    - python3 dynamic-swing.py input.txt
+    # - python3 swing-your-partner.py input.txt --repeat 1000000000 # 1 hr 38 min
+    - python3 dynamic-swing.py input.txt --repeat 1000000000
