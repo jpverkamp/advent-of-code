@@ -56,3 +56,7 @@ day-16:
     - python3 dynamic-swing.py input.txt
     # - python3 swing-your-partner.py input.txt --repeat 1000000000 # 1 hr 38 min
     - python3 dynamic-swing.py input.txt --repeat 1000000000
+
+day-17:
+    - python3 spinlock.py --values 2017 --step 329 --after 2017
+    - python3 spinlock-zero.py --values 50000000 --step 329
