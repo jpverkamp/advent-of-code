@@ -60,3 +60,7 @@ day-16:
 day-17:
     - python3 spinlock.py --values 2017 --step 329 --after 2017
     - python3 spinlock-zero.py --values 50000000 --step 329
+
+day-18:
+    - python3 duetvm.py input.txt --part 1
+    - python3 duetvm.py input.txt --part 2
