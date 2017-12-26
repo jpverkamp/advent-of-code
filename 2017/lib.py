@@ -51,7 +51,7 @@ def log(message, *args, **kwargs):
 
 def input(include_empty_lines = False, include_comments = False):
     for line in param('input'):
-        line = line.strip()
+        line = line.rstrip('\n')
 
         if not line and not include_empty_lines:
             continue

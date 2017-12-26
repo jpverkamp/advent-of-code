@@ -64,3 +64,6 @@ day-17:
 day-18:
     - python3 duetvm.py input.txt --part 1
     - python3 duetvm.py input.txt --part 2
+
+day-19:
+    - python3 networkout.py input.txt
