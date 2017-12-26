@@ -171,3 +171,12 @@ def knothash(value, rounds = 64):
 
 def hex2bits(hex):
     return ''.join(bit for c in hex for bit in '{:04b}'.format(int(c, 16)))
+
+def vector_add(a, b):
+    return tuple(i + j for i, j in zip(a, b))
+
+def vector_distance(a, b):
+    return sum(abs(i - j) for i, j in zip(a, b))
+
+def vector_scale(s, a):
+    return tuple(s * i for i in a)

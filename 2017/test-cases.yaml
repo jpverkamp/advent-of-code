@@ -67,3 +67,6 @@ day-18:
 
 day-19:
     - python3 networkout.py input.txt
+
+day-20:
+    - python3 -i miniature-universe-simulator.py input.txt
