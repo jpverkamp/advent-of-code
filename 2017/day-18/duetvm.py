@@ -17,7 +17,7 @@ class VM(object):
         self.registers = collections.defaultdict(lambda : 0)
         self.output = []
         self.messages = queue.Queue()
-
+        
         self.id = len(VM.vms)
         self.registers['p'] = self.id
         VM.vms.append(self)
