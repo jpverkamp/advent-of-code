@@ -86,3 +86,6 @@ day-23:
 day-24:
     - python3 maker-of-bridges.py input.txt --sort-by strength
     - python3 maker-of-bridges.py input.txt --sort-by length
+
+day-25:
+    - python3 turing.py input.txt
