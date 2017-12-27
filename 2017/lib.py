@@ -180,3 +180,9 @@ def vector_distance(a, b):
 
 def vector_scale(s, a):
     return tuple(s * i for i in a)
+
+def vector2_rotate(v, turns_clockwise = True):
+    (x, y) = v
+    for i in range(turns_clockwise):
+        (x, y) = (-y, x)
+    return (x, y)

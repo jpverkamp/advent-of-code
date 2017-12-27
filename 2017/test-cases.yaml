@@ -74,3 +74,7 @@ day-20:
 day-21:
     - python3 fractal-expander.py input.txt --iterations 5
     - python3 fractal-expander.py input.txt --iterations 18
+
+day-22:
+    - python3 langtons-ant.py input.txt --iterations 10000
+    - python3 langtons-ant.py input.txt --iterations 10000000 --mode evolved
