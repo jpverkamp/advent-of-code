@@ -118,5 +118,3 @@ for tick in itertools.count():
         last_max_distance = max_distance
 
 print(f'{len(simulators)} left after collisions')
-
-sys.exit(0)
