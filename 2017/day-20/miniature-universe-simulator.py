@@ -3,7 +3,9 @@
 import itertools
 
 import sys; sys.path.insert(0, '..'); import lib
-lib.add_argument('--max-ticks', type = int, default = 1000, help = 'Number of ticks to run collision simulation')
+lib.add_argument('--render', action = 'store_true', help = 'On part 2, render each frame as an image')
+lib.add_argument('--render-frames', type = int, default = -1, help = 'If specified, render this many frames rather than stopping when we have an answer')
+lib.add_argument('--render-region', type = int, default = 15000, help = 'The maximum x/y/z coordinate to render for --render-frames')
 
 origin = (0, 0, 0)
 
@@ -19,7 +21,6 @@ def simulate(p, v, a):
     '''
     Yield points along a curve until they are moving away from zero after speeding up.
 
-    If max_ticks is specified, yield that many points.
     If not, yield until the particle is accelerating away from the origin to infinity.
     '''
 
@@ -83,6 +84,28 @@ for tick in itertools.count():
 
     current_points = [next(simulator) for simulator in simulators]
 
+    if lib.param('render'):
+        lib.log(f'Rendering frame {tick}')
+
+        import matplotlib.pyplot as plt
+        from mpl_toolkits.mplot3d import Axes3D
+
+        fig = plt.figure()
+
+        render_region = lib.param('render_region')
+        ax = fig.add_subplot(111, projection = '3d')
+        ax.set_xlim([-render_region, render_region])
+        ax.set_ylim([-render_region, render_region])
+        ax.set_zlim([-render_region, render_region])
+
+        ax.scatter(*zip(*current_points))
+
+        fig.savefig(f'frame-{tick:04d}.png')
+
+        # If we want to limit the number of frames to render and we've hit that, stop
+        if 0 < lib.param('render_frames') <= tick:
+            break
+
     # Remove any particles that have collided
 
     to_remove = {
@@ -100,6 +123,10 @@ for tick in itertools.count():
         for index, simulator in enumerate(simulators)
         if index not in to_remove
     ]
+
+    # If we're rendering and have a maximum number of frames, don't check expansion
+    if lib.param('render') and lib.param('render_frames') > 0:
+        continue
 
     # Check if everything is moving apart (we can stop then)
 

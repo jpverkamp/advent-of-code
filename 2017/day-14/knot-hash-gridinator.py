@@ -4,6 +4,8 @@ import queue
 
 import sys; sys.path.insert(0, '..'); import lib
 lib.add_argument('--key', required = True)
+lib.add_argument('--render-grid', help = "Specify a filename to render the grid")
+lib.add_argument('--render-regions', help = "Specify a filename to render regions (colors randomly chosen)")
 
 # Generate a grid of bits based on knothashes of the input
 data = []
@@ -75,3 +77,24 @@ lib.log('\n'.join(
 
 region_count = len(region_to_point)
 print(f'{region_count} regions')
+
+if lib.param('render_grid') or lib.param('render_regions'):
+    if lib.param('render_grid'):
+        def generate_pixel(x, y):
+            g = 0 if data[x][y] == '1' else 255
+            return (g, g, g)
+
+        lib.generate_image(128, 128, generate_pixel).save(lib.param('render_grid'))
+
+    if lib.param('render_regions'):
+        def generate_region_pixel(x, y, colors = {}):
+            if data[x][y] == '0':
+                return (0, 0, 0)
+
+            region = point_to_region[x, y]
+            if region not in colors:
+                colors[region] = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+
+            return colors[region]
+
+        lib.generate_image(128, 128, generate_region_pixel).save(lib.param('render_regions'))

@@ -6,6 +6,8 @@ import pprint
 import sys; sys.path.insert(0, '..'); import lib
 lib.add_argument('--state', default = '.#./..#/###', help = 'The initial state to expand')
 lib.add_argument('--iterations', type = int, required = True, help = 'The number of times to expand')
+lib.add_argument('--render', help = 'If specified, render the final image to the given filename')
+lib.add_argument('--render-steps', help = 'If specified, render each final image to the given filename with the step included')
 
 rules = dict(
     line.replace('/', '').split(' => ')
@@ -23,6 +25,17 @@ def render_block(data):
         ''.join(data[y * size + x] for x in range(size))
         for y in range(size)
     )
+
+def render_image(data, filename):
+    '''Render a block as an image (assumes # is black and . is white).'''
+
+    size = int(math.sqrt(len(data)))
+
+    def generate_pixel(x, y):
+        g = 0 if data[y * size + x] == '#' else 255
+        return (g, g, g)
+
+    lib.generate_image(size, size, generate_pixel).save(filename)
 
 def blocks(data):
     '''
@@ -135,4 +148,11 @@ for round in range(lib.param('iterations')):
     lib.log(f'Expanding:\n{render_block(data)}\n')
     data = expand(data)
 
+    if lib.param('render_steps'):
+        filename, ext = lib.param('render_steps').rsplit('.', 1)
+        render_image(data, f'{filename}-{round:04d}.{ext}')
+
 print(render_block(data).count('#'))
+
+if lib.param('render'):
+    render_image(data, lib.param('render'))

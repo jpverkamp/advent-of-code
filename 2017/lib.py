@@ -3,6 +3,8 @@ import fileinput
 import functools
 import itertools
 import operator
+import PIL.Image
+import random
 import re
 
 _arg_parser = argparse.ArgumentParser()
@@ -186,3 +188,19 @@ def vector2_rotate(v, turns_clockwise = True):
     for i in range(turns_clockwise):
         (x, y) = (-y, x)
     return (x, y)
+
+def generate_image(width, height, generator):
+    '''
+    Generate an RGB image using a generator function.
+
+    width, height -- the size of the generated image
+    generator -- a function that takes (x, y) and returns (r, g, b)
+    '''
+
+    # Generate the data as a row-major list of (r, g, b)
+    data = [generator(x, y) for y in range(height) for x in range(width)]
+
+    # Pack that into a Pillow image and return it
+    img = PIL.Image.new('RGB', (width, height))
+    img.putdata(data)
+    return img

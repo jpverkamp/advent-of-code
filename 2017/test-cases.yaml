@@ -82,6 +82,7 @@ day-22:
 day-23:
     - python3 duetvmc.py input.txt --part 1 | python3
     - python3 duetvmc.py input.txt --part 2 | python3
+    - python3 duetvmc.py input.txt --part 2 | pypy
 
 day-24:
     - python3 maker-of-bridges.py input.txt --sort-by strength
