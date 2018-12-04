@@ -1,4 +1,10 @@
+# Mac OSX
+.DS_Store
+
+# Python
 __pycache__
 *.pyc
-.DS_Store
+
+# Racket
+compiled
 *~
