@@ -39,5 +39,23 @@ def part2(data: typer.FileText, window_size: typing.Optional[int] = typer.Argume
     ))
 
 
+@app.command()
+def part2_simple(data: typer.FileText, window_size: typing.Optional[int] = typer.Argument(1)):
+    count = 0
+    last_depth = None
+
+    # typer.FileText does not work with len or slices, so convert to a list
+    data = list(data)
+
+    for start in range(len(data) - window_size):
+        current_depth = sum(map(int, data[start: start + window_size]))
+
+        if not last_depth or current_depth > last_depth:
+            count += 1
+
+        last_depth = current_depth
+
+    print(count)
+
 if __name__ == '__main__':
     app()
