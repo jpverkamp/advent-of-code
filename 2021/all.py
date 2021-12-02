@@ -8,6 +8,10 @@ problems = [
         'part2': 'input.txt 3',
         'part2-simple': 'input.txt 3'
     }],
+    [2, '02', 'Dive!', 'submarine-simulator.py', {
+        'part1': 'input.txt',
+        'part2': 'input.txt',
+    }],
 ]
 
 for day, folder, name, file, variants in problems:
