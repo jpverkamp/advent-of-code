@@ -12,6 +12,10 @@ problems = [
         'part1': 'input.txt',
         'part2': 'input.txt',
     }],
+    [3, '03', 'Binary Diagnostic', 'binary-contraption.py', {
+        'part1': 'input.txt',
+        'part2': 'input.txt',
+    }],
 ]
 
 for day, folder, name, file, variants in problems:
