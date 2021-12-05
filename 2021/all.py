@@ -16,6 +16,10 @@ problems = [
         'part1': 'input.txt',
         'part2': 'input.txt',
     }],
+    [4, '04', 'Giant Squid', 'his-name-oh.py', {
+        'part1': 'input.txt',
+        'part2': 'input.txt',
+    }],
 ]
 
 for day, folder, name, file, variants in problems:
