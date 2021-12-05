@@ -1,6 +1,7 @@
 import copy
 import typer
-import typing
+
+from typing import List
 
 app = typer.Typer()
 
@@ -9,7 +10,7 @@ app = typer.Typer()
 def part1(lines: typer.FileText):
     # Keep track of how many lines we counted total and just the number of ones
     counter = 0
-    one_counts = []
+    one_counts: List[int] = []
 
     for line in lines:
         line = line.strip()
@@ -43,11 +44,11 @@ def part1(lines: typer.FileText):
 
 
 @app.command()
-def part2(lines: typer.FileText):
+def part2(file: typer.FileText):
     # Load the entire file into memory this time
     lines = [
         line.strip()
-        for line in lines
+        for line in file
         if line.strip()
     ]
 

@@ -21,7 +21,7 @@ def part1(data: typer.FileText):
 
 
 @app.command()
-def part2(data: typer.FileText, window_size: typing.Optional[int] = typer.Argument(1)):
+def part2(data: typer.FileText, window_size: int = typer.Argument(1)):
     # Convert all depths to ints
     depths = list(map(int, data))
 
@@ -40,12 +40,12 @@ def part2(data: typer.FileText, window_size: typing.Optional[int] = typer.Argume
 
 
 @app.command()
-def part2_simple(data: typer.FileText, window_size: typing.Optional[int] = typer.Argument(1)):
+def part2_simple(file: typer.FileText, window_size: int = typer.Argument(1)):
     count = 0
     last_depth = None
 
     # typer.FileText does not work with len or slices, so convert to a list
-    data = list(data)
+    data = list(file)
 
     for start in range(len(data) - window_size):
         current_depth = sum(map(int, data[start: start + window_size]))

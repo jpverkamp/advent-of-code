@@ -1,11 +1,13 @@
 import itertools
 import typer
-import typing
+
+from typing import Tuple, List, Optional
 
 app = typer.Typer()
 
+BingoBoard = List[List[Optional[str]]]
 
-def parse(file: typer.FileText):
+def parse(file: typer.FileText) -> Tuple[List[Int], BingoBoard]:
     '''Parse a bingo definition. Return the list of numbers (as ints) and a list of 5x5 grids.'''
 
     numbers = [int(el) for el in file.readline().split(',')]
@@ -27,7 +29,7 @@ def parse(file: typer.FileText):
     return numbers, boards
 
 
-def check_off(board, number):
+def check_off(board: BingoBoard, number: int):
     '''Remove the given number from the given board by changing it to None.'''
 
     # Yes, I know I'm hardcoding 5

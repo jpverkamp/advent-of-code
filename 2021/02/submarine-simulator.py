@@ -9,8 +9,8 @@ def part1(commands: typer.FileText):
     position, depth = 0, 0
 
     for command in commands:
-        key, value = command.split()
-        value = int(value)
+        key, svalue = command.split()
+        value = int(svalue)
 
         if key == 'forward':
             position += value
@@ -27,8 +27,8 @@ def part2(commands: typer.FileText):
     position, depth, aim = 0, 0, 0
 
     for command in commands:
-        key, value = command.split()
-        value = int(value)
+        key, svalue = command.split()
+        value = int(svalue)
 
         if key == 'forward':
             position += value
