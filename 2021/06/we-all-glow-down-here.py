@@ -32,6 +32,15 @@ class School:
         return School(fish)
 
     def step(self):
+        '''
+        Advance this school 1 day.
+
+        All fish increase in age by 1 tick
+        Fish that are of a spawning age reset to 7 days to spawn and create a new 9 day to spawn fish.
+
+        Remember 0 based indexing.
+        '''
+
         # Remember how many fish are going to spawn
         breeding = self.data[0]
 
@@ -57,6 +66,11 @@ class School:
 
         return sum(qty for age, qty in self.data.items())
 
+    def size(self):
+        '''Return the number of fish in the school (__len__ is limited to an index-sized integer).'''
+
+        return sum(qty for age, qty in self.data.items())
+
 
 def load(file: TextIO) -> School:
     return School(int(age) for age in file.readline().split(','))
@@ -69,7 +83,10 @@ def main(ticks: int, file: typer.FileText):
     for i in range(ticks):
         school.step()
 
-    print(len(school))
+    print(school.size())
+
+    size_string = str(school.size())
+    print(f'{size_string[0]}.{size_string[1:3]}e{len(size_string)}')
 
 
 if __name__ == '__main__':
