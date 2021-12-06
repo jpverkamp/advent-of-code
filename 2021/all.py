@@ -20,6 +20,14 @@ problems = [
         'part1': 'input.txt',
         'part2': 'input.txt',
     }],
+    [5, '05', 'Hydrothermal Venture', 'linear-avoidinator.py', {
+        'part1': 'input.txt',
+        'part2': 'input.txt',
+    }],
+    [6, '06', 'Lanternfish', 'we-all-glow-down-here.py', {
+        '80': 'input.txt',
+        '256': 'input.txt',
+    }],
 ]
 
 for day, folder, name, file, variants in problems:

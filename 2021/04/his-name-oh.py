@@ -1,20 +1,21 @@
 import itertools
 import typer
 
-from typing import Tuple, List, Optional
+from typing import Tuple, List, Optional, TextIO
 
 app = typer.Typer()
 
-BingoBoard = List[List[Optional[str]]]
+BingoBoard = List[List[Optional[int]]]
 
-def parse(file: typer.FileText) -> Tuple[List[Int], BingoBoard]:
+
+def parse(file: TextIO) -> Tuple[List[int], List[BingoBoard]]:
     '''Parse a bingo definition. Return the list of numbers (as ints) and a list of 5x5 grids.'''
 
     numbers = [int(el) for el in file.readline().split(',')]
     file.readline()
 
-    boards = []
-    board = []
+    boards: List[BingoBoard] = []
+    board: BingoBoard = []
 
     for line in file:
         if not line.strip():
