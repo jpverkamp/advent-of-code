@@ -1,7 +1,5 @@
 import typer
 
-from typing import List, TextIO, MutableMapping
-
 app = typer.Typer()
 
 

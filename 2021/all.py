@@ -32,6 +32,10 @@ problems = [
         'part1': 'input.txt',
         'part2': 'input.txt',
     }],
+    [8, '08', 'Seven Segment Search', 'seven-segment-demystifier.py', {
+        'part1': 'input.txt',
+        'part2': 'input.txt',
+    }],
 ]
 
 for day, folder, name, file, variants in problems:

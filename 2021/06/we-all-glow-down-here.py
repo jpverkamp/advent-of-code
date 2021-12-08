@@ -1,6 +1,6 @@
 import typer
 
-from typing import List, TextIO, MutableMapping
+from typing import TextIO
 
 app = typer.Typer()
 
