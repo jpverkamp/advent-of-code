@@ -28,6 +28,10 @@ problems = [
         '80': 'input.txt',
         '256': 'input.txt',
     }],
+    [7, '07', 'The Treachery of Whales', 'brachyura-aligner.py', {
+        'part1': 'input.txt',
+        'part2': 'input.txt',
+    }],
 ]
 
 for day, folder, name, file, variants in problems:
