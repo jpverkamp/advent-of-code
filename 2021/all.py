@@ -35,6 +35,8 @@ problems = [
     [8, '08', 'Seven Segment Search', 'seven-segment-demystifier.py', {
         'part1': 'input.txt',
         'part2': 'input.txt',
+        '--fast part1': 'input.txt',
+        '--fast part2': 'input.txt',
     }],
 ]
 
