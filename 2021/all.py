@@ -38,6 +38,10 @@ problems = [
         '--fast part1': 'input.txt',
         '--fast part2': 'input.txt',
     }],
+    [9, '09', 'Smoke Basin', 'local-minimum-deminifier.py', {
+        'part1': 'input.txt',
+        'part2': 'input.txt',
+    }],
 ]
 
 for day, folder, name, file, variants in problems:
