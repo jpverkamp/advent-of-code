@@ -2,6 +2,7 @@ from itertools import product
 import typer
 
 from typing import MutableMapping, Tuple, TextIO, MutableSet
+from pathlib import Path
 
 app = typer.Typer()
 
@@ -16,29 +17,7 @@ def load(file: TextIO) -> MutableMapping[Tuple[int, int], int]:
     }
 
 
-@app.command()
-def part1(file: typer.FileText):
-
-    heightmap = load(file)
-    total_risk = 0
-
-    for (x, y), height in heightmap.items():
-        neighbor_heights = [
-            heightmap.get((x + xd, y + yd), 10)
-            for xd, yd in ORTHAGONAL_NEIGHBORS
-        ]
-
-        if min(neighbor_heights) > height:
-            total_risk += height + 1
-
-    print(f'{total_risk=}')
-
-
-@app.command()
-def part2(file: typer.FileText):
-
-    heightmap = load(file)
-
+def find_basins(heightmap):
     # A map (like heightmap) of Point -> which basin that point belongs to
     basinmap: MutableMapping[Tuple[int, int], int] = {}
 
@@ -81,11 +60,96 @@ def part2(file: typer.FileText):
         floodfill(x, y, next_value)
         next_value += 1
 
+    return basins
+
+
+@app.command()
+def part1(file: typer.FileText):
+
+    heightmap = load(file)
+    total_risk = 0
+
+    for (x, y), height in heightmap.items():
+        neighbor_heights = [
+            heightmap.get((x + xd, y + yd), 10)
+            for xd, yd in ORTHAGONAL_NEIGHBORS
+        ]
+
+        if min(neighbor_heights) > height:
+            total_risk += height + 1
+
+    print(f'{total_risk=}')
+
+
+@app.command()
+def part2(file: typer.FileText):
+
+    heightmap = load(file)
+    basins = find_basins(heightmap)
+
     # Find the size of the largest three basins
     sizes = list(reversed(sorted(len(points) for _, points in basins.items())))
     product = sizes[0] * sizes[1] * sizes[2]
 
     print(f'The largest basins are {sizes[:3]} with a size product of {product}')
+
+
+@app.command()
+def view(file: typer.FileText, heightmap_file: Path, basin_file: Path, largest_basin_file: Path):
+    from PIL import Image  # type: ignore
+
+    heightmap = load(file)
+    image_width = max(x for (x, _) in heightmap) + 1
+    image_height = max(y for (_, y) in heightmap) + 1
+
+    # Generate a grayscale map of heights from the given image
+    heightmap_image = Image.new('HSV', (image_width, image_height))
+    heightmap_data = heightmap_image.load()
+
+    for (x, y), height in heightmap.items():
+        heightmap_data[x, y] = (0, 0, 255 * height // 10)
+
+    heightmap_image = heightmap_image.resize((image_width * 4, image_height * 4), Image.NEAREST)
+    heightmap_image.convert(mode='RGB').save(heightmap_file)
+
+    # Generate a map of all of the basins in the image
+    basinmap_image = Image.new('HSV', (image_width, image_height))
+    basinmap_data = basinmap_image.load()
+
+    basins = find_basins(heightmap)
+
+    for index, points in basins.items():
+        for (x, y) in points:
+            basinmap_data[x, y] = ((10007 * index // len(basins)) % 255, 255, 255)
+
+    basinmap_image = basinmap_image.resize((image_width * 4, image_height * 4), Image.NEAREST)
+    basinmap_image.convert(mode='RGB').save(basin_file)
+
+    # Only draw the 3 largest basins
+    biggest_basins = [
+        index
+        for _, index in list(reversed(sorted(
+            (len(points), index)
+            for index, points in basins.items()
+        )))[:3]
+    ]
+
+    biggest_basin_image = Image.new('HSV', (image_width, image_height))
+    biggest_basin_data = biggest_basin_image.load()
+
+    basins = find_basins(heightmap)
+
+    for index, points in basins.items():
+        for (x, y) in points:
+            if index in biggest_basins:
+                biggest_basin_data[x, y] = ((10007 * index // len(basins)) % 255, 255, 255)
+            else:
+                biggest_basin_data[x, y] = (0, 0, 255)
+
+    biggest_basin_image = biggest_basin_image.resize((image_width * 4, image_height * 4), Image.NEAREST)
+    biggest_basin_image.convert(mode='RGB').save(largest_basin_file)
+
+
 
 
 if __name__ == '__main__':
