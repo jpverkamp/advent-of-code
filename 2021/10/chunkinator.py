@@ -52,7 +52,8 @@ def parse(line: str):
         raise ParseMismatchException(expected=top, actual=c)
 
     # If we still have something left to parse, notify
-    raise ParseIncompleteException(remaining=''.join(reversed(stack)))
+    if stack:
+        raise ParseIncompleteException(remaining=''.join(reversed(stack)))
 
     # Otherwise, yay!
     return True
