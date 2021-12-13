@@ -32,7 +32,7 @@ def main(day: int, name: str):
     pathlib.Path(os.path.join(padded_day, 'test.txt')).touch()
     pathlib.Path(os.path.join(padded_day, 'input.txt')).touch()
 
-    with open(os.path.join(padded_day, name + '.py'), 'w') as f:
+    with open(os.path.join(padded_day, name + ('' if name.endswith('.py') else '.py')), 'w') as f:
         f.write(template)
 
 

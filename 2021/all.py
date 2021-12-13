@@ -46,6 +46,10 @@ problems = [
         'part1': 'input.txt',
         'part2': 'input.txt',
     }],
+    [11, '11', 'Dumbo Octopus', 'octopus-flashinator.py', {
+        'part1': 'input.txt',
+        'part2': 'input.txt',
+    }],
 ]
 
 for day, folder, name, file, variants in problems:
