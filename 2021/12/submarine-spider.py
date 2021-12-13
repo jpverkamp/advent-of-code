@@ -11,11 +11,15 @@ app = typer.Typer()
 class Node:
     label: str
 
-    def is_big(self):
-        return self.label.isupper()
+    def is_small(self):
+        return self.label.islower()
 
     def __repr__(self):
         return f'<{self.label}>'
+
+
+START = Node('start')
+END = Node('end')
 
 
 @dataclass(frozen=True)
@@ -47,34 +51,22 @@ class Cave:
 def part1(file: typer.FileText):
     cave = Cave.from_file(file)
 
-    def paths(node: Node, visited: List[Node]):
+    def paths(node: Node, visited: Set[Node]) -> Generator[List[Node], None, None]:
         '''Yield all possible paths from the given node to <end>.'''
 
-        # Default to the start Node and no visited nodes
-        if node is None:
-            node = Node('start')
-
-        if visited is None:
-            visited = [node]
-
-        # If we're at the end node, generate the collected path
-        if node == Node('end'):
-            yield visited
+        if node == END:
+            yield [END]
             return
 
-        # Otherwise, try each next step
+        if node.is_small() and node in visited:
+            return
+
         for next in cave.edges[node]:
-            # Cannot visit small nodes that we've already seen
-            if next in visited and not next.is_big():
-                continue
-
-            # Otherwise, generate all paths down that route
-            yield from paths(next, visited + [next])
-
-    start = Node('start')
+            for path in paths(next, visited | {node}):
+                yield [node] + path
 
     count = 0
-    for _ in paths(start, [start]):
+    for _ in paths(START, set()):
         count += 1
 
     print(count)
@@ -84,47 +76,55 @@ def part1(file: typer.FileText):
 def part2(file: typer.FileText):
     cave = Cave.from_file(file)
 
-    def paths(node: Node, visited: List[Node]):
+    def paths(node: Node, visited: Set[Node], used_double: bool) -> Generator[List[Node], None, None]:
         '''Yield all possible paths from the given node to <end>.'''
 
-        # Default to the start Node and no visited nodes
-        if node is None:
-            node = Node('start')
-
-        if visited is None:
-            visited = [node]
-
-        # If we're at the end node, generate the collected path
-        if node == Node('end'):
-            yield visited
+        if node == END:
+            yield [END]
             return
 
-        # Otherwise, try each next step
+        if node == START and START in visited:
+            return
+
+        if node.is_small() and node in visited and used_double:
+            return
+
         for next in cave.edges[node]:
-            # Can visit big nodes any number of times
-            if next.is_big():
-                pass
-
-            # Can visit small nodes we haven't already visited
-            elif next not in visited:
-                pass
-
-            # Cannot visit <start> twice
-            elif next == Node('start'):
-                continue
-
-            # We're trying to visit the same small node twice
-            # And we've already visited a small node twice
-            elif any(not n.is_big() and visited.count(n) > 1 for n in visited):
-                continue
-
-            # Otherwise, generate all paths down that route
-            yield from paths(next, visited + [next])
-
-    start = Node('start')
+            for path in paths(next, visited | {node}, used_double or (node.is_small() and node in visited)):
+                yield [node] + path
 
     count = 0
-    for _ in paths(start, [start]):
+    for _ in paths(START, set(), False):
+        count += 1
+
+    print(count)
+
+
+@app.command()
+def part2_fast(file: typer.FileText):
+    cave = Cave.from_file(file)
+
+    @cache
+    def paths(node: Node, visited: FrozenSet[Node], used_double: bool) -> List[List[Node]]:
+        '''Yield all possible paths from the given node to <end>.'''
+
+        if node == END:
+            return [[END]]
+
+        if node == START and START in visited:
+            return []
+
+        if node.is_small() and node in visited and used_double:
+            return []
+
+        return [
+            [node] + path
+            for next in cave.edges[node]
+            for path in paths(next, visited | {node}, used_double or (node.is_small() and node in visited))
+        ]
+
+    count = 0
+    for _ in paths(START, frozenset(), False):
         count += 1
 
     print(count)

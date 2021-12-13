@@ -53,6 +53,7 @@ problems = [
     [12, '12', 'Passage Passing', 'submarine-spider.py', {
         'part1': 'input.txt',
         'part2': 'input.txt',
+        'part2-fast': 'input.txt',
     }],
 ]
 
