@@ -50,6 +50,10 @@ problems = [
         'part1': 'input.txt',
         'part2': 'input.txt',
     }],
+    [12, '12', 'Passage Passing', 'submarine-spider.py', {
+        'part1': 'input.txt',
+        'part2': 'input.txt',
+    }],
 ]
 
 for day, folder, name, file, variants in problems:
