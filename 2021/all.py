@@ -42,6 +42,10 @@ problems = [
         'part1': 'input.txt',
         'part2': 'input.txt',
     }],
+    [10, '10', 'Syntax Scoring', 'chunkinator.py', {
+        'part1': 'input.txt',
+        'part2': 'input.txt',
+    }],
 ]
 
 for day, folder, name, file, variants in problems:
