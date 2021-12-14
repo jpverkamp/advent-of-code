@@ -6,6 +6,10 @@ app = typer.Typer()
 
 template = '''\
 import typer
+
+from collections import *
+from dataclasses import dataclass
+from functools import cache
 from typing import *
 
 app = typer.Typer()

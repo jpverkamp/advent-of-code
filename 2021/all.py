@@ -55,6 +55,10 @@ problems = [
         'part2': 'input.txt',
         'part2-fast': 'input.txt',
     }],
+    [13, '13', 'Transparent Origami', 'foldinator.py', {
+        'part1': 'input.txt',
+        'part2': 'input.txt',
+    }],
 ]
 
 for day, folder, name, file, variants in problems:
