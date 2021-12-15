@@ -63,6 +63,7 @@ problems = [
     [14, '14', 'Extended Polymerization', 'polymerizationinator.py', [
         'direct input.txt 10',
         'recursive input.txt 10',
+        'direct input.txt 15',
         'recursive input.txt 15',
         '--cache recursive input.txt 15',
         '--cache recursive input.txt 40',

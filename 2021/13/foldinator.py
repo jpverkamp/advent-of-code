@@ -65,10 +65,6 @@ def render(points: Set[Point]):
     print()
 
 
-def apply_fold(points: Set[Point], fold: Fold) -> Set[Point]:
-    pass
-
-
 @app.command()
 def part1(file: typer.FileText):
     points, folds = load(file)
