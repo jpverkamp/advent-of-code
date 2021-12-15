@@ -5,14 +5,16 @@ import pathlib
 app = typer.Typer()
 
 template = '''\
+import logging
 import typer
 
 from collections import *
 from dataclasses import dataclass
-from functools import cache
 from typing import *
 
 app = typer.Typer()
+
+def disableable_cache(x): return x
 
 @app.command()
 def part1(file: typer.FileText):
@@ -21,6 +23,17 @@ def part1(file: typer.FileText):
 @app.command()
 def part2(file: typer.FileText):
     pass
+
+@app.callback()
+def enableFlags(cache: bool = False, debug: bool = False):
+    if debug:
+        import coloredlogs  # type: ignore
+        coloredlogs.install(level=logging.INFO)
+
+    if cache:
+        import functools
+        global disableable_cache
+        disableable_cache = functools.cache
 
 if __name__ == '__main__':
     app()
