@@ -73,10 +73,10 @@ problems = [
         '--version 2 part1 input.txt',
         '--version 3 part1 input.txt',
         '--version 4 part1 input.txt',
-        #'part2 input.txt',
-        #'--version 2 part2 input.txt',
-        #'--version 3 part2 input.txt',
-        #'--version 4 part2 input.txt',
+        'part2 input.txt',
+        '--version 2 part2 input.txt',
+        '--version 3 part2 input.txt',
+        '--version 4 part2 input.txt',
     ]],
 ]
 
