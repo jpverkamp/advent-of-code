@@ -68,6 +68,16 @@ problems = [
         '--cache recursive input.txt 15',
         '--cache recursive input.txt 40',
     ]],
+    [15, '15', 'Chiton', 'low-ceiling-simulator.py', [
+        'part1 input.txt',
+        '--version 2 part1 input.txt',
+        '--version 3 part1 input.txt',
+        '--version 4 part1 input.txt',
+        #'part2 input.txt',
+        #'--version 2 part2 input.txt',
+        #'--version 3 part2 input.txt',
+        #'--version 4 part2 input.txt',
+    ]],
 ]
 
 # If any numbers are specified on the command line
@@ -84,8 +94,12 @@ for day, folder, name, file, variants in problems:
     for args in variants:
         print(f'$ python3 {file} {args}')
 
-        start = time.perf_counter_ns()
-        subprocess.check_call(f'python3 {file} {args}', shell=True, cwd=folder)
-        end = time.perf_counter_ns()
+        try:
+            start = time.perf_counter_ns()
+            subprocess.check_call(f'python3 {file} {args}', shell=True, cwd=folder,
+                                  timeout=60.0 if '--timeout' in sys.argv else None)
+            end = time.perf_counter_ns()
+            print(f'# time {end-start}ns / {(end-start)/1e9:.2f}s\n')
 
-        print(f'# time {end-start}ns / {(end-start)/1e9:.2f}s\n')
+        except subprocess.TimeoutExpired:
+            print('# Process timed out after 1 minute\n')
