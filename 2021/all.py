@@ -78,6 +78,10 @@ problems = [
         '--version 3 part2 input.txt',
         '--version 4 part2 input.txt',
     ]],
+    [16, '16', 'Packet Decoder', 'depacketinator.py', [
+        'part1 input.txt',
+        'part2 input.txt',
+    ]],
 ]
 
 # If any numbers are specified on the command line
