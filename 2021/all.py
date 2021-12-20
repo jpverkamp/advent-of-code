@@ -82,6 +82,10 @@ problems = [
         'part1 input.txt',
         'part2 input.txt',
     ]],
+    [17, '17', 'Trick Shot', 'pew-pewinator.py', [
+        'part1 input.txt',
+        'part2 input.txt',
+    ]],
 ]
 
 # If any numbers are specified on the command line
