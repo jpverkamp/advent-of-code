@@ -92,11 +92,26 @@ class Probe:
         return None
 
 
-def all_impacts(target) -> Generator[Tuple[Probe, int], None, None]:
+def all_impacts(target: Rect, phases: int = 2) -> Generator[Tuple[Probe, int], None, None]:
     logging.info(f'all_impacts({target=}), starting')
 
     origin = Point(0, 0)
     phase = 0
+
+    # Original thoughts:
+
+    # Even phases mean that you haven't seen an impact yet
+    # Odd phases mean you're currently scanning an 'impact zone'
+
+    # Since there are two 'impact zones', you should expect to go through:
+    # 0: before any impacts
+    # 1: first impact zone
+    # 2: between the zones
+    # 3: second impact zone
+    # 4: done scanning
+
+    # Later thoughts:
+    # Apparently there are 6 blocks of solutions total...
 
     for offset in itertools.count(1):
         logging.info(f'all_impacts({target=}), {offset=}, {phase=}')
@@ -122,7 +137,7 @@ def all_impacts(target) -> Generator[Tuple[Probe, int], None, None]:
         elif phase % 2 == 1 and not at_least_one_impact:
             phase += 1
 
-        if phase == 4:
+        if phase == phases * 2:
             break
 
 
@@ -150,7 +165,7 @@ def part2(file: typer.FileText):
 
     valid_probes = []
 
-    for probe, coolness in all_impacts(target):
+    for probe, _ in all_impacts(target, 5):
         valid_probes.append(probe)
 
     logging.info('All valid probes:')
