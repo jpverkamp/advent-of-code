@@ -86,6 +86,10 @@ problems = [
         'part1 input.txt',
         'part2 input.txt',
     ]],
+    [18, '18', 'Snailfish', 'pairs-of-pairs.py', [
+        'part1 input.txt',
+        'part2 input.txt',
+    ]],
 ]
 
 # If any numbers are specified on the command line
