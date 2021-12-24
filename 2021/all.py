@@ -98,6 +98,10 @@ problems = [
         'part1 input.txt',
         'part2 input.txt',
     ]],
+    [21, '21', 'Dirac Dice', 'dicinator.py', [
+        'part1 input.txt',
+        'part2 input.txt',
+    ]],
 ]
 
 # If any numbers are specified on the command line
