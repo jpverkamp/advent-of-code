@@ -94,6 +94,10 @@ problems = [
         'part1 input.txt',
         'part2 input.txt',
     ]],
+    [20, '20', 'Trench Map', 'enhancinator.py', [
+        'part1 input.txt',
+        'part2 input.txt',
+    ]],
 ]
 
 # If any numbers are specified on the command line
