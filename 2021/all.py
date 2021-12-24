@@ -90,6 +90,10 @@ problems = [
         'part1 input.txt',
         'part2 input.txt',
     ]],
+    [19, '19', 'Beacon Scanner', 'point-matchinator.py', [
+        'part1 input.txt',
+        'part2 input.txt',
+    ]],
 ]
 
 # If any numbers are specified on the command line
