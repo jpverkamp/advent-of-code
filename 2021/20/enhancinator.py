@@ -220,6 +220,21 @@ def render(file: typer.FileText, size: str, target: pathlib.Path, generations: i
 
 
 @app.command()
+def find_emptiness(file: typer.FileText):
+
+    f = BinaryMapping.read(file)
+    file.readline()
+    bitmap = InfiniteBitmap.read(file)
+
+    generation = 0
+    while len(bitmap):
+        bitmap = f(bitmap)
+        generation += 1
+
+    print(generation)
+
+
+@app.command()
 def part1(file: typer.FileText):
 
     f = BinaryMapping.read(file)
