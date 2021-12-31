@@ -73,9 +73,6 @@ problems = [
         '--version 2 part1 input.txt',
         '--version 3 part1 input.txt',
         '--version 4 part1 input.txt',
-        'part2 input.txt',
-        '--version 2 part2 input.txt',
-        '--version 3 part2 input.txt',
         '--version 4 part2 input.txt',
     ]],
     [16, '16', 'Packet Decoder', 'depacketinator.py', [
@@ -108,8 +105,8 @@ problems = [
     ]],
     [23, '23', 'Amphipods', 'amphipodinator.py', [
         'main input1.txt goal1.txt',
-        '--heuristic main input1.txt goal1.txt',
-        '--heuristic main input2.txt goal2.txt',
+        'main input1.txt goal1.txt --heuristic',
+        'main input2.txt goal2.txt --heuristic',
     ]],
     [24, '24', 'Arithmetic Logic Unit', 'aluinator.py', [
         'solve input.txt',

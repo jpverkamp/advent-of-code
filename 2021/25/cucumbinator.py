@@ -37,8 +37,8 @@ SOUTH = Point(0, 1)
 @dataclass(frozen=True)
 class State:
     bounds: Point
-    east_movers: FrozenSet[Point]
-    south_movers: FrozenSet[Point]
+    east_movers: Set[Point]
+    south_movers: Set[Point]
 
     @staticmethod
     def read(file: TextIO) -> 'State':
@@ -89,7 +89,7 @@ class State:
 
         return State(self.bounds, new_east_movers, new_south_movers)
 
-    def to_image(self) -> 'Image':
+    def to_image(self):
         from PIL import Image  # type: ignore
 
         east_color = (255, 0, 0)
@@ -153,7 +153,7 @@ def render(file: typer.FileText, target: pathlib.Path, size: Optional[str] = typ
             s = sp
 
     if str(target).lower().endswith('gif'):
-        base_image.save(target, save_all=True, append_images=rest_images)
+        base_image.save(target, save_all=True, loop=0, append_images=rest_images)
     else:
         for i, image in enumerate([base_image] + rest_images):
             image.save(str(target).format(i=i))

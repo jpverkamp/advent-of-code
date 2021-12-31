@@ -1,0 +1,41 @@
+1393
+1359
+1359
+position=2007, depth=747, position*depth=1499229
+position=2007, depth=668080, position*depth=1340836560
+gamma='100100101010'=2346, epsilon='011011010101'=1749, product=4103154
+potential_generators=['110101000111']=3399, potential_scrubbers=['010011100001']=1249, product=4245351
+remaining_numbers=[99, 19, 9, 59, 92, 82, 69, 72, 2, 45, 93, 27], sum(remaining_numbers)=668, number=66, product=44088
+remaining_numbers=[3, 78, 23, 79, 80], sum(remaining_numbers)=263, number=90, product=23670
+5632
+22213
+395627
+3.95e6
+1767323539209
+1.76e13
+target=323, fuel=336040
+target=463, fuel=94813675
+349
+1070957
+349
+1070957
+total_risk=491
+The largest basins are [112, 99, 97] with a size product of 1075536
+167379
+2776842859
+1679
+519
+4749
+123054
+123054
+706
+*    ***  ****   ** ***    ** **** *  *
+*    *  * *       * *  *    * *    *  *
+*    *  * ***     * ***     * ***  ****
+*    ***  *       * *  *    * *    *  *
+*    * *  *    *  * *  * *  * *    *  *
+**** *  * *     **  ***   **  **** *  *
+
+2797
+2797
+85972

@@ -213,7 +213,7 @@ def render(file: typer.FileText, size: str, target: pathlib.Path, generations: i
         rest_images.append(bitmap.render(True).resize((width, height), Image.NEAREST))
 
     if str(target).lower().endswith('gif'):
-        base_image.save(target, save_all=True, append_images=rest_images)
+        base_image.save(target, save_all=True, loop=0, append_images=rest_images)
     else:
         for i, image in enumerate([base_image] + rest_images):
             image.save(str(target).format(i=i))
