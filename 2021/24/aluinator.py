@@ -26,7 +26,7 @@ OPS = {
 
 
 @app.command()
-def run(file: typer.FileText, input: str):
+def run(file: typer.FileText, input: str, quiet: bool = False):
     input_digits = [int(c) for c in input]
 
     registers = {
@@ -38,7 +38,7 @@ def run(file: typer.FileText, input: str):
 
     for i, line in enumerate(file, 1):
         line = line.strip()
-        logging.info(f'[{i:04d} {registers=}] {line}')
+        logging.debug(f'[{i:04d} {registers=}] {line}')
 
         cmd, *args = line.split()
 
@@ -58,7 +58,30 @@ def run(file: typer.FileText, input: str):
 
             registers[a] = r_val
 
-    print(registers['z'])
+    if quiet:
+        return registers['z']
+    else:
+        print(registers['z'])
+    
+@app.command()
+def part1(file: typer.FileText):
+    
+    for i in range(99999999999999, 1, -1):
+        input = str(i)
+        if '0' in input:
+            continue
+
+        file.seek(0)
+
+        result = run(file, input, True)
+        if result == 0:
+            break
+
+        if input.endswith('9999'):
+            logging.info(f'{input} -> {result}')
+
+
+    print(input)
 
 
 @app.command()
@@ -71,10 +94,11 @@ def solve(file: typer.FileText):
     for i, line in enumerate(file, 1):
         line = line.strip()
         last = line.split()[-1]
-        logging.info(f'[{i:04d} {zdiv=} {cx=} {cy=}] {line}')
+        logging.debug(f'[{i:04d} {zdiv=} {cx=} {cy=}] {line}')
 
         if line.startswith('inp'):
             if zdiv:
+                logging.info(f'Block found: {zdiv=}, {cx=}, {cy=}')
                 blocks.append((zdiv, cx, cy))
 
         elif line.startswith('div z ') and last not in 'wxyz':
@@ -86,8 +110,11 @@ def solve(file: typer.FileText):
         elif line.startswith('add y ') and last not in 'wxyz':
             cy = int(line.split()[-1])
 
+    logging.info(f'Block found: {zdiv=}, {cx=}, {cy=}')
     blocks.append((zdiv, cx, cy))
 
+
+    logging.info('----- ----- -----')
     logging.info('Generating equations')
     stack = []
     equations = []
@@ -95,12 +122,13 @@ def solve(file: typer.FileText):
     for i, (zdiv, cx, cy) in enumerate(blocks):
         if zdiv == 1:
             stack.append((i, cy))
-            logging.info(f'{zdiv}\t{cx}\t{cy}\t{stack}')
+            logging.info(f'{zdiv:<4d} {cx:<4d} {cy:<4d}  {stack}')
         else:
             j, cy = stack.pop()
             equations.append((i, j, cx + cy))
-            logging.info(f'{zdiv}\t{cx}\t{cy}\ti{i} = i{j} + {cx} + {cy} = i{j} + {cx+cy}')
+            logging.info(f'{zdiv:<4d} {cx:<4d} {cy:<4d}  i{i} = i{j} + {cx} + {cy} = i{j} + {cx+cy}')
 
+    logging.info('----- ----- -----')
     logging.info('Solving for minimum/maximum')
 
     part1 = ['?'] * 14
@@ -117,7 +145,8 @@ def solve(file: typer.FileText):
             part1[i], part1[j] = str(9 - delta), '9'
             part2[i], part2[j] = '1', str(1 + delta)
 
-        logging.info(f'i{i} = i{j} + {delta}; {"".join(part1)} {"".join(part2)}')
+        equation = f'i{i} = i{j} + {delta}'
+        logging.info(f'{equation:<15s} {"".join(part1)} {"".join(part2)}')
 
     print('part1:', ''.join(part1))
     print('part2:', ''.join(part2))

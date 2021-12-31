@@ -103,12 +103,12 @@ problems = [
         'part2 input.txt',
     ]],
     [22, '22', 'Reactor Reboot', 'cubinator.py', [
-        #'part1 input.txt',
-        #'part2 input.txt',
-
         'part1 input.txt',
         '--cache part1 input.txt',
     ]],
+    [24, '24', 'Arithmetic Logic Uni', 'aluinator.py', [
+        'solve input.txt',
+    ]]
 ]
 
 # If any numbers are specified on the command line
