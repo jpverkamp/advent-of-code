@@ -111,7 +111,10 @@ problems = [
         '--heuristic main input1.txt goal1.txt',
         '--heuristic main input2.txt goal2.txt',
     ]],
-    [24, '24', 'Arithmetic Logic Uni', 'aluinator.py', [
+    [24, '24', 'Arithmetic Logic Unit', 'aluinator.py', [
+        'solve input.txt',
+    ]],
+    [25, '25', 'Sea Cucumber', 'cucumbinator.py', [
         'solve input.txt',
     ]]
 ]
