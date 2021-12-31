@@ -125,7 +125,7 @@ def solve(file: typer.FileText):
 
 
 @app.command()
-def render(file: typer.FileText, target: pathlib.Path, size: Optional[str] = None):
+def render(file: typer.FileText, target: pathlib.Path, size: Optional[str] = typer.Argument(None)):
     from PIL import Image  # type: ignore
 
     s = State.read(file)
