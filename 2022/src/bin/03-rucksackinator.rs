@@ -3,21 +3,20 @@ use aoc::*;
 
 #[derive(Debug)]
 struct Rucksack {
+    all: HashSet<char>,
     left: HashSet<char>,
     right: HashSet<char>,
 }
 
 impl Rucksack {
     fn new(items: String) -> Rucksack {
+        let all = items.chars().collect();
+
         let half = items.len() / 2;
         let left = items.chars().take(half).collect();
         let right = items.chars().skip(half).collect();
 
-        Rucksack { left, right }
-    }
-
-    fn all(self) -> HashSet<char> {
-        self.left.union(&self.right).copied().collect()
+        Rucksack { all, left, right }
     }
 }
 
@@ -53,16 +52,9 @@ fn part2(filename: &Path) -> String {
     let groups: Vec<&[Rucksack]> = rucksacks.chunks(3).collect();
 
     let uniques: Vec<HashSet<char>> = groups.into_iter().map(
-        |g| {
-            let s1: HashSet<char> = g[0].left.union(&g[0].right).copied().collect();
-            let s2: HashSet<char> = g[1].left.union(&g[1].right).copied().collect();
-            let s3: HashSet<char> = g[2].left.union(&g[2].right).copied().collect();
-
-            let i12: HashSet<char> = s1.intersection(&s2).copied().collect();
-            let i123: HashSet<char> = i12.intersection(&s3).copied().collect();
-
-            i123
-        }
+        |g| g[0].all
+            .intersection(&g[1].all).copied().collect::<HashSet<char>>()
+            .intersection(&g[2].all).copied().collect()
     ).collect();
 
     let priorities: Vec<Vec<u32>> = uniques.into_iter().map(
