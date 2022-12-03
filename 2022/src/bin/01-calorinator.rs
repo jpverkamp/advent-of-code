@@ -1,35 +1,56 @@
-use std::path::Path;
+use std::{path::Path, iter::Sum};
 use aoc::*;
 
-fn read(filename: &Path) -> Vec<u32> {
-    let mut calories = Vec::new();
-    let mut current = 0;
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
+struct Elf {
+    calories: i32,
+}
+
+impl Elf {
+    fn new() -> Self {
+        Elf{calories: 0}
+    }
+}
+
+impl Sum for Elf {
+    fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
+        let mut calories = 0;
+        for elf in iter {
+            calories += elf.calories;
+        }
+        Elf{calories}
+    }
+}
+
+fn read(filename: &Path) -> Vec<Elf> {
+    let mut elves = Vec::new();
+    let mut current = Elf::new();
 
     for line in read_lines(filename) {
         if line.len() == 0 {
-            calories.push(current);
-            current = 0;
+            elves.push(current);
+            current = Elf::new();
         } else {
-            current += line.parse::<u32>().unwrap();
+            current.calories += line.parse::<i32>().unwrap();
         }
     }
-    calories.push(current);
+    elves.push(current);
 
-    return calories;
+    return elves;
 }
 
 fn part1(filename: &Path) -> String {
-    let calories = read(filename);
-    calories.iter().max().expect("no calories found, can't take max").to_string()
+    let elves = read(filename);
+    elves.iter().max().expect("no Elves found, can't take max").calories.to_string()
 }
 
 fn part2(filename: &Path) -> String {
-    let mut calories = read(filename);
+    let mut elves = read(filename);
     
-    calories.sort();
-    calories.reverse();
+    elves.sort();
+    elves.reverse();
 
-    calories.iter().take(3).sum::<u32>().to_string()
+    elves.into_iter().take(3).sum::<Elf>().calories.to_string()
 }
 
 fn main() {
