@@ -41,3 +41,13 @@ pub fn aoc_main(part1: FnPart, part2: FnPart) {
     println!("{}", result);
     println!("took {:?}", elapsed);
 }
+
+pub fn aoc_test(day: &str, f: FnPart, expected: &str) {
+    let mut filename = String::from("data/");
+    filename.push_str(&day);
+    filename.push_str(".txt");
+
+    let actual = f(Path::new(filename.as_str()));
+
+    assert_eq!(expected, actual);
+}
