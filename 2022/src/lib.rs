@@ -2,6 +2,7 @@ use std::env;
 use std::fs::File;
 use std::io::{prelude::*, BufReader};
 use std::path::Path;
+use std::time::Instant;
 
 pub fn read_lines(filename: &Path) -> Vec<String> {
     let file = File::open(filename).expect("no such file");
@@ -29,10 +30,14 @@ pub fn aoc_main(part1: FnPart, part2: FnPart) {
         panic!("{:?} does not exist", filename);
     }
 
+    let now = Instant::now();
     let result = match part {
         1 => part1(path),
         2 => part2(path),
         _ => panic!("part must be 1 or 2")
     };
+    let elapsed = now.elapsed();
+
     println!("{}", result);
+    println!("took {:?}", elapsed);
 }
