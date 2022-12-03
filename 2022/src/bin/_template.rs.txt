@@ -1,0 +1,26 @@
+use std::path::Path;
+use aoc::*;
+
+fn part1(_filename: &Path) -> String {
+    todo!()
+}
+
+fn part2(_filename: &Path) -> String {
+    todo!()
+}
+
+fn main() {
+    aoc_main(part1, part2);
+}
+
+#[cfg(test)]
+mod tests {
+    use aoc::aoc_test;
+    use crate::{part1, part2};
+
+    #[test]   
+    fn test1() { aoc_test("", part1, "") }
+
+    #[test]
+    fn test2() { aoc_test("", part2, "") }
+}
