@@ -113,17 +113,7 @@ fn part2(filename: &Path) -> String {
             }
         };
 
-        total_score += match us {
-            Rock => 1,
-            Paper => 2,
-            Scissors => 3
-        };
-
-        total_score += match goal {
-            Lose => 0,
-            Draw => 3,
-            Win => 6,
-        };
+        total_score += us.value() + goal.value();
     }
     
     total_score.to_string()
