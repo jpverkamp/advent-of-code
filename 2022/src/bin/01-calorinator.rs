@@ -36,23 +36,15 @@ fn main() {
     aoc_main(part1, part2);
 }
 
+
 #[cfg(test)]
 mod tests {
-    use std::path::Path;
+    use aoc::aoc_test;
+    use crate::{part1, part2};
+
+    #[test]   
+    fn test1() { aoc_test("01", part1, "70369") }
 
     #[test]
-    fn test_day01_part1() {
-        let expected = String::from("70369");
-        let actual = crate::part1(Path::new("data/01.txt"));
-
-        assert_eq!(expected, actual);
-    }
-
-    #[test]
-    fn test_day01_part2() {
-        let expected = String::from("203002");
-        let actual = crate::part2(Path::new("data/01.txt"));
-
-        assert_eq!(expected, actual);
-    }
+    fn test2() { aoc_test("01", part2, "203002") }
 }
