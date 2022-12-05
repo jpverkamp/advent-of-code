@@ -42,21 +42,17 @@ fn parse(lines: &Vec<String>) -> Vec<(Span, Span)> {
 fn part1(filename: &Path) -> String {
     let span_pairs = parse(&read_lines(filename));
 
-    let containing: Vec<&(Span, Span)> = span_pairs.iter().filter(
+    span_pairs.iter().filter(
         |pair| pair.0.contains(&pair.1) || pair.1.contains(&pair.0)
-    ).collect();
-
-    containing.len().to_string()
+    ).count().to_string()
 }
 
 fn part2(filename: &Path) -> String {
     let span_pairs = parse(&read_lines(filename));
 
-    let overlapping: Vec<&(Span, Span)> = span_pairs.iter().filter(
+    span_pairs.iter().filter(
         |pair| pair.0.overlaps(&pair.1)
-    ).collect();
-
-    overlapping.len().to_string()
+    ).count().to_string()
 }
 
 fn main() {
@@ -67,6 +63,7 @@ fn main() {
 mod tests {
     use aoc::aoc_test;
     use crate::{part1, part2};
+
 
     #[test]   
     fn test1() { aoc_test("04", part1, "466") }
