@@ -40,17 +40,13 @@ fn parse(lines: &Vec<String>) -> Vec<(Span, Span)> {
 }
 
 fn part1(filename: &Path) -> String {
-    let span_pairs = parse(&read_lines(filename));
-
-    span_pairs.iter().filter(
+    parse(&read_lines(filename)).iter().filter(
         |pair| pair.0.contains(&pair.1) || pair.1.contains(&pair.0)
     ).count().to_string()
 }
 
 fn part2(filename: &Path) -> String {
-    let span_pairs = parse(&read_lines(filename));
-
-    span_pairs.iter().filter(
+    parse(&read_lines(filename)).iter().filter(
         |pair| pair.0.overlaps(&pair.1)
     ).count().to_string()
 }
