@@ -13,6 +13,14 @@ pub fn read_lines(filename: &Path) -> Vec<String> {
         .collect()
 }
 
+pub fn iter_lines(filename: &Path) -> impl Iterator<Item = String> {
+    let file = File::open(filename).expect("no such file");
+    let buf = BufReader::new(file);
+
+    buf.lines()
+        .map(|l| l.expect("Could not parse line"))
+}
+
 type FnPart = fn(&Path) -> String;
 
 pub fn aoc_main(part1: FnPart, part2: FnPart) {
