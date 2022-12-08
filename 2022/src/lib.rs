@@ -1,6 +1,7 @@
 use std::env;
 use std::fs::File;
 use std::io::{prelude::*, BufReader};
+use std::ops::{Index, IndexMut};
 use std::path::Path;
 use std::time::Instant;
 
@@ -59,4 +60,58 @@ pub fn aoc_test(day: &str, f: FnPart, expected: &str) {
     let actual = f(Path::new(filename.as_str()));
 
     assert_eq!(expected, actual);
+}
+
+#[derive(Debug)]
+pub struct Matrix<T> {
+    data: Vec<T>,
+    width: usize,
+    height: usize,
+}
+
+impl<T> Matrix<T>
+where
+    T: Clone + Default,
+{
+    pub fn new(width: usize, height: usize) -> Self {
+        Matrix::<T> {
+            data: vec![T::default(); width * height],
+            width,
+            height,
+        }
+    }
+
+    pub fn width(&self) -> usize {
+        self.width
+    }
+
+    pub fn height(&self) -> usize {
+        self.height
+    }
+
+    pub fn in_bounds(&self, x: usize, y: usize) -> bool {
+        x < self.width && y < self.height
+    }
+
+    pub fn index(&self, x: usize, y: usize) -> &T {
+        &self.data[x * self.width + y]
+    }
+
+    pub fn index_mut(&mut self, x: usize, y: usize) -> &mut T {
+        &mut self.data[x * self.width + y]
+    }
+}
+
+impl<T> Index<[usize; 2]> for Matrix<T> {
+    type Output = T;
+
+    fn index(&self, [x, y]: [usize; 2]) -> &Self::Output {
+        &self.data[x * self.width + y]
+    }
+}
+
+impl<T> IndexMut<[usize; 2]> for Matrix<T> {
+    fn index_mut(&mut self, [x, y]: [usize; 2]) -> &mut Self::Output {
+        &mut self.data[x * self.width + y]
+    }
 }
