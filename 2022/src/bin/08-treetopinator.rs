@@ -145,9 +145,9 @@ fn part1(filename: &Path) -> String {
                     print!(
                         "{}",
                         if forest.visible_from(x, y, d) {
-                            '\u{025FC}'
+                            '木'
                         } else {
-                            '\u{025FB}'
+                            '一'
                         }
                     );
                 }
@@ -180,6 +180,7 @@ fn part2(filename: &Path) -> String {
                 .into_iter()
                 .map(|d| forest.visible_count(x, y, d))
                 .product::<usize>();
+
             if scenic_score > best_scenic_score {
                 best_scenic_score = scenic_score;
             }
