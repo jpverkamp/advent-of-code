@@ -1,5 +1,5 @@
-use std::{cell::RefCell, path::Path, sync::Arc, fmt::Display, borrow::Borrow};
 use aoc::*;
+use std::{borrow::Borrow, cell::RefCell, fmt::Display, path::Path, sync::Arc};
 
 // Represents a 'thing' on a file system, either:
 //  - A named directory which can contain directories or files
@@ -51,9 +51,7 @@ impl FileSystemThing {
                     Directory { parent, .. } => {
                         if path == ".." {
                             match parent {
-                                Some(parent) => {
-                                    parent.clone()
-                                }
+                                Some(parent) => parent.clone(),
                                 _ => panic!("must have parent set to .."),
                             }
                         } else if path == "/" {
@@ -64,12 +62,9 @@ impl FileSystemThing {
                             current.borrow().clone()
                         }
                     }
-                    _ => {
-                        current.borrow().clone()
-                    }
+                    _ => current.borrow().clone(),
                 };
                 current.replace(next);
-
             } else if next.starts_with("$ ls") {
                 // Starting an LS, nothing to do on this line
             } else if next.starts_with("dir") {
@@ -111,8 +106,8 @@ impl FileSystemThing {
                 }
 
                 // Build the new file, doesn't need a parent at least
-                let child = Arc::new(File { 
-                    name: String::from(name), 
+                let child = Arc::new(File {
+                    name: String::from(name),
                     size,
                 });
 
@@ -139,7 +134,7 @@ impl FileSystemThing {
                     match child.as_ref() {
                         Directory { name, .. } if *name == key => return Some(child.clone()),
                         File { name, .. } if *name == key => return Some(child.clone()),
-                        _ => {}, // Non-matching name
+                        _ => {} // Non-matching name
                     }
                 }
             }
@@ -156,10 +151,12 @@ impl FileSystemThing {
 
         match self {
             Directory { children, .. } => {
-                return children.borrow().iter().map( 
-                    |child| child.as_ref().size()
-                ).sum()
-            },
+                return children
+                    .borrow()
+                    .iter()
+                    .map(|child| child.as_ref().size())
+                    .sum()
+            }
             File { size, .. } => *size,
         }
     }
@@ -190,8 +187,6 @@ impl FileSystemThing {
 
         dump_indent(self, 0);
     }
-
-    
 }
 
 // A function to display file system things with their size
@@ -200,8 +195,8 @@ impl Display for FileSystemThing {
         use FileSystemThing::*;
 
         f.write_str(&match self {
-            Directory{name, ..} => format!("{}/ ({})", name, self.size()),
-            File{name, size} => format!("{} ({})", name, size),
+            Directory { name, .. } => format!("{}/ ({})", name, self.size()),
+            File { name, size } => format!("{} ({})", name, size),
         })
     }
 }
@@ -210,12 +205,11 @@ impl Display for FileSystemThing {
 // Keep a stack of the children we've seen but not returned so far
 struct FileSystemIterator {
     stack: Vec<Arc<FileSystemThing>>,
-
 }
 
 impl FileSystemIterator {
     fn new(root: Arc<FileSystemThing>) -> Self {
-        FileSystemIterator{stack: vec![root]}
+        FileSystemIterator { stack: vec![root] }
     }
 }
 
@@ -230,10 +224,10 @@ impl Iterator for FileSystemIterator {
         }
 
         let next = self.stack.pop().unwrap();
-        if let Directory{children, ..} = next.borrow() {
+        if let Directory { children, .. } = next.borrow() {
             for child in children.borrow().iter().rev() {
                 self.stack.push(child.clone());
-            };
+            }
         }
 
         Some(next)
@@ -246,17 +240,16 @@ fn part1(filename: &Path) -> String {
     let mut total_sizes = 0;
     for node in root.walk() {
         match node.borrow() {
-            FileSystemThing::Directory{..} => {
+            FileSystemThing::Directory { .. } => {
                 let size = node.size();
                 if size <= 100000 {
                     total_sizes += size;
                 }
-            },
-            _ => {},
+            }
+            _ => {}
         }
-        
     }
-        
+
     total_sizes.to_string()
 }
 
@@ -274,15 +267,14 @@ fn part2(filename: &Path) -> String {
 
     for node in root.walk() {
         match node.borrow() {
-            FileSystemThing::Directory{..} => {
+            FileSystemThing::Directory { .. } => {
                 let size = node.size();
                 if size > target_to_free && size < freeable {
                     freeable = size;
                 }
-            },
-            _ => {},
+            }
+            _ => {}
         }
-        
     }
 
     freeable.to_string()

@@ -1,5 +1,5 @@
-use std::{path::Path, collections::HashSet};
 use aoc::*;
+use std::{collections::HashSet, path::Path};
 
 #[derive(Debug)]
 struct CharRingBuffer {
@@ -16,7 +16,12 @@ impl CharRingBuffer {
             data.push('\0');
         }
 
-        CharRingBuffer{ size, head: 0, count: 0, data }
+        CharRingBuffer {
+            size,
+            head: 0,
+            count: 0,
+            data,
+        }
     }
 
     pub fn push(&mut self, c: char) {
@@ -35,7 +40,8 @@ impl CharRingBuffer {
 
 impl<'a> CharRingBuffer {
     pub fn iter(&'a self) -> impl Iterator<Item = &'a char> {
-        self.data.iter()
+        self.data
+            .iter()
             .chain(self.data.iter())
             .skip(self.head)
             .take(self.count)
@@ -44,7 +50,7 @@ impl<'a> CharRingBuffer {
 
 fn first_duplicate_at(line: &String, size: usize) -> Option<usize> {
     let mut crb = CharRingBuffer::new(size);
-    
+
     for (i, c) in line.chars().enumerate() {
         crb.push(c);
         if crb.len() < size {
@@ -68,24 +74,36 @@ fn part1(filename: &Path) -> String {
     let mut result = String::new();
 
     for line in read_lines(filename) {
-        let index = first_duplicate_at(&line, 4).expect("must have a duplicate").to_string();
+        let index = first_duplicate_at(&line, 4)
+            .expect("must have a duplicate")
+            .to_string();
         result.push_str(&index);
         result.push('\n');
     }
-    
-    String::from(result.strip_suffix('\n').expect("must return at least one value"))
+
+    String::from(
+        result
+            .strip_suffix('\n')
+            .expect("must return at least one value"),
+    )
 }
 
 fn part2(filename: &Path) -> String {
     let mut result = String::new();
 
     for line in read_lines(filename) {
-        let index = first_duplicate_at(&line, 14).expect("must have a duplicate").to_string();
+        let index = first_duplicate_at(&line, 14)
+            .expect("must have a duplicate")
+            .to_string();
         result.push_str(&index);
         result.push('\n');
     }
-    
-    String::from(result.strip_suffix('\n').expect("must return at least one value"))
+
+    String::from(
+        result
+            .strip_suffix('\n')
+            .expect("must return at least one value"),
+    )
 }
 
 fn main() {
@@ -94,12 +112,16 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
-    use aoc::aoc_test;
     use crate::{part1, part2};
-
-    #[test]   
-    fn test1() { aoc_test("06", part1, "1760") }
+    use aoc::aoc_test;
 
     #[test]
-    fn test2() { aoc_test("06", part2, "2974") }
+    fn test1() {
+        aoc_test("06", part1, "1760")
+    }
+
+    #[test]
+    fn test2() {
+        aoc_test("06", part2, "2974")
+    }
 }

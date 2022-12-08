@@ -1,5 +1,5 @@
-use std::{path::Path, iter::Sum};
 use aoc::*;
+use std::{iter::Sum, path::Path};
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 struct Elf {
@@ -8,7 +8,7 @@ struct Elf {
 
 impl Elf {
     fn new() -> Self {
-        Elf{calories: 0}
+        Elf { calories: 0 }
     }
 }
 
@@ -18,7 +18,7 @@ impl Sum for Elf {
         for elf in iter {
             calories += elf.calories;
         }
-        Elf{calories}
+        Elf { calories }
     }
 }
 
@@ -41,12 +41,17 @@ fn read(filename: &Path) -> Vec<Elf> {
 
 fn part1(filename: &Path) -> String {
     let elves = read(filename);
-    elves.iter().max().expect("no Elves found, can't take max").calories.to_string()
+    elves
+        .iter()
+        .max()
+        .expect("no Elves found, can't take max")
+        .calories
+        .to_string()
 }
 
 fn part2(filename: &Path) -> String {
     let mut elves = read(filename);
-    
+
     elves.sort();
     elves.reverse();
 
@@ -57,15 +62,18 @@ fn main() {
     aoc_main(part1, part2);
 }
 
-
 #[cfg(test)]
 mod tests {
-    use aoc::aoc_test;
     use crate::{part1, part2};
-
-    #[test]   
-    fn test1() { aoc_test("01", part1, "70369") }
+    use aoc::aoc_test;
 
     #[test]
-    fn test2() { aoc_test("01", part2, "203002") }
+    fn test1() {
+        aoc_test("01", part1, "70369")
+    }
+
+    #[test]
+    fn test2() {
+        aoc_test("01", part2, "203002")
+    }
 }

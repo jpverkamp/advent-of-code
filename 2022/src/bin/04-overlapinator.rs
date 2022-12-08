@@ -1,5 +1,5 @@
-use std::path::Path;
 use aoc::*;
+use std::path::Path;
 
 struct Span {
     min: isize,
@@ -12,7 +12,11 @@ impl Span {
 
         Span {
             min: min.parse::<isize>().expect("min is not an integer"),
-            max: max.strip_prefix("-").expect("malformed prefix, missing dash").parse::<isize>().expect("max is not an integer"),
+            max: max
+                .strip_prefix("-")
+                .expect("malformed prefix, missing dash")
+                .parse::<isize>()
+                .expect("max is not an integer"),
         }
     }
 
@@ -21,7 +25,7 @@ impl Span {
     }
 
     fn overlaps(&self, other: &Span) -> bool {
-        (self.min >= other.min && self.min <= other.max) 
+        (self.min >= other.min && self.min <= other.max)
             || (self.max >= other.min && self.max <= other.max)
             || (other.max >= self.min && other.max <= self.max)
             || (other.max >= self.min && other.max <= self.max)
@@ -33,22 +37,33 @@ fn parse(lines: &Vec<String>) -> Vec<(Span, Span)> {
 
     for line in lines {
         let (left, right) = line.split_at(line.find(",").expect("missing comma in line"));
-        result.push((Span::new(left), Span::new(right.strip_prefix(",").expect("malformed prefix, missing comma"))))
+        result.push((
+            Span::new(left),
+            Span::new(
+                right
+                    .strip_prefix(",")
+                    .expect("malformed prefix, missing comma"),
+            ),
+        ))
     }
 
     result
 }
 
 fn part1(filename: &Path) -> String {
-    parse(&read_lines(filename)).iter().filter(
-        |pair| pair.0.contains(&pair.1) || pair.1.contains(&pair.0)
-    ).count().to_string()
+    parse(&read_lines(filename))
+        .iter()
+        .filter(|pair| pair.0.contains(&pair.1) || pair.1.contains(&pair.0))
+        .count()
+        .to_string()
 }
 
 fn part2(filename: &Path) -> String {
-    parse(&read_lines(filename)).iter().filter(
-        |pair| pair.0.overlaps(&pair.1)
-    ).count().to_string()
+    parse(&read_lines(filename))
+        .iter()
+        .filter(|pair| pair.0.overlaps(&pair.1))
+        .count()
+        .to_string()
 }
 
 fn main() {
@@ -57,13 +72,16 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
-    use aoc::aoc_test;
     use crate::{part1, part2};
-
-
-    #[test]   
-    fn test1() { aoc_test("04", part1, "466") }
+    use aoc::aoc_test;
 
     #[test]
-    fn test2() { aoc_test("04", part2, "865") }
+    fn test1() {
+        aoc_test("04", part1, "466")
+    }
+
+    #[test]
+    fn test2() {
+        aoc_test("04", part2, "865")
+    }
 }
