@@ -225,7 +225,7 @@ impl Iterator for FileSystemIterator {
 
         let next = self.stack.pop().unwrap();
         if let Directory { children, .. } = next.borrow() {
-            for child in children.borrow().iter().rev() {
+            for child in children.borrow().iter() {
                 self.stack.push(child.clone());
             }
         }
