@@ -47,7 +47,7 @@ impl FileSystemThing {
                 let path = String::from(parts.last().expect("cd must have a directory"));
 
                 // Build the next node depending on what we're cding too ("/", "..", or a name)
-                let next = match &*current.borrow().as_ref() {
+                let next = match current.borrow().as_ref() {
                     Directory { parent, .. } => {
                         if path == ".." {
                             match parent {
@@ -84,7 +84,7 @@ impl FileSystemThing {
                     children: RefCell::new(Vec::new()),
                 });
 
-                // Shove it into the child
+                // Add a reference to the new directory to current's children
                 match current.borrow().as_ref() {
                     Directory { children, .. } => {
                         children.borrow_mut().push(child);
@@ -111,7 +111,7 @@ impl FileSystemThing {
                     size,
                 });
 
-                // Shove it into the child
+                // Add a reference to the new file to current's children
                 match current.borrow().as_ref() {
                     Directory { children, .. } => {
                         children.borrow_mut().push(child);
