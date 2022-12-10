@@ -187,8 +187,6 @@ fn part1(filename: &Path) -> String {
     }
 
     rope.visited.len().to_string()
-
-
 }
 
 fn part2(filename: &Path) -> String {
