@@ -1,7 +1,7 @@
 use std::env;
 use std::fs::File;
 use std::io::{prelude::*, BufReader};
-use std::ops::{Index, IndexMut};
+use std::ops::{Index, IndexMut, Add, Sub};
 use std::path::Path;
 use std::time::Instant;
 
@@ -113,5 +113,48 @@ impl<T> Index<[usize; 2]> for Matrix<T> {
 impl<T> IndexMut<[usize; 2]> for Matrix<T> {
     fn index_mut(&mut self, [x, y]: [usize; 2]) -> &mut Self::Output {
         &mut self.data[x * self.width + y]
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
+pub struct Point {
+    pub x: isize,
+    pub y: isize,
+}
+
+impl Point {
+    pub fn manhattan_distance(&self, other: &Point) -> isize {
+        (self.x - other.x).abs() + (self.y - other.y).abs()
+    }
+
+    pub fn adjacent_to(&self, other: &Point) -> bool {
+        self.manhattan_distance(other) == 1
+            || ((self.x - other.x).abs() == 1 && (self.y - other.y).abs() == 1)
+    }
+}
+
+impl Point {
+    pub const ORIGIN: Point = Point { x: 0, y: 0 };
+}
+
+impl Add for Point {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Point {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+        }
+    }
+}
+
+impl Sub for Point {
+    type Output = Self;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        Point {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+        }
     }
 }

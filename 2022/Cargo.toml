@@ -8,3 +8,4 @@ name = "aoc"
 path = "src/lib.rs"
 
 [dependencies]
+im = "15.1.0"
