@@ -119,6 +119,11 @@ impl VM {
                 .push(*instruction);
         }
 
+        // Copy the registers
+        for (k, v) in self.registers.iter() {
+            self.previous_registers.insert(k.clone(), *v);
+        }
+
         // Pop and run all currently delay instructions
         for instructions in self.delayed_instructions.pop_front() {
             for instruction in instructions {
@@ -158,8 +163,8 @@ fn part1(filename: &Path) -> String {
 
         if cfg!(debug_assertions) {
             println!(
-                "[{:4}] {:?}, {:?}",
-                vm.time_counter, vm.registers, vm.delayed_instructions
+                "[{:4}] [{:4}] {:?}, {:?}",
+                vm.time_counter, vm.program_counter, vm.registers, vm.delayed_instructions
             );
         }
 
