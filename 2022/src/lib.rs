@@ -1,7 +1,7 @@
 use std::env;
 use std::fs::File;
 use std::io::{prelude::*, BufReader};
-use std::ops::{Index, IndexMut, Add, Sub};
+use std::ops::{Add, Index, IndexMut, Sub};
 use std::path::Path;
 use std::time::Instant;
 
