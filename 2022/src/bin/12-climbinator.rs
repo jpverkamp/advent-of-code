@@ -132,7 +132,7 @@ fn part1(filename: &Path) -> String {
                         print!("{:4}", d);
                     },
                     None => {
-                        print!("{:4}", '.');
+                        print!("  . ");
                     }
 
                 }

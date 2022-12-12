@@ -109,7 +109,7 @@ impl Monkey {
             let (op, value) = self.operation;
             let mut new_item = op(*old_item, value.or(Some(*old_item)).unwrap());
 
-            // Divide worry by three after each toss
+            // Apply a function to update worry
             new_item = worry_fix(new_item);
 
             // Use the test_divisor to determine which friend we're passing to
