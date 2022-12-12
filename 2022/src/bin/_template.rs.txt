@@ -1,11 +1,11 @@
 use std::path::Path;
 use aoc::*;
 
-fn part1(_filename: &Path) -> String {
+fn part1(filename: &Path) -> String {
     todo!()
 }
 
-fn part2(_filename: &Path) -> String {
+fn part2(filename: &Path) -> String {
     todo!()
 }
 

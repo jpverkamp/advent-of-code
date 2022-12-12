@@ -71,7 +71,7 @@ pub struct Matrix<T> {
 
 impl<T> Matrix<T>
 where
-    T: Clone + Default,
+    T: Clone + Default + core::fmt::Debug,
 {
     pub fn new(width: usize, height: usize) -> Self {
         Matrix::<T> {
@@ -100,19 +100,29 @@ where
     pub fn index_mut(&mut self, x: usize, y: usize) -> &mut T {
         &mut self.data[x * self.width + y]
     }
-}
 
-impl<T> Index<[usize; 2]> for Matrix<T> {
-    type Output = T;
-
-    fn index(&self, [x, y]: [usize; 2]) -> &Self::Output {
-        &self.data[x * self.width + y]
+    pub fn at(&self, p: &Point) -> &T {
+        &self[[p.x as usize, p.y as usize]]
     }
 }
 
-impl<T> IndexMut<[usize; 2]> for Matrix<T> {
+impl<T> Index<[usize; 2]> for Matrix<T>
+where
+    T: core::fmt::Debug,
+{
+    type Output = T;
+
+    fn index(&self, [x, y]: [usize; 2]) -> &Self::Output {
+        &self.data[y * self.width + x]
+    }
+}
+
+impl<T> IndexMut<[usize; 2]> for Matrix<T>
+where
+    T: core::fmt::Debug,
+{
     fn index_mut(&mut self, [x, y]: [usize; 2]) -> &mut Self::Output {
-        &mut self.data[x * self.width + y]
+        &mut self.data[y * self.width + x]
     }
 }
 
@@ -156,5 +166,11 @@ impl Sub for Point {
             x: self.x - rhs.x,
             y: self.y - rhs.y,
         }
+    }
+}
+
+impl Default for Point {
+    fn default() -> Self {
+        Point { x: 0, y: 0 }
     }
 }
