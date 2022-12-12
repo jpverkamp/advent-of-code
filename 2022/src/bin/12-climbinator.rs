@@ -127,7 +127,15 @@ fn part1(filename: &Path) -> String {
     if cfg!(debug_assertions) {
         for y in 0..height_map.data.height() {
             for x in 0..height_map.data.width() {
-                print!("{:4}", distance_map.distances[[x, y]].unwrap_or(9999));
+                match distance_map.distances[[x, y]] {
+                    Some(d) => { 
+                        print!("{:4}", d);
+                    },
+                    None => {
+                        print!("{:4}", '.');
+                    }
+
+                }
             }
             println!();
         }
