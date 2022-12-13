@@ -128,13 +128,12 @@ fn part1(filename: &Path) -> String {
         for y in 0..height_map.data.height() {
             for x in 0..height_map.data.width() {
                 match distance_map.distances[[x, y]] {
-                    Some(d) => { 
+                    Some(d) => {
                         print!("{:4}", d);
-                    },
+                    }
                     None => {
                         print!("  . ");
                     }
-
                 }
             }
             println!();
