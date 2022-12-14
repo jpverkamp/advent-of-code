@@ -62,6 +62,7 @@ pub fn aoc_test(day: &str, f: FnPart, expected: &str) {
     assert_eq!(expected, actual);
 }
 
+/* ----- A 2D matrix of any kind of value ----- */
 #[derive(Debug)]
 pub struct Matrix<T> {
     data: Vec<T>,
@@ -126,6 +127,7 @@ where
     }
 }
 
+/* ----- Represent a generic point over signed values ----- */
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
 pub struct Point {
     pub x: isize,
