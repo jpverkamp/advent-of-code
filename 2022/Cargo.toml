@@ -10,3 +10,5 @@ path = "src/lib.rs"
 [dependencies]
 im = "15.1.0"
 image = "0.24.5"
+itertools = "0.10.5"
+regex = "1.7.0"
