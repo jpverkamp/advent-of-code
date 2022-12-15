@@ -145,10 +145,10 @@ fn part1(filename: &Path) -> String {
                 print!(
                     "{}",
                     match distance_map.directions[[x, y]] {
-                        Point { x: 0, y: 1 } => 'v',
-                        Point { x: 0, y: -1 } => '^',
-                        Point { x: 1, y: 0 } => '>',
-                        Point { x: -1, y: 0 } => '<',
+                        Point { x: 0, y: 1 } => '^',
+                        Point { x: 0, y: -1 } => 'v',
+                        Point { x: 1, y: 0 } => '<',
+                        Point { x: -1, y: 0 } => '>',
                         _ => '.',
                     }
                 );
