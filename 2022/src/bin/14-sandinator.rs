@@ -118,6 +118,10 @@ impl Sandbox {
     }
 
     fn drop(&mut self, p: Point) {
+        if self.occupied(p) {
+            return;
+        }
+
         self.min_x = isize::min(self.min_x, p.x - 1);
         self.max_x = isize::max(self.max_x, p.x + 1);
         self.min_y = isize::min(self.min_y, p.y - 1);
@@ -136,14 +140,23 @@ impl Sandbox {
             }
 
             // Otherwise, try to fall (first left than right)
+            let nexts = vec![
+                *p + Point::DOWN,
+                *p + Point::DOWN + Point::LEFT,
+                *p + Point::DOWN + Point::RIGHT,
+            ];
+
+            let mut moved = false;
+            for next in nexts.into_iter() {
+                if !self.occupied(next) && !next_active_sand.contains(&next) {
+                    next_active_sand.insert(next);
+                    moved = true;
+                    break;
+                }
+            }
+
             // If we can't fall, settle
-            if !self.occupied(*p + Point::DOWN) {
-                next_active_sand.insert(*p + Point::DOWN);
-            } else if !self.occupied(*p + Point::DOWN + Point::LEFT) {
-                next_active_sand.insert(*p + Point::DOWN + Point::LEFT);
-            } else if !self.occupied(*p + Point::DOWN + Point::RIGHT) {
-                next_active_sand.insert(*p + Point::DOWN + Point::RIGHT);
-            } else {
+            if !moved {
                 self.settled_sand.insert(*p);
             }
         }
@@ -178,20 +191,21 @@ fn part1(filename: &Path) -> String {
     let mut sandbox = Sandbox::from(&mut iter_lines(filename));
     let drop = Point { x: 500, y: 0 };
 
-    for _i in 1.. {
-        if sandbox.active_sand.is_empty() {
+    for frame in 1.. {
+        if frame % 2 == 0 {
             sandbox.drop(drop);
         }
 
         let done = sandbox.step();
         if done {
+            sandbox.active_sand.clear();
             break;
         }
 
         if env::var("AOC14_RENDER").is_ok() {
             sandbox
                 .render()
-                .save(format!("{:08}.png", _i))
+                .save(format!("{:08}.png", frame))
                 .expect("failed to save frame");
         }
     }
@@ -227,20 +241,21 @@ fn part2(filename: &Path) -> String {
     sandbox.max_x = right_x + 1;
     sandbox.max_y += 2;
 
-    for _i in 1.. {
-        if sandbox.active_sand.is_empty() {
+    for frame in 1.. {
+        if frame % 2 == 0 {
             sandbox.drop(drop);
         }
 
         let done = sandbox.step();
         if done || sandbox.occupied(drop) {
+            sandbox.active_sand.clear();
             break;
         }
 
         if env::var("AOC14_RENDER").is_ok() {
             sandbox
                 .render()
-                .save(format!("{:08}.png", _i))
+                .save(format!("{:08}.png", frame))
                 .expect("failed to save frame");
         }
     }
@@ -251,6 +266,7 @@ fn part2(filename: &Path) -> String {
     if cfg!(debug_assertions) {
         println!("[{}]\n{}", "final", sandbox);
     }
+
     sandbox.settled_sand.len().to_string()
 }
 
