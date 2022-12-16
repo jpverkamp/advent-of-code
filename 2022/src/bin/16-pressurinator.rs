@@ -7,7 +7,7 @@ use std::{collections::HashMap, hash::Hash, path::Path, sync::Arc};
 #[derive(Debug, Eq, PartialEq)]
 struct Cave {
     flow_rates: HashMap<String, usize>,
-    neighbors: HashMap<String, Vec<String>>,
+    neighbors: HashMap<String, Vec<(usize, String)>>,
 }
 
 // A Hack to allow Cave to be memoized, always hash to the same thing
@@ -20,6 +20,7 @@ where
     I: Iterator<Item = String>,
 {
     fn from(iter: &mut I) -> Self {
+        let mut names = Vec::new();
         let mut flow_rates = HashMap::new();
         let mut neighbors = HashMap::new();
 
@@ -37,10 +38,73 @@ where
                 name.clone(),
                 caps[3]
                     .split(", ")
-                    .map(|s| String::from(s))
+                    .map(|s| (1, String::from(s)))
                     .collect::<Vec<_>>(),
             );
+            names.push(name);
         }
+
+        // Calculate a full distance map
+        let mut distances = HashMap::new();
+        for (src, neighbors) in neighbors.iter() {
+            for (distance, dst) in neighbors {
+                distances.insert((src, dst), *distance);
+            }
+        }
+
+        // Add all possible increments
+        for distance in 2..=flow_rates.len() {
+            for src in names.iter() {
+                for dst in names.iter() {
+                    // We already have a (better) distance for this
+                    if distances.contains_key(&(src, dst)) {
+                        continue;
+                    }
+
+                    // Otherwise, see if we have a possible new midpoint
+                    for mid in names.iter() {
+                        if !distances.contains_key(&(src, mid)) {
+                            continue;
+                        }
+
+                        if !distances.contains_key(&(mid, dst)) {
+                            continue;
+                        }
+
+                        // Check if that midpoint has the current distance
+                        let d = distances[&(src, mid)] + distances[&(mid, dst)];
+                        if d == distance {
+                            distances.insert((src, dst), d);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Rebuild the neighbors array using the updated distances
+        neighbors = names
+            .iter()
+            .map(|src| {
+                (
+                    src.clone(),
+                    names
+                        .iter()
+                        .filter_map(
+                            |dst| distances
+                                .get(&(src, dst))
+                                .and_then(|d| 
+                                    if *d >= 1 {
+                                        Some((*d, dst.clone()))
+                                    } else {
+                                        None
+                                    }
+                                )
+                        )
+                        .collect::<Vec<_>>()
+                )
+            })
+            .collect::<HashMap<_, _>>();
 
         Cave {
             flow_rates,
@@ -53,7 +117,7 @@ where
 enum Step {
     DoNothing,
     Enable,
-    Move(String),
+    Move(usize, String),
 }
 
 impl Cave {
@@ -68,9 +132,10 @@ impl Cave {
             cave: Arc<Cave>,
             location: String,
             fuel: usize,
-            active: HashSet<String>,
-            max_active: usize,
+            active: HashSet<String>
         ) -> (Vector<Step>, usize) {
+            // println!("max_flow({location}, {fuel}, {})", active.len());
+
             // Base case: out of fuel
             if fuel == 0 {
                 return (Vector::new(), 0);
@@ -82,7 +147,6 @@ impl Cave {
                 location.clone(),
                 fuel - 1,
                 active.clone(),
-                max_active,
             );
 
             next_path.push_front(Step::DoNothing);
@@ -95,11 +159,6 @@ impl Cave {
             let mut best_path = Some(next_path);
             let mut best_flow = next_flow;
 
-            // Optimization, once we've turned on all nodes, always do nothing
-            if active.len() == max_active {
-                return (best_path.expect("must have a best path"), best_flow);
-            }
-
             // If we haven't turned on the current node, try that
             if !active.contains(&location.clone()) {
                 let mut next_active = active.clone();
@@ -109,7 +168,6 @@ impl Cave {
                     location.clone(),
                     fuel - 1,
                     next_active.clone(),
-                    max_active,
                 );
 
                 next_path.push_front(Step::Enable);
@@ -126,23 +184,32 @@ impl Cave {
             }
 
             // Try moving to each neighbor node
-            for neighbor in cave
+            for (distance, neighbor) in cave
                 .neighbors
                 .get(&location.clone())
                 .expect("must have neighbors")
             {
+                // We've already gone there
+                if active.contains(neighbor) {
+                    continue;
+                }
+
+                // Don't have enough fuel to make it there
+                if *distance > fuel {
+                    continue;
+                }
+
                 let (mut next_path, mut next_flow) = max_flow(
                     cave.clone(),
                     neighbor.clone(),
-                    fuel - 1,
+                    fuel - distance,
                     active.clone(),
-                    max_active,
                 );
 
-                next_path.push_front(Step::Move(neighbor.clone()));
+                next_path.push_front(Step::Move(*distance, neighbor.clone()));
                 next_flow += active
                     .iter()
-                    .map(|name| cave.flow_rates[name])
+                    .map(|name| *distance * cave.flow_rates[name])
                     .sum::<usize>();
 
                 if best_path.is_none() || next_flow > best_flow {
@@ -154,16 +221,17 @@ impl Cave {
             (best_path.expect("must have a best path"), best_flow)
         }
 
-        let max_active = self.flow_rates.iter().filter(|(_, flow)| **flow > 0).count();
-        max_flow(Arc::new(self), location, fuel, active, max_active)
+        max_flow(Arc::new(self), location, fuel, active)
     }
 }
 
 fn part1(filename: &Path) -> String {
     let cave = Cave::from(&mut iter_lines(filename));
 
+    // println!("{:?}", cave);
+
     let (steps, max_flow) = cave.max_flow(String::from("AA"), 30, HashSet::new());
-    if cfg!(debug_assertions) {
+    if true || cfg!(debug_assertions) {
         for (i, step) in steps.iter().enumerate() {
             println!("[{:2}] {:?}", i + 1, step);
         }
