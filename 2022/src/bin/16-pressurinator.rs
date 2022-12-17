@@ -1,11 +1,11 @@
 use aoc::*;
-use im::{HashSet, Vector};
-use memoize::memoize;
+use im::{Vector};
 use regex::Regex;
-use std::{collections::HashMap, hash::Hash, path::Path, sync::Arc, fmt::Display, mem, rc::Rc};
+use std::{cell::RefCell, hash::Hash, path::Path, rc::Rc, collections::HashMap};
 
 #[derive(Debug)]
 struct Cave {
+    size: usize,
     names: Vec<String>,
     indexes: HashMap<String, usize>,
     flow_rates: Vec<usize>,
@@ -43,14 +43,23 @@ where
                     .map(|s| (1, String::from(s)))
                     .collect::<Vec<_>>(),
             );
-            
+
             indexes.insert(name.clone(), index);
             names.push(name);
             flow_rates.push(caps[2].parse::<usize>().unwrap());
         }
 
+        let size = names.len();
+
         // Calculate a full distance map
-        let mut distances = Matrix::<usize>::new(names.len(), names.len());
+        let mut distances = Matrix::<usize>::new(size, size);
+
+        for i in 0..size {
+            for j in 0..size {
+                distances[[i, j]] = usize::MAX;
+            }
+        }
+
         for (src, neighbors) in neighbors.iter() {
             for (distance, dst) in neighbors.iter() {
                 distances[[indexes[src], indexes[dst]]] = *distance;
@@ -61,32 +70,37 @@ where
         // For any pair of nodes, if we don't have a distance:
         // - Find a third node between them with a sum of of i->k->l == distance
         // Because distance is increasing from 2 up, this will always fill in minimal values
-        for distance in 2..=flow_rates.len() {
-            for i in 0..=names.len() {
-                for j in 0..=names.len() {
-                    if i == j {
-                        continue;
-                    }
-
-                    if distances[[i, j]] > 0 {
-                        continue;
-                    }
-
-                    for k in 0..=names.len() {
-                        if i == k || j == k {
+        loop {
+            let mut changed = false;
+            for i in 0..size {
+                for j in 0..size {
+                    for k in 0..size {
+                        if i == j || j == k || i == k {
                             continue;
                         }
 
-                        let d = distances[[i, k]] + distances[[k, j]];
-                        if d == distance {
-                            distances[[i, k]] = d;
+                        if distances[[i, j]] == usize::MAX || distances[[j, k]] == usize::MAX {
+                            continue;
+                        }
+
+                        let old_d = distances[[i, k]];
+                        let new_d = distances[[i, j]] + distances[[j, k]];
+                        if new_d < old_d {
+                            changed = true;
+                            distances[[i, k]] = new_d;
                         }
                     }
                 }
             }
+
+            if !changed {
+                break;
+            }
         }
+        
 
         Cave {
+            size: names.len(),
             names,
             indexes,
             flow_rates,
@@ -95,139 +109,90 @@ where
     }
 }
 
-#[derive(Clone, Debug, Hash, Eq, PartialEq)]
-enum Step {
-    DoNothing,
-    Enable,
-    Move(usize, String),
-}
-
-#[derive(Clone, Default, Debug)]
-struct State {
-    steps: Vec<Step>,
-    enabled: Vec<bool>,
-    flow: usize,
-    total_flow: usize,
-}
-
-impl Display for State {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let State{steps, enabled, flow, total_flow} = self;
-        write!(f, "State(total: {total_flow}, current: {flow}, steps: {steps:?})")
-    }
-}
+#[derive(Clone, Debug, Hash, Eq, PartialEq, Ord, PartialOrd)]
+struct Step(usize, String);
 
 impl Cave {
-    fn max_flow(self, location: String, fuel: usize) -> (Vec<Step>, usize) {
-        let initial_index = self.indexes[&location];
-        let size = self.names.len();
+    fn max_flow(self, location: String, fuel: usize) -> (usize, Vector<Step>) {
+        type CacheKey = (usize, usize, Vector<bool>);
+        type CacheValue = (usize, Vector<Step>);
 
-        let mut states = vec![None; size];
-        states[initial_index] = Some(State{
-            steps: Vec::new(),
-            enabled: vec![false; size],
-            flow: 0,
-            total_flow: 0,
-        });
-        
-        for _i in 0..=fuel {
-            println!("Tick {_i}");
-            for (i, state) in states.iter().enumerate() {
-                let name = self.names[i].clone();
-                match state {
-                    None => println!("\t[state {i}={name}] None"),
-                    Some(state) => println!("\t[state {i}={name}] {state}"),
-                }
+        fn recur(
+            cave: Rc<Cave>,
+            cache: Rc<RefCell<HashMap<CacheKey, CacheValue>>>,
+            index: usize,
+            fuel: usize,
+            enabled: Vector<bool>,
+        ) -> CacheValue {
+            let cache_key = (index, fuel, enabled.clone());
+            if cache.borrow().contains_key(&cache_key) {
+                return cache.borrow_mut()[&cache_key].clone();
             }
-            println!("");
 
-            let mut new_states = vec![None; size];
+            let per_tick_flow = cave
+                .clone()
+                .flow_rates
+                .iter()
+                .zip(enabled.clone().iter())
+                .filter_map(|(f, c)| if *c { Some(*f) } else { None })
+                .sum::<usize>();
 
-            for (j, dst) in states.iter().enumerate() {
-                let mut possibilites = Vec::new();
-                
-                // If we can already be in this state, try enabling and try doing nothing
-                if let Some(State{steps, enabled, flow, total_flow}) = dst {
-                    // Do nothing
-                    {
-                        let mut steps = steps.clone();
-                        steps.push(Step::DoNothing);
+            // Base case: try doing nothing for the rest of the simulation
+            let mut result = (fuel * per_tick_flow, Vector::new());
 
-                        possibilites.push(Some(State{
-                            steps: steps,
-                            enabled: enabled.clone(),
-                            flow: *flow,
-                            total_flow: total_flow + flow,
-                        }));
-                    }
-
-                    // Try to enable
-                    if !enabled[j] {
-                        let mut steps = steps.clone();
-                        steps.push(Step::Enable);
-
-                        let mut enabled = enabled.clone();
-                        enabled[j] = true;
-
-                        possibilites.push(Some(State{
-                            steps: steps,
-                            enabled: enabled.clone(),
-                            flow: flow + self.flow_rates[j],
-                            total_flow: total_flow + flow,
-                        }));
-                    }
+            // Try each possible move
+            // A move is move to a node (inc multiple hops) + enable that node
+            // Don't bother moving to something that's already on
+            // Don't bother moving to nodes with 0 flow
+            for next_index in 0..cave.clone().size {
+                if index == next_index || enabled[next_index] || cave.clone().flow_rates[next_index] == 0 {
+                    continue;
                 }
 
-                // Otherwise, look at all the states we could move from
-                for (i, src) in states.iter().enumerate() {
-                    // No moving to myself
-                    if i == j {
-                        continue;
-                    }
-
-                    // Can't move here 
-                    if self.distances[[i, j]] == 0 {
-                        continue;
-                    }
-
-                    // We have to be able to be in that state
-                    if let Some(State{steps, enabled, flow, total_flow}) = src {
-                        let mut steps = steps.clone();
-                        steps.push(Step::Move(1, self.names[j].clone()));
-
-                        possibilites.push(Some(State{
-                            steps: steps,
-                            enabled: enabled.clone(),
-                            flow: *flow,
-                            total_flow: total_flow + flow,
-                        }))
-                    }
+                let d = cave.clone().distances[[index, next_index]];
+                if d + 1 > fuel {
+                    continue;
                 }
-            
-                // Find the best of these states
-                new_states[j] = possibilites
-                    .into_iter()
-                    .filter_map(|el| el)
-                    .max_by(|s1, s2| 
-                        (s1.total_flow, s1.flow).cmp(&(s2.total_flow, s2.flow))
-                    );
+
+                let mut next_enabled = enabled.clone();
+                next_enabled[next_index] = true;
+
+                let mut sub_result = recur(
+                    cave.clone(),
+                    cache.clone(),
+                    next_index,
+                    fuel - d - 1,
+                    next_enabled,
+                );
+                sub_result.0 += (d + 1) * per_tick_flow;
+                sub_result.1.push_front(Step(d, cave.clone().names[next_index].clone()));
+                result = result.max(sub_result);
             }
-            states = new_states;
+
+            cache.borrow_mut().insert(cache_key, result.clone());
+            result
         }
 
-        todo!()
+        let cave = Rc::new(self);
+        recur(
+            cave.clone(),
+            Rc::new(RefCell::new(HashMap::new())),
+            cave.clone().indexes[&location],
+            fuel,
+            Vector::from(vec![false; cave.clone().size]),
+        )
     }
 }
 
 fn part1(filename: &Path) -> String {
     let cave = Cave::from(&mut iter_lines(filename));
 
-    println!("{:?}", cave);
+    // println!("{:?}", cave);
 
-    let (steps, max_flow) = cave.max_flow(String::from("AA"), 30);
+    let (max_flow, steps) = cave.max_flow(String::from("AA"), 30);
     if true || cfg!(debug_assertions) {
-        for (i, step) in steps.iter().enumerate() {
-            println!("[{:2}] {:?}", i + 1, step);
+        for (_i, step) in steps.iter().enumerate() {
+            println!("{step:?}");
         }
     }
 
