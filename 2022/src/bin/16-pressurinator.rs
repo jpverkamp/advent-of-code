@@ -2,12 +2,14 @@ use aoc::*;
 use im::{HashSet, Vector};
 use memoize::memoize;
 use regex::Regex;
-use std::{collections::HashMap, hash::Hash, path::Path, sync::Arc};
+use std::{collections::HashMap, hash::Hash, path::Path, sync::Arc, fmt::Display, mem, rc::Rc};
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug)]
 struct Cave {
-    flow_rates: HashMap<String, usize>,
-    neighbors: HashMap<String, Vec<(usize, String)>>,
+    names: Vec<String>,
+    indexes: HashMap<String, usize>,
+    flow_rates: Vec<usize>,
+    distances: Matrix<usize>,
 }
 
 // A Hack to allow Cave to be memoized, always hash to the same thing
@@ -21,7 +23,8 @@ where
 {
     fn from(iter: &mut I) -> Self {
         let mut names = Vec::new();
-        let mut flow_rates = HashMap::new();
+        let mut indexes = HashMap::new();
+        let mut flow_rates = Vec::new();
         let mut neighbors = HashMap::new();
 
         let re = Regex::new(
@@ -29,11 +32,10 @@ where
         )
         .expect("regex creation failed");
 
-        for line in iter {
+        for (index, line) in iter.enumerate() {
             let caps = re.captures(&line).expect("regex doesn't match line");
             let name = String::from(&caps[1]);
 
-            flow_rates.insert(name.clone(), caps[2].parse::<usize>().unwrap());
             neighbors.insert(
                 name.clone(),
                 caps[3]
@@ -41,196 +43,188 @@ where
                     .map(|s| (1, String::from(s)))
                     .collect::<Vec<_>>(),
             );
+            
+            indexes.insert(name.clone(), index);
             names.push(name);
+            flow_rates.push(caps[2].parse::<usize>().unwrap());
         }
 
         // Calculate a full distance map
-        let mut distances = HashMap::new();
+        let mut distances = Matrix::<usize>::new(names.len(), names.len());
         for (src, neighbors) in neighbors.iter() {
-            for (distance, dst) in neighbors {
-                distances.insert((src, dst), *distance);
+            for (distance, dst) in neighbors.iter() {
+                distances[[indexes[src], indexes[dst]]] = *distance;
             }
         }
 
-        // Add all possible increments
+        // Expand to calculate the minimum possible distance between nodes (of any number of steps)
+        // For any pair of nodes, if we don't have a distance:
+        // - Find a third node between them with a sum of of i->k->l == distance
+        // Because distance is increasing from 2 up, this will always fill in minimal values
         for distance in 2..=flow_rates.len() {
-            for src in names.iter() {
-                for dst in names.iter() {
-                    // We already have a (better) distance for this
-                    if distances.contains_key(&(src, dst)) {
+            for i in 0..=names.len() {
+                for j in 0..=names.len() {
+                    if i == j {
                         continue;
                     }
 
-                    // Otherwise, see if we have a possible new midpoint
-                    for mid in names.iter() {
-                        if !distances.contains_key(&(src, mid)) {
+                    if distances[[i, j]] > 0 {
+                        continue;
+                    }
+
+                    for k in 0..=names.len() {
+                        if i == k || j == k {
                             continue;
                         }
 
-                        if !distances.contains_key(&(mid, dst)) {
-                            continue;
-                        }
-
-                        // Check if that midpoint has the current distance
-                        let d = distances[&(src, mid)] + distances[&(mid, dst)];
+                        let d = distances[[i, k]] + distances[[k, j]];
                         if d == distance {
-                            distances.insert((src, dst), d);
-                            break;
+                            distances[[i, k]] = d;
                         }
                     }
                 }
             }
         }
 
-        // Rebuild the neighbors array using the updated distances
-        neighbors = names
-            .iter()
-            .map(|src| {
-                (
-                    src.clone(),
-                    names
-                        .iter()
-                        .filter_map(
-                            |dst| distances
-                                .get(&(src, dst))
-                                .and_then(|d| 
-                                    if *d >= 1 {
-                                        Some((*d, dst.clone()))
-                                    } else {
-                                        None
-                                    }
-                                )
-                        )
-                        .collect::<Vec<_>>()
-                )
-            })
-            .collect::<HashMap<_, _>>();
-
         Cave {
+            names,
+            indexes,
             flow_rates,
-            neighbors,
+            distances,
         }
     }
 }
 
-#[derive(Clone, Debug, Hash)]
+#[derive(Clone, Debug, Hash, Eq, PartialEq)]
 enum Step {
     DoNothing,
     Enable,
     Move(usize, String),
 }
 
+#[derive(Clone, Default, Debug)]
+struct State {
+    steps: Vec<Step>,
+    enabled: Vec<bool>,
+    flow: usize,
+    total_flow: usize,
+}
+
+impl Display for State {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let State{steps, enabled, flow, total_flow} = self;
+        write!(f, "State(total: {total_flow}, current: {flow}, steps: {steps:?})")
+    }
+}
+
 impl Cave {
-    fn max_flow(
-        self,
-        location: String,
-        fuel: usize,
-        active: HashSet<String>,
-    ) -> (Vector<Step>, usize) {
-        #[memoize]
-        fn max_flow(
-            cave: Arc<Cave>,
-            location: String,
-            fuel: usize,
-            active: HashSet<String>
-        ) -> (Vector<Step>, usize) {
-            // println!("max_flow({location}, {fuel}, {})", active.len());
+    fn max_flow(self, location: String, fuel: usize) -> (Vec<Step>, usize) {
+        let initial_index = self.indexes[&location];
+        let size = self.names.len();
 
-            // Base case: out of fuel
-            if fuel == 0 {
-                return (Vector::new(), 0);
-            }
-
-            // Do nothing (base case, only replace if we find something *better*)
-            let (mut next_path, mut next_flow) = max_flow(
-                cave.clone(),
-                location.clone(),
-                fuel - 1,
-                active.clone(),
-            );
-
-            next_path.push_front(Step::DoNothing);
-            next_flow += active
-                .clone()
-                .iter()
-                .map(|name| cave.flow_rates[name])
-                .sum::<usize>();
-
-            let mut best_path = Some(next_path);
-            let mut best_flow = next_flow;
-
-            // If we haven't turned on the current node, try that
-            if !active.contains(&location.clone()) {
-                let mut next_active = active.clone();
-                next_active.insert(location.clone());
-                let (mut next_path, mut next_flow) = max_flow(
-                    cave.clone(),
-                    location.clone(),
-                    fuel - 1,
-                    next_active.clone(),
-                );
-
-                next_path.push_front(Step::Enable);
-                next_flow += active
-                    .clone()
-                    .iter()
-                    .map(|name| cave.flow_rates[name])
-                    .sum::<usize>();
-
-                if best_path.is_none() || next_flow > best_flow {
-                    best_path = Some(next_path);
-                    best_flow = next_flow;
+        let mut states = vec![None; size];
+        states[initial_index] = Some(State{
+            steps: Vec::new(),
+            enabled: vec![false; size],
+            flow: 0,
+            total_flow: 0,
+        });
+        
+        for _i in 0..=fuel {
+            println!("Tick {_i}");
+            for (i, state) in states.iter().enumerate() {
+                let name = self.names[i].clone();
+                match state {
+                    None => println!("\t[state {i}={name}] None"),
+                    Some(state) => println!("\t[state {i}={name}] {state}"),
                 }
             }
+            println!("");
 
-            // Try moving to each neighbor node
-            for (distance, neighbor) in cave
-                .neighbors
-                .get(&location.clone())
-                .expect("must have neighbors")
-            {
-                // We've already gone there
-                if active.contains(neighbor) {
-                    continue;
+            let mut new_states = vec![None; size];
+
+            for (j, dst) in states.iter().enumerate() {
+                let mut possibilites = Vec::new();
+                
+                // If we can already be in this state, try enabling and try doing nothing
+                if let Some(State{steps, enabled, flow, total_flow}) = dst {
+                    // Do nothing
+                    {
+                        let mut steps = steps.clone();
+                        steps.push(Step::DoNothing);
+
+                        possibilites.push(Some(State{
+                            steps: steps,
+                            enabled: enabled.clone(),
+                            flow: *flow,
+                            total_flow: total_flow + flow,
+                        }));
+                    }
+
+                    // Try to enable
+                    if !enabled[j] {
+                        let mut steps = steps.clone();
+                        steps.push(Step::Enable);
+
+                        let mut enabled = enabled.clone();
+                        enabled[j] = true;
+
+                        possibilites.push(Some(State{
+                            steps: steps,
+                            enabled: enabled.clone(),
+                            flow: flow + self.flow_rates[j],
+                            total_flow: total_flow + flow,
+                        }));
+                    }
                 }
 
-                // Don't have enough fuel to make it there
-                if *distance > fuel {
-                    continue;
+                // Otherwise, look at all the states we could move from
+                for (i, src) in states.iter().enumerate() {
+                    // No moving to myself
+                    if i == j {
+                        continue;
+                    }
+
+                    // Can't move here 
+                    if self.distances[[i, j]] == 0 {
+                        continue;
+                    }
+
+                    // We have to be able to be in that state
+                    if let Some(State{steps, enabled, flow, total_flow}) = src {
+                        let mut steps = steps.clone();
+                        steps.push(Step::Move(1, self.names[j].clone()));
+
+                        possibilites.push(Some(State{
+                            steps: steps,
+                            enabled: enabled.clone(),
+                            flow: *flow,
+                            total_flow: total_flow + flow,
+                        }))
+                    }
                 }
-
-                let (mut next_path, mut next_flow) = max_flow(
-                    cave.clone(),
-                    neighbor.clone(),
-                    fuel - distance,
-                    active.clone(),
-                );
-
-                next_path.push_front(Step::Move(*distance, neighbor.clone()));
-                next_flow += active
-                    .iter()
-                    .map(|name| *distance * cave.flow_rates[name])
-                    .sum::<usize>();
-
-                if best_path.is_none() || next_flow > best_flow {
-                    best_path = Some(next_path);
-                    best_flow = next_flow;
-                }
+            
+                // Find the best of these states
+                new_states[j] = possibilites
+                    .into_iter()
+                    .filter_map(|el| el)
+                    .max_by(|s1, s2| 
+                        (s1.total_flow, s1.flow).cmp(&(s2.total_flow, s2.flow))
+                    );
             }
-
-            (best_path.expect("must have a best path"), best_flow)
+            states = new_states;
         }
 
-        max_flow(Arc::new(self), location, fuel, active)
+        todo!()
     }
 }
 
 fn part1(filename: &Path) -> String {
     let cave = Cave::from(&mut iter_lines(filename));
 
-    // println!("{:?}", cave);
+    println!("{:?}", cave);
 
-    let (steps, max_flow) = cave.max_flow(String::from("AA"), 30, HashSet::new());
+    let (steps, max_flow) = cave.max_flow(String::from("AA"), 30);
     if true || cfg!(debug_assertions) {
         for (i, step) in steps.iter().enumerate() {
             println!("[{:2}] {:?}", i + 1, step);
