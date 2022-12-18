@@ -1,6 +1,6 @@
 use aoc::*;
 use bitvec::prelude::*;
-use im::{vector, Vector};
+use im::Vector;
 use regex::Regex;
 use std::{cell::RefCell, collections::HashMap, hash::Hash, path::Path, rc::Rc};
 
@@ -261,9 +261,9 @@ impl Cave {
         location: String,
         fuel: usize,
         agents: usize,
-    ) -> (usize, Vector<StepMulti>) {
-        type CacheKey = (Vector<State>, usize, BitVec);
-        type CacheValue = (usize, Vector<StepMulti>);
+    ) -> (usize, Vec<StepMulti>) {
+        type CacheKey = (Vec<State>, usize, BitVec);
+        type CacheValue = (usize, Vec<StepMulti>);
 
         // Main recursive function with multiple agents
         // cave and cache still don't change (other than to cache values)
@@ -275,7 +275,7 @@ impl Cave {
         fn recur(
             cave: Rc<Cave>,
             cache: Rc<RefCell<HashMap<CacheKey, CacheValue>>>,
-            agents: Vector<State>,
+            agents: Vec<State>,
             fuel: usize,
             enabled: BitVec,
         ) -> CacheValue {
@@ -297,7 +297,7 @@ impl Cave {
             // Base case: try doing nothing for the rest of the simulation
             let mut result = (
                 fuel * per_tick_flow,
-                vector![StepMulti {
+                vec![StepMulti {
                     fuel,
                     per_tick_flow,
                     data: StepMultiData::DoNothing
@@ -348,7 +348,7 @@ impl Cave {
                         fuel,
                         enabled.clone(),
                     );
-                    sub_result.1.push_front(StepMulti {
+                    sub_result.1.push(StepMulti {
                         fuel,
                         per_tick_flow,
                         data: StepMultiData::Schedule {
@@ -393,7 +393,7 @@ impl Cave {
 
                 // Update the flow for a single tick and record what we did
                 sub_result.0 += per_tick_flow;
-                sub_result.1.push_front(StepMulti {
+                sub_result.1.push(StepMulti {
                     fuel,
                     per_tick_flow,
                     data: StepMultiData::EnableTick { activations },
@@ -434,7 +434,7 @@ impl Cave {
                 // Update flow by that many ticks + record what step we took
                 // As always, if this result is better than nothing, record it
                 sub_result.0 += ticks * per_tick_flow;
-                sub_result.1.push_front(StepMulti {
+                sub_result.1.push(StepMulti {
                     fuel,
                     per_tick_flow,
                     data: StepMultiData::AdvanceTime { ticks },
@@ -449,13 +449,16 @@ impl Cave {
 
         // Init the agents and kick the recursive function off
         let cave = Rc::new(self);
-        recur(
+        let (total_flow, steps) = recur(
             cave.clone(),
             Rc::new(RefCell::new(HashMap::new())),
-            Vector::from(vec![State::new(cave.clone().indexes[&location]); agents]),
+            vec![State::new(cave.clone().indexes[&location]); agents],
             fuel,
             BitVec::from_vec(vec![0; cave.clone().size])
-        )
+        );
+
+        // Because we're using Vec, the steps end up in reverse order
+        (total_flow, steps.into_iter().rev().collect::<Vec<_>>())
     }
 }
 
