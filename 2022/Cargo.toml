@@ -8,6 +8,7 @@ name = "aoc"
 path = "src/lib.rs"
 
 [dependencies]
+bitvec = "1.0.1"
 im = "15.1.0"
 image = "0.24.5"
 itertools = "0.10.5"

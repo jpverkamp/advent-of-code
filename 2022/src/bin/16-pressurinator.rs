@@ -1,4 +1,5 @@
 use aoc::*;
+use bitvec::prelude::*;
 use im::{vector, Vector};
 use regex::Regex;
 use std::{cell::RefCell, collections::HashMap, hash::Hash, path::Path, rc::Rc};
@@ -261,7 +262,7 @@ impl Cave {
         fuel: usize,
         agents: usize,
     ) -> (usize, Vector<StepMulti>) {
-        type CacheKey = (Vector<State>, usize, Vector<bool>);
+        type CacheKey = (Vector<State>, usize, BitVec);
         type CacheValue = (usize, Vector<StepMulti>);
 
         // Main recursive function with multiple agents
@@ -276,7 +277,7 @@ impl Cave {
             cache: Rc<RefCell<HashMap<CacheKey, CacheValue>>>,
             agents: Vector<State>,
             fuel: usize,
-            enabled: Vector<bool>,
+            enabled: BitVec,
         ) -> CacheValue {
             // Cache based on the state of all agents/fuel/enabled
             let cache_key = (agents.clone(), fuel, enabled.clone());
@@ -370,7 +371,7 @@ impl Cave {
                 let mut next_enabled = enabled.clone();
                 for (i, agent) in agents.clone().iter().enumerate() {
                     if agent.ttl == 1 {
-                        next_enabled[agent.index] = true;
+                        next_enabled.set(agent.index, true);
                         activations.push((i, cave.clone().names[agent.index].clone()));
                     }
                 }
@@ -453,7 +454,7 @@ impl Cave {
             Rc::new(RefCell::new(HashMap::new())),
             Vector::from(vec![State::new(cave.clone().indexes[&location]); agents]),
             fuel,
-            Vector::from(vec![false; cave.clone().size]),
+            BitVec::from_vec(vec![0; cave.clone().size])
         )
     }
 }
