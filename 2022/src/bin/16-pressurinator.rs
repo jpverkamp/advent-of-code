@@ -148,8 +148,6 @@ enum StepMultiData {
     DoNothing,
     AdvanceTime {
         ticks: usize,
-    },
-    EnableTick {
         activations: Vec<(usize, String)>,
     },
     Schedule {
@@ -363,72 +361,40 @@ impl Cave {
                     result = result.max(sub_result);
                 }
             }
-            // If any agent has a TTL of 1, enable those flows and tick 1 (without the flow enabled)
-            else if agents.clone().iter().any(|a| a.ttl == 1) {
+            // Otherwise, advance by the ttl of the lowest agent
+            else {
                 let mut activations = Vec::new();
 
-                // Enable any flows at agents that have TTL 1
-                let mut next_enabled = enabled.clone();
-                for (i, agent) in agents.clone().iter().enumerate() {
-                    if agent.ttl == 1 {
-                        next_enabled.set(agent.index, true);
-                        activations.push((i, cave.clone().names[agent.index].clone()));
-                    }
-                }
-
-                // Tick all agents forward 1 (this will put those enabled in TTL=0 for next call)
-                let mut next_agents = agents.clone();
-                for (i, agent) in agents.clone().iter().enumerate() {
-                    next_agents[i] = agent.tick(1);
-                }
-
-                // Calculate the recursive result
-                let mut sub_result = recur(
-                    cave.clone(),
-                    cache.clone(),
-                    next_agents,
-                    fuel - 1,
-                    next_enabled,
-                );
-
-                // Update the flow for a single tick and record what we did
-                sub_result.0 += per_tick_flow;
-                sub_result.1.push(StepMulti {
-                    fuel,
-                    per_tick_flow,
-                    data: StepMultiData::EnableTick { activations },
-                });
-
-                // This is almost certainly better (to Enable rather than to not)
-                // Unless we're in an end case where the flow is already enabled
-                result = result.max(sub_result);
-            }
-            // Otherwise, advance by the ttl of the lowest agent
-            // Advance to ttl of 1 so that we catch the enable
-            else {
-                // Find the agent that will finish moving soonest
-                // Move forward that - 1 so that we hit the TTL=1 enable state above
+                // Find time until the agent(s) that will finish moving soonest
                 let ticks = agents
                     .clone()
                     .iter()
                     .min_by(|a, b| a.ttl.cmp(&b.ttl))
                     .expect("must have at least one agent")
-                    .ttl
-                    - 1;
+                    .ttl;
 
-                // Update all agents by that many ticks
+                // Enable any flows for agents with TTL=0 at the end of this move
+                let mut next_enabled = enabled.clone();
+                for (i, agent) in agents.clone().iter().enumerate() {
+                    if agent.ttl == ticks {
+                        next_enabled.set(agent.index, true);
+                        activations.push((i, cave.clone().names[agent.index].clone()));
+                    }
+                }
+
+                // Update all agents (including those that will go to 0)
                 let mut next_agents = agents.clone();
                 for (i, agent) in agents.clone().iter().enumerate() {
                     next_agents[i] = agent.tick(ticks);
                 }
 
-                // Make the recursive calls
+                // Make the recursive call
                 let mut sub_result = recur(
                     cave.clone(),
                     cache.clone(),
                     next_agents,
                     fuel - ticks,
-                    enabled.clone(),
+                    next_enabled,
                 );
 
                 // Update flow by that many ticks + record what step we took
@@ -437,7 +403,7 @@ impl Cave {
                 sub_result.1.push(StepMulti {
                     fuel,
                     per_tick_flow,
-                    data: StepMultiData::AdvanceTime { ticks },
+                    data: StepMultiData::AdvanceTime { ticks, activations },
                 });
                 result = result.max(sub_result);
             }
