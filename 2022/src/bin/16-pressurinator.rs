@@ -1,8 +1,9 @@
 use aoc::*;
-use im::{Vector, vector};
+use im::{vector, Vector};
 use regex::Regex;
 use std::{cell::RefCell, collections::HashMap, hash::Hash, path::Path, rc::Rc};
 
+// Store the description of the cave as a directed graph with flow rates at the nodes
 #[derive(Debug)]
 struct Cave {
     size: usize,
@@ -17,6 +18,7 @@ impl Hash for Cave {
     fn hash<H: std::hash::Hasher>(&self, _state: &mut H) {}
 }
 
+// Parse a graph from a string iterator
 impl<I> From<&mut I> for Cave
 where
     I: Iterator<Item = String>,
@@ -108,9 +110,11 @@ where
     }
 }
 
+// A single step of the single agent simulation
 #[derive(Clone, Debug, Hash, Eq, PartialEq, Ord, PartialOrd)]
 struct Step(usize, String);
 
+// The state of an agent in the multi agent simulation
 #[derive(Copy, Clone, Debug, Hash, Eq, PartialEq)]
 struct State {
     index: usize,
@@ -130,19 +134,42 @@ impl State {
     }
 }
 
+// The more complicated step of agents in the multi agent simulation
 #[derive(Clone, Debug, Hash, Eq, PartialEq, Ord, PartialOrd)]
-enum Step2 {
-    DoNothing{fuel: usize},
-    AdvanceTime{fuel: usize, ticks: usize},
-    EnableTick{fuel: usize, activations: Vec<(usize, String)>},
-    Schedule{fuel: usize, agent: usize, distance: usize, target: String},
+struct StepMulti {
+    fuel: usize,
+    per_tick_flow: usize,
+    data: StepMultiData,
 }
 
+#[derive(Clone, Debug, Hash, Eq, PartialEq, Ord, PartialOrd)]
+enum StepMultiData {
+    DoNothing,
+    AdvanceTime {
+        ticks: usize,
+    },
+    EnableTick {
+        activations: Vec<(usize, String)>,
+    },
+    Schedule {
+        agent: usize,
+        distance: usize,
+        target: String,
+    },
+}
+
+// Flow algorithms for a cave
 impl Cave {
+    // Find the steps for maximizing flow from a single location with a single agent
     fn max_flow(self, location: String, fuel: usize) -> (usize, Vector<Step>) {
         type CacheKey = (usize, usize, Vector<bool>);
         type CacheValue = (usize, Vector<Step>);
 
+        // The memoized recursive function that actually does the work
+        // cave and cache don't change
+        // index is where the agent currently is
+        // fuel is how much fuel is left in the simulation (stop at 0)
+        // enabled is a list of which cave pumps are currently enabled
         fn recur(
             cave: Rc<Cave>,
             cache: Rc<RefCell<HashMap<CacheKey, CacheValue>>>,
@@ -150,11 +177,13 @@ impl Cave {
             fuel: usize,
             enabled: Vector<bool>,
         ) -> CacheValue {
+            // If we have already calculated a result at this index/fuel/enabled, return it
             let cache_key = (index, fuel, enabled.clone());
             if cache.borrow().contains_key(&cache_key) {
                 return cache.borrow_mut()[&cache_key].clone();
             }
 
+            // Calculate the current flow based on the enabled gates
             let per_tick_flow = cave
                 .clone()
                 .flow_rates
@@ -168,9 +197,9 @@ impl Cave {
 
             // Try each possible move
             // A move is move to a node (inc multiple hops) + enable that node
-            // Don't bother moving to something that's already on
-            // Don't bother moving to nodes with 0 flow
             for next_index in 0..cave.clone().size {
+                // Don't bother moving to something that's already on
+                // Don't bother moving to nodes with 0 flow
                 if index == next_index
                     || enabled[next_index]
                     || cave.clone().flow_rates[next_index] == 0
@@ -178,14 +207,18 @@ impl Cave {
                     continue;
                 }
 
+                // Calculate the distance to this new node
+                // If we don't have enough fuel to make that trip, this isn't valid
                 let d = cave.clone().distances[[index, next_index]];
                 if d + 1 > fuel {
                     continue;
                 }
 
+                // Calculate which nodes will be enabled after this step
                 let mut next_enabled = enabled.clone();
                 next_enabled[next_index] = true;
 
+                // Recursively calculate the result from taking this step
                 let mut sub_result = recur(
                     cave.clone(),
                     cache.clone(),
@@ -193,17 +226,24 @@ impl Cave {
                     fuel - d - 1,
                     next_enabled,
                 );
+
+                // Update that result with the total flow from moving
+                // And the instruction for output
                 sub_result.0 += (d + 1) * per_tick_flow;
                 sub_result
                     .1
                     .push_front(Step(d, cave.clone().names[next_index].clone()));
+
+                // If that result is better than what we have so far, update our best result
                 result = result.max(sub_result);
             }
 
+            // Store the result in the cache and return it
             cache.borrow_mut().insert(cache_key, result.clone());
             result
         }
 
+        // Fire off the recursive function
         let cave = Rc::new(self);
         recur(
             cave.clone(),
@@ -214,10 +254,23 @@ impl Cave {
         )
     }
 
-    fn max_flow2(self, location: String, fuel: usize, agents: usize) -> (usize, Vector<Step2>) {
+    // The same simulation but with multiple agents
+    fn max_flow_multi(
+        self,
+        location: String,
+        fuel: usize,
+        agents: usize,
+    ) -> (usize, Vector<StepMulti>) {
         type CacheKey = (Vector<State>, usize, Vector<bool>);
-        type CacheValue = (usize, Vector<Step2>);
+        type CacheValue = (usize, Vector<StepMulti>);
 
+        // Main recursive function with multiple agents
+        // cave and cache still don't change (other than to cache values)
+        // agents is an im::Vector of agent states, can be any number (even 1)
+        // - this contains the next index
+        // - plus a new value ttl which is how long it will take the agent to get to the index
+        // fuel is how long the simulation can still run
+        // enabled is the map of which flows are enabled
         fn recur(
             cave: Rc<Cave>,
             cache: Rc<RefCell<HashMap<CacheKey, CacheValue>>>,
@@ -225,11 +278,13 @@ impl Cave {
             fuel: usize,
             enabled: Vector<bool>,
         ) -> CacheValue {
+            // Cache based on the state of all agents/fuel/enabled
             let cache_key = (agents.clone(), fuel, enabled.clone());
             if cache.borrow().contains_key(&cache_key) {
                 return cache.borrow_mut()[&cache_key].clone();
             }
 
+            // Calculate flow per tick (even if we won't actually tick)
             let per_tick_flow = cave
                 .clone()
                 .flow_rates
@@ -239,27 +294,52 @@ impl Cave {
                 .sum::<usize>();
 
             // Base case: try doing nothing for the rest of the simulation
-            let mut result = (fuel * per_tick_flow, vector![Step2::DoNothing{fuel}]);
+            let mut result = (
+                fuel * per_tick_flow,
+                vector![StepMulti {
+                    fuel,
+                    per_tick_flow,
+                    data: StepMultiData::DoNothing
+                }],
+            );
 
-            // If our TTL is 0, schedule our next move
+            // Once all useful flows are active, allow moving to anywhere
+            // This fixes a previous bug where the first free agent would claim the last valve even it was further away
+            let potential_enabled = cave
+                .clone()
+                .flow_rates
+                .iter()
+                .zip(enabled.clone())
+                .filter_map(|(f, e)| if *f > 0 && !e { Some(true) } else { None })
+                .count();
+
+            // If the TTL of any agent is 0, schedule it's next move
             // This doesn't advance time
             if let Some((i, agent)) = agents.clone().iter().enumerate().find(|(_, a)| a.ttl == 0) {
                 for next_index in 0..cave.clone().size {
+                    // Not allowed to move to the same target as any other agent
+                    // Can only move to an already enabled valve if we're in the end state
                     if agents.clone().iter().any(|a| next_index == a.index)
-                        || enabled[next_index]
+                        || (potential_enabled >= agents.len() && enabled[next_index])
                         || cave.clone().flow_rates[next_index] == 0
                     {
                         continue;
                     }
 
+                    // Check that we have enough fuel to move there
                     let d = cave.clone().distances[[agent.index, next_index]];
                     if d + 1 > fuel {
                         continue;
                     }
 
+                    // Update the agent with where it's going + how long to get there and enable
                     let mut new_agents = agents.clone();
-                    new_agents[i] = State{index: next_index, ttl: d + 1};
+                    new_agents[i] = State {
+                        index: next_index,
+                        ttl: d + 1,
+                    };
 
+                    // Make the recursive call and record that we did
                     let mut sub_result = recur(
                         cave.clone(),
                         cache.clone(),
@@ -267,19 +347,26 @@ impl Cave {
                         fuel,
                         enabled.clone(),
                     );
-                    sub_result.1.push_front(Step2::Schedule{
+                    sub_result.1.push_front(StepMulti {
                         fuel,
-                        agent: i,
-                        distance: d,
-                        target: cave.clone().names[next_index].clone(),
+                        per_tick_flow,
+                        data: StepMultiData::Schedule {
+                            agent: i,
+                            distance: d,
+                            target: cave.clone().names[next_index].clone(),
+                        },
                     });
+
+                    // If making this call was better than the current result (of do nothing)
+                    // Use it instead
                     result = result.max(sub_result);
                 }
             }
-            // If either TTL is 1, enable that flow and tick 1
+            // If any agent has a TTL of 1, enable those flows and tick 1 (without the flow enabled)
             else if agents.clone().iter().any(|a| a.ttl == 1) {
                 let mut activations = Vec::new();
 
+                // Enable any flows at agents that have TTL 1
                 let mut next_enabled = enabled.clone();
                 for (i, agent) in agents.clone().iter().enumerate() {
                     if agent.ttl == 1 {
@@ -288,11 +375,13 @@ impl Cave {
                     }
                 }
 
+                // Tick all agents forward 1 (this will put those enabled in TTL=0 for next call)
                 let mut next_agents = agents.clone();
                 for (i, agent) in agents.clone().iter().enumerate() {
                     next_agents[i] = agent.tick(1);
                 }
 
+                // Calculate the recursive result
                 let mut sub_result = recur(
                     cave.clone(),
                     cache.clone(),
@@ -301,26 +390,38 @@ impl Cave {
                     next_enabled,
                 );
 
+                // Update the flow for a single tick and record what we did
                 sub_result.0 += per_tick_flow;
-                sub_result
-                    .1
-                    .push_front(Step2::EnableTick{
-                        fuel,
-                        activations,
-                    });
+                sub_result.1.push_front(StepMulti {
+                    fuel,
+                    per_tick_flow,
+                    data: StepMultiData::EnableTick { activations },
+                });
 
+                // This is almost certainly better (to Enable rather than to not)
+                // Unless we're in an end case where the flow is already enabled
                 result = result.max(sub_result);
             }
-            // Otherwise, advance by the the lower of the two
+            // Otherwise, advance by the ttl of the lowest agent
             // Advance to ttl of 1 so that we catch the enable
             else {
-                let ticks = agents.clone().iter().min_by(|a, b| a.ttl.cmp(&b.ttl)).expect("must have at least one agent").ttl - 1;
+                // Find the agent that will finish moving soonest
+                // Move forward that - 1 so that we hit the TTL=1 enable state above
+                let ticks = agents
+                    .clone()
+                    .iter()
+                    .min_by(|a, b| a.ttl.cmp(&b.ttl))
+                    .expect("must have at least one agent")
+                    .ttl
+                    - 1;
 
+                // Update all agents by that many ticks
                 let mut next_agents = agents.clone();
                 for (i, agent) in agents.clone().iter().enumerate() {
                     next_agents[i] = agent.tick(ticks);
                 }
 
+                // Make the recursive calls
                 let mut sub_result = recur(
                     cave.clone(),
                     cache.clone(),
@@ -329,18 +430,23 @@ impl Cave {
                     enabled.clone(),
                 );
 
-                sub_result.0 += per_tick_flow * ticks;
-                sub_result.1.push_front(Step2::AdvanceTime { 
+                // Update flow by that many ticks + record what step we took
+                // As always, if this result is better than nothing, record it
+                sub_result.0 += ticks * per_tick_flow;
+                sub_result.1.push_front(StepMulti {
                     fuel,
-                    ticks,
+                    per_tick_flow,
+                    data: StepMultiData::AdvanceTime { ticks },
                 });
                 result = result.max(sub_result);
             }
 
+            // Memoize the result and finally return
             cache.borrow_mut().insert(cache_key, result.clone());
             result
         }
 
+        // Init the agents and kick the recursive function off
         let cave = Rc::new(self);
         recur(
             cave.clone(),
@@ -368,7 +474,7 @@ fn part1(filename: &Path) -> String {
 fn part2(filename: &Path) -> String {
     let cave = Cave::from(&mut iter_lines(filename));
 
-    let (max_flow, steps) = cave.max_flow2(String::from("AA"), 26, 2);
+    let (max_flow, steps) = cave.max_flow_multi(String::from("AA"), 26, 2);
     if true || cfg!(debug_assertions) {
         for (_i, step) in steps.iter().enumerate() {
             println!("{step:?}");
@@ -389,11 +495,11 @@ mod tests {
 
     #[test]
     fn test1() {
-        aoc_test("", part1, "")
+        aoc_test("16", part1, "")
     }
 
     #[test]
     fn test2() {
-        aoc_test("", part2, "")
+        aoc_test("16", part2, "")
     }
 }
