@@ -128,7 +128,7 @@ where
 }
 
 /* ----- Represent a generic point over signed values ----- */
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Ord, PartialOrd)]
 pub struct Point {
     pub x: isize,
     pub y: isize,
