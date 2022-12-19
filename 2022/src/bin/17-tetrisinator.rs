@@ -67,7 +67,6 @@ struct Map {
     walls: HashSet<Point>,
 
     rock_count: usize,
-    next_rock: usize,
     rock: Rock,
     rock_at: Point,
 }
@@ -97,7 +96,6 @@ impl Map {
             tower_height: 0,
             walls,
             rock_count: 0,
-            next_rock: 1,
             rock: Rock::nth(0),
             rock_at: Point {
                 x: 3,
@@ -126,13 +124,12 @@ impl Map {
         }
 
         // Don't forget the extra offset for the left wall and floor
-        self.rock = Rock::nth(self.next_rock);
+        self.rock = Rock::nth(self.rock_count);
         self.rock_at = Point {
             x: 1 + 2,
             y: 1 + 3 + self.tower_height as isize,
         };
 
-        self.next_rock += 1;
         self.rock_count += 1;
     }
 
@@ -366,11 +363,11 @@ mod tests {
 
     #[test]
     fn test1() {
-        aoc_test("", part1, "")
+        aoc_test("17", part1, "3112")
     }
 
     #[test]
     fn test2() {
-        aoc_test("", part2, "")
+        aoc_test("17", part2, "1540804597681")
     }
 }
