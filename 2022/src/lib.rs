@@ -180,3 +180,41 @@ impl Default for Point {
         Point { x: 0, y: 0 }
     }
 }
+
+/* ----- A 3D version of the point ----- */
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+pub struct Point3D {
+    pub x: isize,
+    pub y: isize,
+    pub z: isize,
+}
+
+impl Add for Point3D {
+    type Output = Point3D;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Point3D::new(self.x + rhs.x, self.y + rhs.y, self.z + rhs.z)
+    }
+}
+
+impl Sub for Point3D {
+    type Output = Point3D;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        Point3D::new(self.x - rhs.x, self.y - rhs.y, self.z - rhs.z)
+    }
+}
+
+impl Point3D {
+    pub fn new(x: isize, y: isize, z: isize) -> Self {
+        Point3D { x, y, z }
+    }
+
+    pub fn adjacent_to(self, other: Point3D) -> bool {
+        let delta = self - other;
+
+        delta.x == 0 && delta.y == 0 && delta.z.abs() == 1
+            || delta.x == 0 && delta.y.abs() == 1 && delta.z == 0
+            || delta.x.abs() == 1 && delta.y == 0 && delta.z == 0
+    }
+}
