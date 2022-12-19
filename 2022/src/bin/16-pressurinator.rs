@@ -298,7 +298,7 @@ impl Cave {
                 vec![StepMulti {
                     fuel,
                     per_tick_flow,
-                    data: StepMultiData::DoNothing
+                    data: StepMultiData::DoNothing,
                 }],
             );
 
@@ -420,7 +420,7 @@ impl Cave {
             Rc::new(RefCell::new(HashMap::new())),
             vec![State::new(cave.clone().indexes[&location]); agents],
             fuel,
-            BitVec::from_vec(vec![0; cave.clone().size])
+            BitVec::from_vec(vec![0; cave.clone().size]),
         );
 
         // Because we're using Vec, the steps end up in reverse order
