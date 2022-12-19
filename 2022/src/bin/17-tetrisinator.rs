@@ -1,8 +1,5 @@
 use aoc::*;
-use std::{
-    collections::HashSet,
-    path::Path,
-};
+use std::{collections::HashSet, path::Path};
 
 #[derive(Debug)]
 struct Rock {
