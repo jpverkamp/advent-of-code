@@ -206,6 +206,15 @@ impl Sub for Point3D {
 }
 
 impl Point3D {
+    pub const UNITS: [Point3D; 6] = [
+        Point3D { x: -1, y: 0, z: 0 },
+        Point3D { x: 1, y: 0, z: 0 },
+        Point3D { x: 0, y: -1, z: 0 },
+        Point3D { x: 0, y: 1, z: 0 },
+        Point3D { x: 0, y: 0, z: -1 },
+        Point3D { x: 0, y: 0, z: 1 },
+    ];
+
     pub fn new(x: isize, y: isize, z: isize) -> Self {
         Point3D { x, y, z }
     }

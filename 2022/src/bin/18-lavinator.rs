@@ -65,15 +65,6 @@ where
     }
 }
 
-const SIDES: [Point3D; 6] = [
-    Point3D { x: -1, y: 0, z: 0 },
-    Point3D { x: 1, y: 0, z: 0 },
-    Point3D { x: 0, y: -1, z: 0 },
-    Point3D { x: 0, y: 1, z: 0 },
-    Point3D { x: 0, y: 0, z: -1 },
-    Point3D { x: 0, y: 0, z: 1 },
-];
-
 fn part1(filename: &Path) -> String {
     let cloud = Point3DCloud::from(&mut iter_lines(filename));
 
@@ -81,7 +72,7 @@ fn part1(filename: &Path) -> String {
         .points
         .iter()
         .map(|p| {
-            SIDES
+            Point3D::UNITS
                 .iter()
                 .map(|s| !cloud.contains(*p + *s))
                 .filter(|v| *v)
@@ -132,7 +123,7 @@ fn part2(filename: &Path) -> String {
         external.insert(p);
 
         // Check all neighbors
-        SIDES.iter().for_each(|s| q.push_back(p + *s));
+        Point3D::UNITS.iter().for_each(|s| q.push_back(p + *s));
     }
 
     // Any side adjacent to an external cube is external
@@ -140,7 +131,7 @@ fn part2(filename: &Path) -> String {
         .points
         .iter()
         .map(|p| {
-            SIDES
+            Point3D::UNITS
                 .iter()
                 .map(|s| external.contains(&(*p + *s)))
                 .filter(|v| *v)
