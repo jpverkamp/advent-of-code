@@ -364,6 +364,6 @@ mod tests {
     #[ignore]
     #[test]
     fn test2() {
-        aoc_test("16", part2, "")
+        aoc_test("16", part2, "2582")
     }
 }
