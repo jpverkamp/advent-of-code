@@ -1,6 +1,6 @@
 use aoc::*;
 use regex::Regex;
-use std::{collections::HashMap, hash::Hash, path::Path, time::Instant};
+use std::{collections::{HashMap, HashSet}, hash::Hash, path::Path, time::Instant, env};
 
 // Store the description of the cave as a directed graph with flow rates at the nodes
 #[derive(Clone, Debug)]
@@ -172,32 +172,46 @@ impl Cave {
     }
 
     fn max_flow_multi(self, start: String, fuel: usize, agents: usize) -> (usize, Vec<Vec<usize>>) {
-        let max_enabled = self.flow_rates.iter().filter(|f| **f > 0).count();
-
         let mut queue = Vec::new();
         let start_path = vec![self.indexes[start.as_str()]];
 
-        queue.push((0, 0, vec![fuel; agents], vec![start_path.clone(); agents]));
+        queue.push((0, vec![fuel; agents], vec![start_path.clone(); agents]));
 
         let start = Instant::now();
         let mut tick = Instant::now();
         let mut count = 0;
 
+        let enable_progress_print = env::var("AOC16_PRINT_PROGRESS").is_ok() || cfg!(debug_assertions);
+
+        let enable_prune_optimization = env::var("AOC16_OPT_PRUNE").is_ok();
+        let mut prune_count = 0;
+
+        let enable_seen_optimization = env::var("AOC16_OPT_SEEN").is_ok();
+        let mut seen = HashSet::new();
+        let mut seen_skip_count = 0;
+
         let mut best = (0, vec![start_path.clone(); agents]);
         while !queue.is_empty() {
-            let (pressure, enabled, fuels, paths) = queue.pop().unwrap();
+            let (pressure, fuels, paths) = queue.pop().unwrap();
             count += 1;
 
-            if cfg!(debug_assertions) {
-                if tick.elapsed().as_secs_f32() > 1.0 {
-                    println!("After {}s, examined {count} states, {} in queue\n", start.elapsed().as_secs(), queue.len());
+            if enable_seen_optimization {
+                seen.insert((fuels.clone(), paths.clone()));
+            }
+            
+            if enable_progress_print {
+                if tick.elapsed().as_secs_f32() > 5.0 {
+                    println!(
+                        "After {}s, examined {count} states, pruned {prune_count}, seen skipped {seen_skip_count}, {} in queue",
+                        start.elapsed().as_secs(),
+                        queue.len()
+                    );
                     tick = Instant::now();
                 }
 
                 if pressure > best.0 {
                     println!(
-                        "new best: pressure={pressure}, extra fuel={fuels:?}, queue has {}\n\t{}\n",
-                        queue.len(),
+                        "new best: pressure={pressure}, extra fuel={fuels:?}, paths: [{}]",
                         paths
                             .iter()
                             .map(|path| path
@@ -206,7 +220,7 @@ impl Cave {
                                 .collect::<Vec<_>>()
                                 .join(", "),)
                             .collect::<Vec<_>>()
-                            .join("\n\t")
+                            .join("]; [")
                     );
                 }
             }
@@ -215,25 +229,44 @@ impl Cave {
                 best = (pressure, paths.clone());
             }
 
-            // No possible next states if everything we want to enable is enabled
-            if enabled >= max_enabled {
-                continue;
-            }
+            if enable_prune_optimization {
+                // Calculate the best case remaining flow and stop if we can't hit it
+                // For each node:
+                let remaining_best_case = self
+                    .flow_rates
+                    .iter()
+                    .enumerate()
+                    .map(|(i, f)| {
+                        // If it's already on, ignore it
+                        if paths.iter().any(|path| path.contains(&i)) {
+                            0
+                        } else {
+                            // Otherwise, for each agent, find the agent that would be best
+                            // This is defined as the flow rate * the fuel left after moving to that node
+                            // Take the best case here
+                            // This will over estimate, since it assumes each node can go to all nodes at once
+                            paths
+                                .iter()
+                                .enumerate()
+                                .map(|(pi, p)| {
+                                    let d = self.distances[[*p.last().unwrap(), i]];
+                                    if d + 1 <= fuels[pi] {
+                                        f * (fuels[pi] - d - 1)
+                                    } else {
+                                        0
+                                    }
+                                })
+                                .max()
+                                .unwrap()
+                        }
+                    })
+                    .sum::<usize>();
 
-            // Calculate the best case remaining flow and stop if we can't hit it
-            let remaining_flow = self.flow_rates.iter().enumerate().map(
-                |(i, f)| {
-                    if paths.iter().any(|path| path.contains(&i)) {
-                        0                        
-                    } else {
-                        *f
-                    }
+                // If even the best case isn't good enough, don't consider any more cases on this branch
+                if pressure + remaining_best_case < best.0 {
+                    prune_count += 1;
+                    continue;
                 }
-            ).sum::<usize>();
-            let maximum_fuel_left = fuels.iter().max().unwrap();
-
-            if pressure + remaining_flow * maximum_fuel_left < best.0 {
-                continue;
             }
 
             // For each path and each next node to visit:
@@ -256,14 +289,28 @@ impl Cave {
                     let mut new_fuels = fuels.clone();
                     new_fuels[path_i] -= d + 1;
 
+                    if enable_seen_optimization {
+                        if seen.contains(&(new_fuels.clone(), new_paths.clone())) {
+                            seen_skip_count += 1;
+                            continue;
+                        }
+                    }
+
                     queue.push((
                         pressure + (fuels[path_i] - d - 1) * self.flow_rates[next_i],
-                        enabled + 1,
                         new_fuels,
                         new_paths,
                     ));
                 }
             }
+        }
+
+        if enable_progress_print {
+            println!(
+                "[Final] After {}s, examined {count} states, pruned {prune_count}, seen skipped {seen_skip_count}, {} in queue\n",
+                start.elapsed().as_secs_f32(),
+                queue.len()
+            );
         }
 
         best
