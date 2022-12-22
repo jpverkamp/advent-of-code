@@ -584,6 +584,8 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
+    use std::env;
+
     use crate::{part1, part2};
     use aoc::aoc_test;
 
@@ -592,9 +594,11 @@ mod tests {
         aoc_test("16", part1, "1720")
     }
 
-    #[ignore]
     #[test]
     fn test2() {
+        env::set_var("AOC16_OPT_PRUNE", "true");
+        env::set_var("AOC16_OPT_SEEN", "true");
+
         aoc_test("16", part2, "2582")
     }
 }
