@@ -17,7 +17,7 @@ where
             data: iter
                 .map(|line| line.parse::<INumber>().expect("must be a number"))
                 .enumerate()
-                .collect::<Vec<_>>()
+                .collect::<Vec<_>>(),
         }
     }
 }
@@ -44,7 +44,8 @@ impl Message {
     }
 
     fn mix(&mut self, index_to_move: usize) {
-        let (index_current, (_, value)) = self.data
+        let (index_current, (_, value)) = self
+            .data
             .iter()
             .enumerate()
             .find(|(_, (index_original, _))| index_to_move == *index_original)
@@ -52,7 +53,7 @@ impl Message {
 
         let mut index_target = index_current as INumber + value;
         let ilen = self.data.len() as INumber;
-        
+
         // If the index is negative, increase it into range
         // We can't jump directly there because we'll overflow even i128, so jump in decreasing steps
         let mut steps = 100000000;
@@ -66,18 +67,18 @@ impl Message {
         while index_target < 0 {
             index_target += ilen - 1;
         }
-        
+
         // Do the same if the index is too big, resetting steps
         steps = 10000000;
         while steps > 1 {
             while index_target >= steps * ilen {
-                let loops = (index_target / ilen).min(steps); 
+                let loops = (index_target / ilen).min(steps);
                 index_target = index_target - loops * ilen + loops;
             }
             steps /= 10;
         }
         while index_target >= ilen {
-            let loops = index_target / ilen; 
+            let loops = index_target / ilen;
             index_target = index_target - loops * ilen + loops;
         }
 
@@ -88,15 +89,11 @@ impl Message {
         }
 
         let index_target = index_target as usize;
-        
+
         if cfg!(debug_assertions) {
             println!(
                 "{} [moving, orig: {:2}, value: {:2}, curr: {:2}, next: {:2}]",
-                self,
-                index_to_move,
-                value,
-                index_current,
-                index_target,
+                self, index_to_move, value, index_current, index_target,
             );
         }
 
@@ -110,34 +107,30 @@ impl Message {
 
     #[allow(dead_code)]
     fn data(&self) -> Vec<INumber> {
-        self.data
-            .iter()
-            .map(|(_, v)| *v)
-            .collect::<Vec<_>>()
+        self.data.iter().map(|(_, v)| *v).collect::<Vec<_>>()
     }
 }
 
 fn part1(filename: &Path) -> String {
     let mut message = Message::from(&mut iter_lines(filename));
     message.decrypt();
-    
+
     if cfg!(debug_assertions) {
         println!("{message} [final]");
     }
 
     let index_zero = message
-            .data
-            .iter()
-            .enumerate()
-            .find(|(_, (_, v))| *v == 0)
-            .unwrap()
-            .0;
+        .data
+        .iter()
+        .enumerate()
+        .find(|(_, (_, v))| *v == 0)
+        .unwrap()
+        .0;
 
-    (
-        message.data[(index_zero + 1000) % message.len()].1 + 
-        message.data[(index_zero + 2000) % message.len()].1 + 
-        message.data[(index_zero + 3000) % message.len()].1
-    ).to_string()
+    (message.data[(index_zero + 1000) % message.len()].1
+        + message.data[(index_zero + 2000) % message.len()].1
+        + message.data[(index_zero + 3000) % message.len()].1)
+        .to_string()
 }
 
 fn part2(filename: &Path) -> String {
@@ -153,18 +146,17 @@ fn part2(filename: &Path) -> String {
     }
 
     let index_zero = message
-            .data
-            .iter()
-            .enumerate()
-            .find(|(_, (_, v))| *v == 0)
-            .unwrap()
-            .0;
+        .data
+        .iter()
+        .enumerate()
+        .find(|(_, (_, v))| *v == 0)
+        .unwrap()
+        .0;
 
-    (
-        message.data[(index_zero + 1000) % message.len()].1 + 
-        message.data[(index_zero + 2000) % message.len()].1 + 
-        message.data[(index_zero + 3000) % message.len()].1
-    ).to_string()
+    (message.data[(index_zero + 1000) % message.len()].1
+        + message.data[(index_zero + 2000) % message.len()].1
+        + message.data[(index_zero + 3000) % message.len()].1)
+        .to_string()
 }
 
 fn main() {
@@ -177,32 +169,23 @@ mod tests {
     use aoc::aoc_test;
 
     fn make_test() -> Message {
-        Message { data: vec![
-            (0, 1),
-            (1, 2),
-            (2, -3), 
-            (3, 3),
-            (4, -2),
-            (5, 0),
-            (6, 4),
-        ]}
+        Message {
+            data: vec![(0, 1), (1, 2), (2, -3), (3, 3), (4, -2), (5, 0), (6, 4)],
+        }
     }
 
     fn make_zeroes(size: usize) -> Message {
         Message {
-            data: (0..size)
-                .map(|v| (v, 0))
-                .collect::<Vec<_>>()
+            data: (0..size).map(|v| (v, 0)).collect::<Vec<_>>(),
         }
     }
 
-    fn make_singleton(size: usize, index: usize, value: crate::INumber) -> Message{
+    fn make_singleton(size: usize, index: usize, value: crate::INumber) -> Message {
         let mut message = make_zeroes(size);
         message.data[index].1 = value;
         message
     }
 
-    
     #[test]
     fn test_mix() {
         let mut message = make_test();
@@ -213,7 +196,7 @@ mod tests {
 
         message.mix(1);
         assert_eq!(message.data(), vec![1, -3, 2, 3, -2, 0, 4]);
-        
+
         message.mix(2);
         assert_eq!(message.data(), vec![1, 2, 3, -2, -3, 0, 4]);
 
