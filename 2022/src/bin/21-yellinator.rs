@@ -14,33 +14,24 @@ enum Monkey {
     },
     Math {
         op: fn(isize, isize) -> isize,
-        left: Rc<Monkey>,
-        right: Rc<Monkey>,
+        left: String,
+        right: String,
     },
-}
-
-impl Monkey {
-    fn value(&self) -> isize {
-        match self {
-            Monkey::Constant { value } => *value,
-            Monkey::Math { op, left, right } => op(left.value(), right.value()),
-        }
-    }
 }
 
 #[derive(Debug)]
 struct Troop {
-    monkeys: Rc<RefCell<HashMap<String, Rc<Monkey>>>>,
+    monkeys: HashMap<String, Monkey>,
 }
 
 impl Troop {
     fn new() -> Self {
         Troop {
-            monkeys: Rc::new(RefCell::new(HashMap::new())),
+            monkeys: HashMap::new(),
         }
     }
 
-    fn try_add(&mut self, line: String) -> bool {
+    fn add(&mut self, line: &String) {
         // Simple/constant value monkey
         if line.chars().filter(|c| c.is_whitespace()).count() == 1 {
             let (mut name, value) = line
@@ -56,23 +47,21 @@ impl Troop {
                 .parse::<isize>()
                 .expect("Constant monkey value must be numeric");
 
-            self.monkeys.borrow_mut().insert(
+            self.monkeys.insert(
                 String::from(name),
-                Rc::new(Monkey::Constant { value: value }),
+                Monkey::Constant { value: value },
             );
-
-            true
         }
         // Mathematical monkey
         else {
-            let (mut name, left_name, op_name, right_name) = line
+            let (mut name, left, op_name, right) = line
                 .split_ascii_whitespace()
                 .collect_tuple()
                 .expect("Math monkey must be '{name}: {name} {op} {name}'");
 
-            name = name
+            let name = String::from(name
                 .strip_suffix(":")
-                .expect("Constant monkey name must have :");
+                .expect("Constant monkey name must have :"));
 
             let op = match op_name {
                 "+" => |a, b| a + b,
@@ -84,44 +73,36 @@ impl Troop {
                 _ => panic!("Math monkey unknown op: {op_name}"),
             };
 
-            let left_name = String::from(left_name);
-            let right_name = String::from(right_name);
+            let left = String::from(left);
+            let right = String::from(right);
 
-            if !(self.monkeys.borrow().contains_key(&left_name)
-                && self.monkeys.borrow().contains_key(&right_name))
-            {
-                false
-            } else {
-                let left = self.monkeys.borrow().get(&left_name).unwrap().clone();
-                let right = self.monkeys.borrow().get(&right_name).unwrap().clone();
+            self.monkeys.insert(
+                String::from(name),
+                Monkey::Math { op, left, right },
+            );
+        }
+    }
 
-                self.monkeys.borrow_mut().insert(
-                    String::from(name),
-                    Rc::new(Monkey::Math { op, left, right }),
-                );
-
-                true
+    fn value(&self, name: &String) -> isize {
+        match &self.monkeys[name] {
+            Monkey::Constant { value } => *value,
+            Monkey::Math { op, left, right } => {
+                op(
+                    self.value(left),
+                    self.value(right),
+                )
             }
         }
     }
 }
 
 fn part1(filename: &Path) -> String {
-    let mut lines = VecDeque::from(read_lines(filename));
     let mut troop = Troop::new();
-
-    while !lines.is_empty() {
-        let line = lines.pop_front().unwrap();
-
-        // Couldn't add the monkey yet
-        if !troop.try_add(line.clone()) {
-            lines.push_back(line);
-        }
+    for line in iter_lines(filename) {
+        troop.add(&line);
     }
 
-    troop.monkeys.clone().borrow()[&String::from("root")]
-        .value()
-        .to_string()
+    troop.value(&String::from("root")).to_string()
 }
 
 fn part2(_filename: &Path) -> String {
