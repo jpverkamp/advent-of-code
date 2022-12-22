@@ -194,7 +194,8 @@ impl Blueprint {
                         }
                     })
                     .max()
-                    .unwrap() + 1;
+                    .unwrap()
+                    + 1;
 
                 // If it won't be done in time, don't try to
                 if ticks > time {
@@ -234,17 +235,6 @@ impl Blueprint {
                     builds: new_builds,
                 });
             }
-
-            // // Add a state for building nothing this round
-            // let mut new_builds = builds.clone();
-            // new_builds.push(None);
-
-            // queue.push(State {
-            //     time: time - 1,
-            //     inventory: new_inventory,
-            //     population: population,
-            //     builds: new_builds,
-            // });
         }
 
         best
