@@ -63,7 +63,7 @@ pub fn aoc_test(day: &str, f: FnPart, expected: &str) {
 }
 
 /* ----- A 2D matrix of any kind of value ----- */
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Matrix<T> {
     data: Vec<T>,
     width: usize,
