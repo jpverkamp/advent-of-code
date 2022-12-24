@@ -1,8 +1,9 @@
 use aoc::*;
+use image::{RgbImage, ImageBuffer};
 use itertools::Itertools;
 use std::{
     collections::{HashMap, HashSet},
-    path::Path,
+    path::Path, env,
 };
 
 #[derive(Debug)]
@@ -189,6 +190,32 @@ impl Map {
 
         current
     }
+
+    fn render(&self) -> RgbImage {
+        ImageBuffer::from_fn(self.width as u32, self.height as u32, |x, y| {
+            let p = Point::new(x as isize, y as isize);
+            if self.walls.contains(&p) {
+                image::Rgb([127, 127, 127])
+            } else if self.floors.contains(&p) {
+                if let Some((index, (_, facing))) = self.path_data.iter().rev().enumerate().find(|(_, (pp, _))| p == *pp) {
+                    let c = if index > 223 { 32 } else { (255 - index) as u8 };
+
+                    match facing {
+                        '^' => image::Rgb([c, 15, 15]),
+                        'v' => image::Rgb([15, c, 15]),
+                        '<' => image::Rgb([15, 15, c]),
+                        '>' => image::Rgb([c, c, 15]),
+                        _ => panic!("unknown facing char {c}"),
+                    }
+                } else {
+                    image::Rgb([15, 15, 15])
+                }
+            } else {
+                image::Rgb([0, 0, 0])
+            }
+        })
+    }
+
 }
 
 #[derive(Debug)]
@@ -438,7 +465,8 @@ fn part2(filename: &Path) -> String {
 
     let wrap_mode = WrapMode::Cube(size, adjacency_map);
 
-    for (distance, turn) in moves.data.into_iter() {
+    let move_count = moves.data.len();
+    for (frame, (distance, turn)) in moves.data.into_iter().enumerate() {
         if cfg!(debug_assertions) {
             println!("next move is {distance} and then turn {turn}");
         }
@@ -449,6 +477,14 @@ fn part2(filename: &Path) -> String {
         if cfg!(debug_assertions) {
             println!("moved to {location:?}, {facing:?}");
             println!("{map}\n");
+        }
+
+        if env::var("AOC16_RENDER").is_ok() {
+            println!("Rendering [{frame}/{move_count}]");
+            map
+                .render()
+                .save(format!("{:08}.png", frame))
+                .expect("failed to save frame");
         }
     }
 
@@ -461,6 +497,27 @@ fn part2(filename: &Path) -> String {
             facing.value(),
             password
         );
+    }
+
+    if env::var("AOC16_RENDER").is_ok() {
+        println!("Rendering mp4");
+        
+        use std::process::Command;
+
+        let commands = vec![
+            "ffmpeg -y -framerate 30 -i %08d.png -vf scale=iw*4:ih*4:flags=neighbor -c:v libx264 -preset slow -crf 20 -vf format=yuv420p -movflags +faststart -r 30 sandbox.mp4",
+            "find . -name '*.png' | xargs rm"
+        ];
+
+        for cmd in commands.into_iter() {
+            println!("$ {}", cmd);
+            let mut child = Command::new("bash")
+                .arg("-c")
+                .arg(cmd)
+                .spawn()
+                .expect("command failed");
+            child.wait().expect("process didn't finish");
+        }
     }
 
     password.to_string()
