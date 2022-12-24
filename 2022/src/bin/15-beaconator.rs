@@ -198,11 +198,7 @@ impl Map {
 fn part1(filename: &Path) -> String {
     let map = Map::from(&mut iter_lines(filename));
 
-    let target_row = if filename
-        .to_str()
-        .unwrap()
-        .contains("test")
-    {
+    let target_row = if filename.to_str().unwrap().contains("test") {
         10
     } else {
         2000000
@@ -214,11 +210,7 @@ fn part1(filename: &Path) -> String {
 fn part2(filename: &Path) -> String {
     let map = Map::from(&mut iter_lines(filename));
 
-    let bound = if filename
-        .to_str()
-        .unwrap()
-        .contains("test")
-    {
+    let bound = if filename.to_str().unwrap().contains("test") {
         20
     } else {
         4000000

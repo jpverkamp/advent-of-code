@@ -1,6 +1,6 @@
-use std::{path::Path, collections::{HashMap}, fmt::Display, env};
 use aoc::*;
-use image::{RgbImage, ImageBuffer};
+use image::{ImageBuffer, RgbImage};
+use std::{collections::HashMap, env, fmt::Display, path::Path};
 
 #[derive(Clone, Debug)]
 struct Elves {
@@ -28,10 +28,16 @@ impl Display for Elves {
         let [min_x, max_x, min_y, max_y] = self.bounds();
 
         let mut buffer = String::new();
-        buffer.push_str(format!("Elves<count: {}, bounds: {min_x}..{max_x}, {min_y}..{max_y}, data:\n", self.locations.len()).as_str());
+        buffer.push_str(
+            format!(
+                "Elves<count: {}, bounds: {min_x}..{max_x}, {min_y}..{max_y}, data:\n",
+                self.locations.len()
+            )
+            .as_str(),
+        );
 
         buffer.push(' ');
-        for x in (min_x-1)..=(max_x+1) {
+        for x in (min_x - 1)..=(max_x + 1) {
             if x == 0 {
                 buffer.push('0');
             } else {
@@ -40,14 +46,14 @@ impl Display for Elves {
         }
         buffer.push('\n');
 
-        for y in (min_y-1)..=(max_y+1) {
+        for y in (min_y - 1)..=(max_y + 1) {
             if y == 0 {
                 buffer.push('0');
             } else {
                 buffer.push(' ');
             }
 
-            for x in (min_x-1)..=(max_x+1) {
+            for x in (min_x - 1)..=(max_x + 1) {
                 if self.locations.contains_key(&Point::new(x, y)) {
                     buffer.push('#');
                 } else {
@@ -57,7 +63,7 @@ impl Display for Elves {
             buffer.push('\n');
         }
         buffer.push('>');
-        
+
         write!(f, "{}\n", buffer)
     }
 }
@@ -100,13 +106,16 @@ impl Elves {
                 continue 'next_elf;
             }
 
-
             // Try to move each direction until we find an empty on
             for check in 0..4 {
                 let direction = Direction::proposal(round, check);
 
                 // All three checks in this direction must be empty
-                if direction.check().iter().any(|p| self.locations.contains_key(&(*elf + *p))) {
+                if direction
+                    .check()
+                    .iter()
+                    .any(|p| self.locations.contains_key(&(*elf + *p)))
+                {
                     continue;
                 }
 
@@ -121,9 +130,7 @@ impl Elves {
         // Second, remove any duplicates
         let dedup_moves = moves
             .iter()
-            .filter(|(p1, p2)|
-                !moves.iter().any(|(q1, q2)| p1 != q1 && p2 == q2)
-            )
+            .filter(|(p1, p2)| !moves.iter().any(|(q1, q2)| p1 != q1 && p2 == q2))
             .collect::<Vec<_>>();
 
         self.locations.iter_mut().for_each(|(_, v)| *v += 1);
@@ -147,7 +154,7 @@ impl Elves {
         } else {
             self.bounds()
         };
-        
+
         let width = max_x - min_x + 1;
         let height = max_y - min_y + 1;
 
@@ -162,7 +169,6 @@ impl Elves {
                 } else {
                     image::Rgb([0, (255 - *age) as u8, 0])
                 }
-                
             } else if p.x == 0 || p.y == 0 {
                 image::Rgb([63, 63, 63])
             } else {
@@ -177,7 +183,7 @@ enum Direction {
     North,
     South,
     West,
-    East
+    East,
 }
 
 impl Direction {
@@ -203,16 +209,16 @@ impl Direction {
     fn check(self) -> [Point; 3] {
         match self {
             Direction::North => [Point::new(-1, -1), Point::new(0, -1), Point::new(1, -1)],
-            Direction::South => [Point::new(-1,  1), Point::new(0,  1), Point::new(1,  1)],
-            Direction::West  => [Point::new(-1, -1), Point::new(-1, 0), Point::new(-1, 1)],
-            Direction::East  => [Point::new(1, -1), Point::new(1, 0), Point::new(1, 1)],
+            Direction::South => [Point::new(-1, 1), Point::new(0, 1), Point::new(1, 1)],
+            Direction::West => [Point::new(-1, -1), Point::new(-1, 0), Point::new(-1, 1)],
+            Direction::East => [Point::new(1, -1), Point::new(1, 0), Point::new(1, 1)],
         }
     }
 }
 
 fn part1(filename: &Path) -> String {
     let mut elves = Elves::from(filename);
-    
+
     if cfg!(debug_assertions) {
         println!("== Initial State ==\n{elves}");
     }
@@ -232,7 +238,7 @@ fn part1(filename: &Path) -> String {
 
 fn part2(filename: &Path) -> String {
     let mut elves = Elves::from(filename);
-    
+
     if cfg!(debug_assertions) {
         println!("== Initial State ==\n{elves}");
     }
@@ -240,7 +246,7 @@ fn part2(filename: &Path) -> String {
     let mut final_frame = 0;
     for frame in 0.. {
         let changed = elves.step(frame);
-        if !changed { 
+        if !changed {
             final_frame = frame + 1;
             // break;
         }
@@ -263,7 +269,7 @@ fn part2(filename: &Path) -> String {
 
     if env::var("AOC23_RENDER").is_ok() {
         println!("Rendering mp4");
-        
+
         use std::process::Command;
 
         let commands = vec![
@@ -293,12 +299,16 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
-    use aoc::aoc_test;
     use crate::{part1, part2};
-
-    #[test]   
-    fn test1() { aoc_test("23", part1, "4241") }
+    use aoc::aoc_test;
 
     #[test]
-    fn test2() { aoc_test("23", part2, "1079") }
+    fn test1() {
+        aoc_test("23", part1, "4241")
+    }
+
+    #[test]
+    fn test2() {
+        aoc_test("23", part2, "1079")
+    }
 }

@@ -1,9 +1,10 @@
 use aoc::*;
-use image::{RgbImage, ImageBuffer};
+use image::{ImageBuffer, RgbImage};
 use itertools::Itertools;
 use std::{
     collections::{HashMap, HashSet},
-    path::Path, env,
+    env,
+    path::Path,
 };
 
 #[derive(Debug)]
@@ -112,7 +113,7 @@ impl Map {
 
         for _i in 0..distance {
             let mut next = (current.0 + current.1.delta(), current.1);
-            
+
             // If we run into a wall, just stop moving
             if self.walls.contains(&next.0) {
                 break;
@@ -148,31 +149,35 @@ impl Map {
                         let current_offset = match facing {
                             North => (next.0.x - 1) % (*width as isize),
                             South => *width as isize - (next.0.x - 1) % (*width as isize) - 1,
-                            East  => (next.0.y - 1) % (*width as isize),
-                            West  => *width as isize - (next.0.y - 1) % (*width as isize) - 1,
+                            East => (next.0.y - 1) % (*width as isize),
+                            West => *width as isize - (next.0.y - 1) % (*width as isize) - 1,
                         };
 
                         // Determine the next face and facing
-                        let (next_face, next_facing) = adjacencies
-                            .get(&(current_face, facing))
-                            .expect(format!("unknown adjacency for {current_face:?} facing {facing:?}").as_str());
+                        let (next_face, next_facing) =
+                            adjacencies.get(&(current_face, facing)).expect(
+                                format!("unknown adjacency for {current_face:?} facing {facing:?}")
+                                    .as_str(),
+                            );
 
                         next = (
                             Point::new(
-                                1 + next_face.x * (*width as isize) + match next_facing {
-                                    North => current_offset,
-                                    South => *width as isize - current_offset - 1,
-                                    East  => 0,
-                                    West  => *width as isize - 1,
-                                },
-                                1 + next_face.y * (*width as isize) + match next_facing {
-                                    North => *width as isize - 1,
-                                    South => 0,
-                                    East  => current_offset,
-                                    West  => *width as isize - current_offset - 1,
-                                }
+                                1 + next_face.x * (*width as isize)
+                                    + match next_facing {
+                                        North => current_offset,
+                                        South => *width as isize - current_offset - 1,
+                                        East => 0,
+                                        West => *width as isize - 1,
+                                    },
+                                1 + next_face.y * (*width as isize)
+                                    + match next_facing {
+                                        North => *width as isize - 1,
+                                        South => 0,
+                                        East => current_offset,
+                                        West => *width as isize - current_offset - 1,
+                                    },
                             ),
-                            *next_facing      
+                            *next_facing,
                         );
                     }
                 }
@@ -197,7 +202,13 @@ impl Map {
             if self.walls.contains(&p) {
                 image::Rgb([127, 127, 127])
             } else if self.floors.contains(&p) {
-                if let Some((index, (_, facing))) = self.path_data.iter().rev().enumerate().find(|(_, (pp, _))| p == *pp) {
+                if let Some((index, (_, facing))) = self
+                    .path_data
+                    .iter()
+                    .rev()
+                    .enumerate()
+                    .find(|(_, (pp, _))| p == *pp)
+                {
                     let c = if index > 223 { 32 } else { (255 - index) as u8 };
 
                     match facing {
@@ -215,7 +226,6 @@ impl Map {
             }
         })
     }
-
 }
 
 #[derive(Debug)]
@@ -382,10 +392,7 @@ fn part2(filename: &Path) -> String {
 
     use Facing::*;
 
-    let test_mode = filename
-        .to_str()
-        .unwrap()
-        .contains("test");
+    let test_mode = filename.to_str().unwrap().contains("test");
 
     let size = if test_mode { 4 } else { 50 };
     let adjacency_map: HashMap<(Point, Facing), (Point, Facing)> = (if test_mode {
@@ -447,7 +454,7 @@ fn part2(filename: &Path) -> String {
     })
     .into_iter()
     .collect();
-    
+
     for (pf1, pf2) in adjacency_map.iter() {
         let pf1p = (pf1.0, pf1.1.opposite());
         let pf2p = (pf2.0, pf2.1.opposite());
@@ -457,10 +464,11 @@ fn part2(filename: &Path) -> String {
         }
 
         if adjacency_map[&pf2p] != pf1p {
-            panic!("Expecing value of {pf2p:?} to be {pf1p:?}, got {:?}", adjacency_map[&pf2p]);
+            panic!(
+                "Expecing value of {pf2p:?} to be {pf1p:?}, got {:?}",
+                adjacency_map[&pf2p]
+            );
         }
-
-        
     }
 
     let wrap_mode = WrapMode::Cube(size, adjacency_map);
@@ -481,8 +489,7 @@ fn part2(filename: &Path) -> String {
 
         if env::var("AOC22_RENDER").is_ok() {
             println!("Rendering [{frame}/{move_count}]");
-            map
-                .render()
+            map.render()
                 .save(format!("{:08}.png", frame))
                 .expect("failed to save frame");
         }
@@ -501,7 +508,7 @@ fn part2(filename: &Path) -> String {
 
     if env::var("AOC22_RENDER").is_ok() {
         println!("Rendering mp4");
-        
+
         use std::process::Command;
 
         let commands = vec![
