@@ -354,7 +354,8 @@ fn part1(filename: &Path) -> String {
     let mut location = map.start.clone();
     let mut facing = Facing::East;
 
-    for (distance, turn) in moves.data.into_iter() {
+    let move_count = moves.data.len();
+    for (frame, (distance, turn)) in moves.data.into_iter().enumerate() {
         if cfg!(debug_assertions) {
             println!("next move is {distance} and then turn {turn}");
         }
@@ -366,6 +367,17 @@ fn part1(filename: &Path) -> String {
             println!("moved to {location:?}, {facing:?}");
             println!("{map}\n");
         }
+
+        if env::var("AOC22_RENDER").is_ok() {
+            println!("Rendering [{frame}/{move_count}]");
+            map.render()
+                .save(format!("{:08}.png", frame))
+                .expect("failed to save frame");
+        }
+    }
+
+    if env::var("AOC22_RENDER").is_ok() {
+        make_mp4();
     }
 
     let password = 1000 * location.y + 4 * location.x + facing.value();
@@ -507,29 +519,33 @@ fn part2(filename: &Path) -> String {
     }
 
     if env::var("AOC22_RENDER").is_ok() {
-        println!("Rendering mp4");
-
-        use std::process::Command;
-
-        let commands = vec![
-            "ffmpeg -y -framerate 240 -i %08d.png -vf scale=iw*4:ih*4:flags=neighbor -c:v libx264 -r 30 aoc22.raw.mp4",
-            "find . -name '*.png' | xargs rm",
-            "ffmpeg -y -i aoc22.raw.mp4 -c:v libx264 -preset slow -crf 20 -vf format=yuv420p -movflags +faststart aoc22.mp4",
-            "rm aoc22.raw.mp4",
-        ];
-
-        for cmd in commands.into_iter() {
-            println!("$ {}", cmd);
-            let mut child = Command::new("bash")
-                .arg("-c")
-                .arg(cmd)
-                .spawn()
-                .expect("command failed");
-            child.wait().expect("process didn't finish");
-        }
+        make_mp4()
     }
 
     password.to_string()
+}
+
+fn make_mp4() {
+    println!("Rendering mp4");
+
+    use std::process::Command;
+
+    let commands = vec![
+        "ffmpeg -y -framerate 30 -i %08d.png -vf scale=iw*4:ih*4:flags=neighbor -c:v libx264 -r 30 aoc22.raw.mp4",
+        "find . -name '*.png' | xargs rm",
+        "ffmpeg -y -i aoc22.raw.mp4 -c:v libx264 -preset slow -crf 20 -vf format=yuv420p -movflags +faststart aoc22.mp4",
+        "rm aoc22.raw.mp4",
+    ];
+
+    for cmd in commands.into_iter() {
+        println!("$ {}", cmd);
+        let mut child = Command::new("bash")
+            .arg("-c")
+            .arg(cmd)
+            .spawn()
+            .expect("command failed");
+        child.wait().expect("process didn't finish");
+    }
 }
 
 fn main() {
