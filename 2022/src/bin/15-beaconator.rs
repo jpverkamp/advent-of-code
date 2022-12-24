@@ -199,8 +199,6 @@ fn part1(filename: &Path) -> String {
     let map = Map::from(&mut iter_lines(filename));
 
     let target_row = if filename
-        .file_name()
-        .unwrap()
         .to_str()
         .unwrap()
         .contains("test")
@@ -217,8 +215,6 @@ fn part2(filename: &Path) -> String {
     let map = Map::from(&mut iter_lines(filename));
 
     let bound = if filename
-        .file_name()
-        .unwrap()
         .to_str()
         .unwrap()
         .contains("test")
