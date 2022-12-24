@@ -479,7 +479,7 @@ fn part2(filename: &Path) -> String {
             println!("{map}\n");
         }
 
-        if env::var("AOC16_RENDER").is_ok() {
+        if env::var("AOC22_RENDER").is_ok() {
             println!("Rendering [{frame}/{move_count}]");
             map
                 .render()
@@ -499,14 +499,16 @@ fn part2(filename: &Path) -> String {
         );
     }
 
-    if env::var("AOC16_RENDER").is_ok() {
+    if env::var("AOC22_RENDER").is_ok() {
         println!("Rendering mp4");
         
         use std::process::Command;
 
         let commands = vec![
-            "ffmpeg -y -framerate 30 -i %08d.png -vf scale=iw*4:ih*4:flags=neighbor -c:v libx264 -preset slow -crf 20 -vf format=yuv420p -movflags +faststart -r 30 sandbox.mp4",
-            "find . -name '*.png' | xargs rm"
+            "ffmpeg -y -framerate 240 -i %08d.png -vf scale=iw*4:ih*4:flags=neighbor -c:v libx264 -r 30 aoc22.raw.mp4",
+            "find . -name '*.png' | xargs rm",
+            "ffmpeg -y -i aoc22.raw.mp4 -c:v libx264 -preset slow -crf 20 -vf format=yuv420p -movflags +faststart aoc22.mp4",
+            "rm aoc22.raw.mp4",
         ];
 
         for cmd in commands.into_iter() {
