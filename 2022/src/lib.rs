@@ -231,3 +231,27 @@ impl Point3D {
             || delta.x.abs() == 1 && delta.y == 0 && delta.z == 0
     }
 }
+
+/* ---- Render a series of PNGs into an mp4 ----- */
+pub fn make_mp4(fps: usize, name: String) {
+    println!("Rendering mp4");
+
+    use std::process::Command;
+
+    let commands = vec![
+        format!("ffmpeg -y -framerate {fps} -i %08d.png -vf scale=iw*4:ih*4:flags=neighbor -c:v libx264 -r 30 {name}.raw.mp4"),
+        format!("find . -name '*.png' | xargs rm"),
+        format!("ffmpeg -y -i {name}.raw.mp4 -c:v libx264 -preset slow -crf 20 -vf format=yuv420p -movflags +faststart {name}.mp4"),
+        format!("rm {name}.raw.mp4"),
+    ];
+
+    for cmd in commands.into_iter() {
+        println!("$ {}", cmd);
+        let mut child = Command::new("bash")
+            .arg("-c")
+            .arg(cmd)
+            .spawn()
+            .expect("command failed");
+        child.wait().expect("process didn't finish");
+    }
+}
