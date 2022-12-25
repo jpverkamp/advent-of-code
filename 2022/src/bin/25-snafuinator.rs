@@ -1,5 +1,5 @@
-use std::{path::Path, fmt::Display};
 use aoc::*;
+use std::{fmt::Display, path::Path};
 
 #[derive(Clone, Debug)]
 struct Snafu {
@@ -25,20 +25,22 @@ impl From<isize> for Snafu {
 
         while v > 0 {
             let m = v % 5;
-            
+            v = v / 5;
+
             if m < 3 {
                 digits.push(m.to_string());
-                v = v / 5;
             } else if m == 3 {
                 digits.push(String::from("="));
-                v = v / 5 + 1;
+                v += 1;
             } else if m == 4 {
                 digits.push(String::from("-"));
-                v = v / 5 + 1;
+                v += 1;
             }
         }
 
-        Snafu { value: digits.into_iter().rev().collect::<Vec<_>>().join("") }
+        Snafu {
+            value: digits.into_iter().rev().collect::<Vec<_>>().join(""),
+        }
     }
 }
 
@@ -48,19 +50,19 @@ impl Into<isize> for Snafu {
             '2' | '1' | '0' => a * 5 + c.to_digit(10).unwrap() as isize,
             '-' => a * 5 - 1,
             '=' => a * 5 - 2,
-            _ => panic!("Snafu SNAFUed, what the Snafu is a {c}")
+            _ => panic!("Snafu SNAFUed, what the Snafu is a {c}"),
         })
     }
 }
-
 
 fn part1(filename: &Path) -> String {
     Snafu::from(
         iter_lines(filename)
             .map(Snafu::from)
             .map::<isize, _>(Snafu::into)
-            .sum::<isize>()
-    ).to_string()
+            .sum::<isize>(),
+    )
+    .to_string()
 }
 
 fn part2(_filename: &Path) -> String {
@@ -73,14 +75,18 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
-    use aoc::aoc_test;
     use crate::{part1, part2};
+    use aoc::aoc_test;
 
-    #[test]   
-    fn test1() { aoc_test("25", part1, "2-10==12-122-=1-1-22") }
+    #[test]
+    fn test1() {
+        aoc_test("25", part1, "2-10==12-122-=1-1-22")
+    }
 
     // too low: 35023647158862
 
     #[test]
-    fn test2() { aoc_test("25", part2, "Start The Blender") }
+    fn test2() {
+        aoc_test("25", part2, "Start The Blender")
+    }
 }

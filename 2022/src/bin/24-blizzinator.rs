@@ -1,7 +1,13 @@
-use std::{path::Path, collections::{HashMap, HashSet, VecDeque}, cell::RefCell, rc::Rc, env};
 use aoc::*;
-use image::{RgbImage, ImageBuffer};
+use image::{ImageBuffer, RgbImage};
 use priority_queue::PriorityQueue;
+use std::{
+    cell::RefCell,
+    collections::{HashMap, HashSet, VecDeque},
+    env,
+    path::Path,
+    rc::Rc,
+};
 
 struct Map {
     width: usize,
@@ -23,24 +29,29 @@ impl From<&Path> for Map {
             for (x, c) in line.chars().enumerate() {
                 let p = Point::new(x as isize, y as isize);
                 match c {
-                    '.' | '#' => {},
+                    '.' | '#' => {}
                     '^' => blizzards.push((p, Point::new(0, -1))),
                     'v' => blizzards.push((p, Point::new(0, 1))),
                     '<' => blizzards.push((p, Point::new(-1, 0))),
                     '>' => blizzards.push((p, Point::new(1, 0))),
-                    _ => panic!("unknown map character {c}")
+                    _ => panic!("unknown map character {c}"),
                 }
             }
         }
 
-        Map { width, height, blizzards, occupied: Rc::new(RefCell::new(HashMap::new())) }
+        Map {
+            width,
+            height,
+            blizzards,
+            occupied: Rc::new(RefCell::new(HashMap::new())),
+        }
     }
 }
 
 impl Map {
     fn occupied(&self, x: usize, y: usize, t: usize) -> bool {
         // Constant walls
-        if x == 0 || x == self.width - 1{
+        if x == 0 || x == self.width - 1 {
             return true;
         }
         if y == 0 {
@@ -59,13 +70,17 @@ impl Map {
         // Top left is offset by 1 (at beginning and end) to account for top/left
         // Modulus is offset by 2 to account for both walls in each direction
         let mut is_occupied = false;
-        
+
         let x_loop_fix = ((self.width - 2) * (1 + t / (self.width - 2))) as isize;
         let y_loop_fix = ((self.height - 2) * (1 + t / (self.height - 2))) as isize;
 
         for (origin, delta) in self.blizzards.iter() {
-            if x == 1 + (x_loop_fix + origin.x - 1 + delta.x * t as isize) as usize % (self.width - 2)
-            && y == 1 + (y_loop_fix + origin.y - 1 + delta.y * t as isize) as usize % (self.height - 2) {
+            if x == 1
+                + (x_loop_fix + origin.x - 1 + delta.x * t as isize) as usize % (self.width - 2)
+                && y == 1
+                    + (y_loop_fix + origin.y - 1 + delta.y * t as isize) as usize
+                        % (self.height - 2)
+            {
                 is_occupied = true;
                 break;
             }
@@ -79,8 +94,10 @@ impl Map {
     #[allow(dead_code)]
     fn render(&self, t: usize) -> RgbImage {
         ImageBuffer::from_fn(self.width as u32, self.height as u32, |x, y| {
-
-            if (x == 0 || x as usize == self.width - 1) || (y == 0 && x != 1) || (y as usize == self.height - 1 && x as usize != self.width - 2) {
+            if (x == 0 || x as usize == self.width - 1)
+                || (y == 0 && x != 1)
+                || (y as usize == self.height - 1 && x as usize != self.width - 2)
+            {
                 image::Rgb([127, 127, 127])
             } else if self.occupied(x as usize, y as usize, t) {
                 image::Rgb([200, 233, 233])
@@ -92,9 +109,16 @@ impl Map {
 
     fn render_path(&self, t: usize, path: &VecDeque<(usize, usize)>) -> RgbImage {
         ImageBuffer::from_fn(self.width as u32, self.height as u32, |x, y| {
-            let on_path = path.iter().enumerate().find(|(pt, (px, py))| *pt <= t && *px == x as usize && *py == y as usize).is_some();
+            let on_path = path
+                .iter()
+                .enumerate()
+                .find(|(pt, (px, py))| *pt <= t && *px == x as usize && *py == y as usize)
+                .is_some();
 
-            if (x == 0 || x as usize == self.width - 1) || (y == 0 && x != 1) || (y as usize == self.height - 1 && x as usize != self.width - 2) {
+            if (x == 0 || x as usize == self.width - 1)
+                || (y == 0 && x != 1)
+                || (y as usize == self.height - 1 && x as usize != self.width - 2)
+            {
                 image::Rgb([127, 127, 127])
             } else if self.occupied(x as usize, y as usize, t) {
                 if on_path {
@@ -161,7 +185,7 @@ fn part1(filename: &Path) -> String {
 
             if !previous.contains_key(&(xp, yp, tp)) || t < previous.get(&(xp, yp, tp)).unwrap().2 {
                 previous.insert((xp, yp, tp), (x, y, t));
-            } 
+            }
 
             let d_remaining = map.width - xp - 2 + map.height - yp - 1;
             let t_guess = (tp as isize + d_remaining as isize) * -1;
@@ -176,7 +200,7 @@ fn part1(filename: &Path) -> String {
             let mut x = map.width - 2;
             let mut y = map.height - 1;
             let mut t = final_time;
-            
+
             while !(x == 1 && y == 0) {
                 path.push_front((x, y));
                 (x, y, t) = previous[&(x, y, t)];
@@ -189,8 +213,7 @@ fn part1(filename: &Path) -> String {
 
         if env::var("AOC24_RENDER").is_ok() {
             for t in 0..path.len() {
-                map
-                    .render_path(t, &path)
+                map.render_path(t, &path)
                     .save(format!("{:08}.png", t))
                     .expect("failed to save frame");
             }
@@ -220,7 +243,7 @@ fn part2(filename: &Path) -> String {
         closed.insert((x, y, t));
 
         // Solved when we reach phase 3 and are at the exit
-        // Phase 0 -> exit, 1 -> entrance, 2 -> exit, 3 is at exit 
+        // Phase 0 -> exit, 1 -> entrance, 2 -> exit, 3 is at exit
         if phase == 3 && x == map.width - 2 && y == map.height - 1 {
             final_time = t;
             break;
@@ -257,11 +280,11 @@ fn part2(filename: &Path) -> String {
             // Next phase if d is 0
             let pp = if d_remaining == 0 { phase + 1 } else { phase };
 
-
-            if !previous.contains_key(&(xp, yp, tp, pp)) || t < previous.get(&(xp, yp, tp, pp)).unwrap().2 {
+            if !previous.contains_key(&(xp, yp, tp, pp))
+                || t < previous.get(&(xp, yp, tp, pp)).unwrap().2
+            {
                 previous.insert((xp, yp, tp, pp), (x, y, t, phase));
-            } 
-
+            }
 
             // Distance for unreached phases
             d_remaining += (2 - phase) * (map.width - 2 + map.height - 1);
@@ -280,7 +303,7 @@ fn part2(filename: &Path) -> String {
             let mut y = map.height - 1;
             let mut t = final_time;
             let mut p = 3;
-            
+
             while !(x == 1 && y == 0 && p == 0) {
                 path.push_front((x, y));
                 (x, y, t, p) = previous[&(x, y, t, p)];
@@ -293,8 +316,7 @@ fn part2(filename: &Path) -> String {
 
         if env::var("AOC24_RENDER").is_ok() {
             for t in 0..path.len() {
-                map
-                    .render_path(t, &path)
+                map.render_path(t, &path)
                     .save(format!("{:08}.png", t))
                     .expect("failed to save frame");
             }
@@ -311,12 +333,16 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
-    use aoc::aoc_test;
     use crate::{part1, part2};
-
-    #[test]   
-    fn test1() { aoc_test("24", part1, "238") }
+    use aoc::aoc_test;
 
     #[test]
-    fn test2() { aoc_test("24", part2, "751") }
+    fn test1() {
+        aoc_test("24", part1, "238")
+    }
+
+    #[test]
+    fn test2() {
+        aoc_test("24", part2, "751")
+    }
 }
