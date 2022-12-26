@@ -180,7 +180,7 @@ impl Blueprint {
                 // We don't need any more of this one
                 if id != (Material::Geode as Qty) {
                     // We are creating enough resources each tick to build any robot
-                    if population[id] > max_needed[id] {
+                    if population[id] >= max_needed[id] {
                         overbuild_count += 1;
                         continue;
                     }
