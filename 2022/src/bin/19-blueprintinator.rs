@@ -3,8 +3,8 @@ use itertools::Itertools;
 use regex::Regex;
 use std::{path::Path, time::Instant};
 
-type ID = u16;
-type Qty = u16;
+type ID = usize;
+type Qty = usize;
 type Qtys = [Qty; Material::COUNT];
 
 fn make_qtys() -> Qtys {
@@ -85,10 +85,10 @@ impl From<String> for Blueprint {
 }
 
 impl Blueprint {
-    fn solve(&self, max_time: usize) -> (u16, Vec<Option<u16>>) {
+    fn solve(&self, max_time: usize) -> (Qty, Vec<Option<Qty>>) {
         #[derive(Clone, Debug)]
         struct State {
-            time: u16,
+            time: Qty,
             inventory: Qtys,
             population: Qtys,
             builds: Vec<Option<ID>>,
@@ -107,12 +107,20 @@ impl Blueprint {
             builds: Vec::new(),
         });
 
+        // Figure out the most of each resource we need to build any given robot
+        // We don't need more than that many production robots, since you can only build one per frame
+        let mut max_needed = (0..Material::COUNT)
+            .map(|i| self.robots.iter().map(|r| r.inputs[i]).max().unwrap())
+            .collect::<Vec<_>>();
+        max_needed[Material::Geode as usize] = Qty::MAX;
+
         // Best case is # of geodes + the build order to get there
         let mut best = (0 as ID, Vec::new());
 
         // Analytics data
         let mut count = 0;
         let mut skip_count = 0;
+        let mut overbuild_count = 0;
 
         let start = Instant::now();
         let mut tick = start;
@@ -133,7 +141,7 @@ impl Blueprint {
             if cfg!(debug_assertions) {
                 if tick.elapsed().as_secs_f32() > 1.0 {
                     println!(
-                        "[{}s] (q: {}, count: {count}, skip={skip_count}): time={time}, inventory={inventory:?}, population={population:?}, builds={}",
+                        "[{}s] (q: {}, count: {count}, skip={skip_count}, overbuild={overbuild_count}): time={time}, inventory={inventory:?}, population={population:?}, builds={}",
                         start.elapsed().as_secs(),
                         queue.len(),
                         builds.iter().map(|el| if let Some(v) = el { v.to_string() } else { String::from("_") }).join(",")
@@ -146,7 +154,7 @@ impl Blueprint {
             if geode_qty > best.0 {
                 if cfg!(debug_assertions) {
                     println!(
-                        "[{}s] [NEW BEST={geode_qty}] (q={}, count={count}, skip={skip_count}): time={time}, inventory={inventory:?}, population={population:?}, builds={}",
+                        "[{}s] [NEW BEST={geode_qty}] (q={}, count={count}, skip={skip_count}, overbuild={overbuild_count}): time={time}, inventory={inventory:?}, population={population:?}, builds={}",
                         start.elapsed().as_secs(),
                         queue.len(),
                         builds.iter().map(|el| if let Some(v) = el { v.to_string() } else { String::from("_") }).join(",")
@@ -169,6 +177,15 @@ impl Blueprint {
 
             // For each kind of robot, try to build it next
             for (id, robot) in self.robots.iter().enumerate() {
+                // We don't need any more of this one
+                if id != (Material::Geode as Qty) {
+                    // We are creating enough resources each tick to build any robot
+                    if population[id] > max_needed[id] {
+                        overbuild_count += 1;
+                        continue;
+                    }
+                }
+
                 // It's impossible to build, we don't make the right resources
                 if robot
                     .inputs
