@@ -22,7 +22,7 @@ pub fn iter_lines(filename: &Path) -> impl Iterator<Item = String> {
     buf.lines().map(|l| l.expect("Could not parse line"))
 }
 
-type FnPart = fn(&Path) -> String;
+type FnPart = fn(&Path) -> Result<String, anyhow::Error>;
 
 pub fn aoc_main(part1: FnPart, part2: FnPart) {
     let part = env::args()
@@ -49,7 +49,7 @@ pub fn aoc_main(part1: FnPart, part2: FnPart) {
     };
     let elapsed = now.elapsed();
 
-    println!("{}", result);
+    println!("{}", result.unwrap());
     println!("took {:?}", elapsed);
 }
 
@@ -58,7 +58,7 @@ pub fn aoc_test(day: &str, f: FnPart, expected: &str) {
     filename.push_str(&day);
     filename.push_str(".txt");
 
-    let actual = f(Path::new(filename.as_str()));
+    let actual = f(Path::new(filename.as_str())).unwrap();
 
     assert_eq!(expected, actual);
 }

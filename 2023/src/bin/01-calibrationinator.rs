@@ -1,9 +1,10 @@
+use anyhow::Result;
 use aoc::*;
 use std::path::Path;
 
-fn part1(filename: &Path) -> String {
-    iter_lines(filename)
-        .map(|l| {
+fn part1(filename: &Path) -> Result<String> {
+    Ok(iter_lines(filename)
+        .filter_map(|l| {
             let mut first = None;
             let mut last = None;
 
@@ -16,27 +17,26 @@ fn part1(filename: &Path) -> String {
                 }
             }
 
-            (10 * (first.unwrap() as usize - '0' as usize))
-                + (last.unwrap() as usize - '0' as usize)
+            Some(10 * first?.to_digit(10)? + last?.to_digit(10)?)
         })
-        .sum::<usize>()
-        .to_string()
+        .sum::<u32>()
+        .to_string())
 }
 
-fn part2(filename: &Path) -> String {
+fn part2(filename: &Path) -> Result<String> {
     let digit_words = [
         "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
     ];
 
-    iter_lines(filename)
-        .map(|l| {
+    Ok(iter_lines(filename)
+        .filter_map(|l| {
             let mut first = None;
             let mut last = None;
 
             for (i, c) in l.chars().enumerate() {
                 // Match literal digits
                 if c.is_numeric() {
-                    let c = c.to_digit(10).unwrap() as usize;
+                    let c = c.to_digit(10)? as usize;
                     if first.is_none() {
                         first = Some(c);
                     }
@@ -56,10 +56,10 @@ fn part2(filename: &Path) -> String {
                 }
             }
 
-            10 * first.unwrap() + last.unwrap()
+            Some(10 * first? + last?)
         })
         .sum::<usize>()
-        .to_string()
+        .to_string())
 }
 
 fn main() {
