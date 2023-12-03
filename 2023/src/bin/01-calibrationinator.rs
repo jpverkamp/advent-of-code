@@ -45,8 +45,8 @@ fn part2(filename: &Path) -> Result<String> {
                 }
 
                 // Match digit words
-                for digit in 0..digit_words.len() {
-                    if l[i..].starts_with(digit_words[digit]) {
+                for (digit, word) in digit_words.iter().enumerate() {
+                    if l[i..].starts_with(word) {
                         if first.is_none() {
                             first = Some(digit);
                         }
