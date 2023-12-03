@@ -1,11 +1,12 @@
+use anyhow::Result;
 use std::path::Path;
 use aoc::*;
 
-fn part1(filename: &Path) -> String {
+fn part1(filename: &Path) -> Result<String> {
     todo!()
 }
 
-fn part2(filename: &Path) -> String {
+fn part2(filename: &Path) -> Result<String> {
     todo!()
 }
 
