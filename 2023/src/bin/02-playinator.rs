@@ -272,11 +272,13 @@ mod tests {
 
     #[test]
     fn test1() {
+        aoc_test("test/02", part1, "8");
         aoc_test("02", part1, "2061")
     }
 
     #[test]
     fn test2() {
+        aoc_test("test/02", part2, "2286");
         aoc_test("02", part2, "72596")
     }
 }

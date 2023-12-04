@@ -73,11 +73,15 @@ mod tests {
 
     #[test]
     fn test1() {
-        aoc_test("01", part1, "53651")
+        aoc_test("test/01-1", part1, "142");
+        aoc_test("test/01-2", part1, "209");
+        aoc_test("01", part1, "53651");
     }
 
     #[test]
     fn test2() {
-        aoc_test("01", part2, "53894")
+        aoc_test("test/01-1", part2, "142");
+        aoc_test("test/01-2", part2, "281");
+        aoc_test("01", part2, "53894");
     }
 }
