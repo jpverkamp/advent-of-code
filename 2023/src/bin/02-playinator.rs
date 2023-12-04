@@ -3,7 +3,7 @@ use aoc::*;
 use nom::{
     branch::alt,
     bytes::complete::tag,
-    character::complete,
+    character::complete::{self, newline},
     combinator::map,
     multi::separated_list1,
     sequence::{self, preceded},
@@ -91,7 +91,7 @@ impl Game {
 
 fn part1(filename: &Path) -> Result<String> {
     let input = read_to_string(filename)?;
-    let (_, games) = separated_list1(tag("\n"), game)(&input).unwrap();
+    let (_, games) = separated_list1(newline, game)(&input).unwrap();
 
     // Return sum of ID of game that contained no more than
     // 12 red cubes, 13 green cubes, and 14 blue cubes
@@ -109,7 +109,7 @@ fn part1(filename: &Path) -> Result<String> {
 
 fn part2(filename: &Path) -> Result<String> {
     let input = read_to_string(filename)?;
-    let (_, games) = separated_list1(tag("\n"), game)(&input).unwrap();
+    let (_, games) = separated_list1(newline, game)(&input).unwrap();
 
     // Calculate the sum of powers of the rounds
     Ok(games
