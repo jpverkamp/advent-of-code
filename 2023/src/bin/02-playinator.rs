@@ -1,75 +1,174 @@
 use anyhow::Result;
 use aoc::*;
-use nom::{
-    branch::alt,
-    bytes::complete::tag,
-    character::complete::{self, newline},
-    combinator::map,
-    multi::separated_list1,
-    sequence::{self, preceded},
-    IResult,
-};
 use std::{fs::read_to_string, path::Path};
 
+// A game consists of an ID and some number of rounds each with some number of dice
 #[derive(Debug, PartialEq)]
-enum Color {
-    Red,
-    Green,
-    Blue,
+pub struct Game {
+    id: u32,
+    rounds: Vec<Round>,
 }
 
-fn color(s: &str) -> IResult<&str, Color> {
-    alt((
-        map(tag("red"), |_| Color::Red),
-        map(tag("green"), |_| Color::Green),
-        map(tag("blue"), |_| Color::Blue),
-    ))(s)
-}
-
-// 3 blue, 4 red
+// A single round can have some number each of red/green/blue dice
 #[derive(Debug, PartialEq)]
-struct Round {
+pub struct Round {
     red: u32,
     green: u32,
     blue: u32,
 }
 
-fn round(s: &str) -> IResult<&str, Round> {
-    let (s, counts) = separated_list1(
-        tag(", "),
-        sequence::tuple((complete::u32, preceded(tag(" "), color))),
-    )(s)?;
+// Represents colors of dice
+#[derive(Debug, PartialEq)]
+pub enum Colors {
+    Red,
+    Green,
+    Blue,
+}
 
-    let mut red = 0;
-    let mut green = 0;
-    let mut blue = 0;
+mod parse {
+    use crate::*;
+    use nom::{
+        branch::*, bytes::complete::*, character::complete, character::complete::newline,
+        combinator::*, multi::*, sequence::*, *,
+    };
 
-    for (count, color) in counts {
-        match color {
-            Color::Red => red = count,
-            Color::Green => green = count,
-            Color::Blue => blue = count,
-        }
+    pub fn games(s: &str) -> IResult<&str, Vec<Game>> {
+        separated_list1(newline, game)(s)
     }
 
-    Ok((s, Round { red, green, blue }))
-}
+    fn game(s: &str) -> IResult<&str, Game> {
+        let (s, _) = tag("Game ")(s)?;
+        let (s, id) = complete::u32(s)?;
+        let (s, _) = tag(": ")(s)?;
 
-// Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
-#[derive(Debug, PartialEq)]
-struct Game {
-    id: u32,
-    rounds: Vec<Round>,
-}
+        let (s, rounds) = separated_list1(tag("; "), round)(s)?;
 
-fn game(s: &str) -> IResult<&str, Game> {
-    let (s, _) = tag("Game ")(s)?;
-    let (s, id) = complete::u32(s)?;
-    let (s, _) = tag(": ")(s)?;
+        Ok((s, Game { id, rounds }))
+    }
 
-    let (s, rounds) = separated_list1(tag("; "), round)(s)?;
+    fn round(s: &str) -> IResult<&str, Round> {
+        let (s, counts) = separated_list1(
+            tag(", "),
+            sequence::tuple((complete::u32, preceded(tag(" "), color))),
+        )(s)?;
 
-    Ok((s, Game { id, rounds }))
+        let mut red = 0;
+        let mut green = 0;
+        let mut blue = 0;
+
+        for (count, color) in counts {
+            match color {
+                Colors::Red => red = count,
+                Colors::Green => green = count,
+                Colors::Blue => blue = count,
+            }
+        }
+
+        Ok((s, Round { red, green, blue }))
+    }
+
+    fn color(s: &str) -> IResult<&str, Colors> {
+        alt((
+            map(tag("red"), |_| Colors::Red),
+            map(tag("green"), |_| Colors::Green),
+            map(tag("blue"), |_| Colors::Blue),
+        ))(s)
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+
+        #[test]
+        fn test_color() {
+            assert_eq!(color("red"), Ok(("", Colors::Red)));
+            assert_eq!(color("green"), Ok(("", Colors::Green)));
+            assert_eq!(color("blue"), Ok(("", Colors::Blue)));
+        }
+
+        #[test]
+        fn test_round() {
+            assert_eq!(
+                round("3 blue, 4 red"),
+                Ok((
+                    "",
+                    Round {
+                        red: 4,
+                        green: 0,
+                        blue: 3
+                    }
+                ))
+            );
+            assert_eq!(
+                round("1 red, 2 green, 6 blue"),
+                Ok((
+                    "",
+                    Round {
+                        red: 1,
+                        green: 2,
+                        blue: 6
+                    }
+                ))
+            );
+            assert_eq!(
+                round("2 green"),
+                Ok((
+                    "",
+                    Round {
+                        red: 0,
+                        green: 2,
+                        blue: 0
+                    }
+                ))
+            );
+        }
+
+        #[test]
+        fn test_game() {
+            assert_eq!(
+                game("Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green"),
+                Ok((
+                    "",
+                    Game {
+                        id: 1,
+                        rounds: vec![
+                            Round {
+                                red: 4,
+                                green: 0,
+                                blue: 3
+                            },
+                            Round {
+                                red: 1,
+                                green: 2,
+                                blue: 6
+                            },
+                            Round {
+                                red: 0,
+                                green: 2,
+                                blue: 0
+                            },
+                        ]
+                    }
+                ))
+            );
+        }
+
+        #[test]
+        fn test_games() {
+            assert_eq!(separated_list1(tag("\n"), game)("Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green\nGame 2: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green"), Ok(("", vec![
+                Game { id: 1, rounds: vec![
+                    Round { red: 4, green: 0, blue: 3 },
+                    Round { red: 1, green: 2, blue: 6 },
+                    Round { red: 0, green: 2, blue: 0 },
+                ] },
+                Game { id: 2, rounds: vec![
+                    Round { red: 4, green: 0, blue: 3 },
+                    Round { red: 1, green: 2, blue: 6 },
+                    Round { red: 0, green: 2, blue: 0 },
+                ] },
+            ])));
+        }
+    }
 }
 
 // The power of a game is the product of the minumum number of cubes of each color
@@ -91,7 +190,7 @@ impl Game {
 
 fn part1(filename: &Path) -> Result<String> {
     let input = read_to_string(filename)?;
-    let (_, games) = separated_list1(newline, game)(&input).unwrap();
+    let (_, games) = parse::games(&input).unwrap();
 
     // Return sum of ID of game that contained no more than
     // 12 red cubes, 13 green cubes, and 14 blue cubes
@@ -109,7 +208,7 @@ fn part1(filename: &Path) -> Result<String> {
 
 fn part2(filename: &Path) -> Result<String> {
     let input = read_to_string(filename)?;
-    let (_, games) = separated_list1(newline, game)(&input).unwrap();
+    let (_, games) = parse::games(&input).unwrap();
 
     // Calculate the sum of powers of the rounds
     Ok(games
@@ -127,96 +226,6 @@ fn main() {
 mod tests {
     use crate::*;
     use aoc::aoc_test;
-
-    #[test]
-    fn test_color() {
-        assert_eq!(color("red"), Ok(("", Color::Red)));
-        assert_eq!(color("green"), Ok(("", Color::Green)));
-        assert_eq!(color("blue"), Ok(("", Color::Blue)));
-    }
-
-    #[test]
-    fn test_round() {
-        assert_eq!(
-            round("3 blue, 4 red"),
-            Ok((
-                "",
-                Round {
-                    red: 4,
-                    green: 0,
-                    blue: 3
-                }
-            ))
-        );
-        assert_eq!(
-            round("1 red, 2 green, 6 blue"),
-            Ok((
-                "",
-                Round {
-                    red: 1,
-                    green: 2,
-                    blue: 6
-                }
-            ))
-        );
-        assert_eq!(
-            round("2 green"),
-            Ok((
-                "",
-                Round {
-                    red: 0,
-                    green: 2,
-                    blue: 0
-                }
-            ))
-        );
-    }
-
-    #[test]
-    fn test_game() {
-        assert_eq!(
-            game("Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green"),
-            Ok((
-                "",
-                Game {
-                    id: 1,
-                    rounds: vec![
-                        Round {
-                            red: 4,
-                            green: 0,
-                            blue: 3
-                        },
-                        Round {
-                            red: 1,
-                            green: 2,
-                            blue: 6
-                        },
-                        Round {
-                            red: 0,
-                            green: 2,
-                            blue: 0
-                        },
-                    ]
-                }
-            ))
-        );
-    }
-
-    #[test]
-    fn test_games() {
-        assert_eq!(separated_list1(tag("\n"), game)("Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green\nGame 2: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green"), Ok(("", vec![
-            Game { id: 1, rounds: vec![
-                Round { red: 4, green: 0, blue: 3 },
-                Round { red: 1, green: 2, blue: 6 },
-                Round { red: 0, green: 2, blue: 0 },
-            ] },
-            Game { id: 2, rounds: vec![
-                Round { red: 4, green: 0, blue: 3 },
-                Round { red: 1, green: 2, blue: 6 },
-                Round { red: 0, green: 2, blue: 0 },
-            ] },
-        ])));
-    }
 
     #[test]
     fn test_power() {
