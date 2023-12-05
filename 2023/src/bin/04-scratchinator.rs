@@ -34,6 +34,7 @@ mod parse {
         separated_list1(newline, card)(s)
     }
 
+    // Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53
     fn card(s: &str) -> IResult<&str, Card> {
         let (s, _) = tag("Card")(s)?;
         let (s, _) = space1(s)?;
