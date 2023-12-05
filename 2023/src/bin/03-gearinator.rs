@@ -97,12 +97,9 @@ fn part2(filename: &Path) -> Result<String> {
     Ok(schematic
         .symbols
         .iter()
-        .filter_map(|s| {
-            if s.value != '*' {
-                return None;
-            }
-
-            let ratios = schematic
+        .filter(|s| s.value == '*')
+        .map(|s| {
+            schematic
                 .numbers
                 .iter()
                 .filter_map(|n| {
@@ -112,14 +109,10 @@ fn part2(filename: &Path) -> Result<String> {
                         None
                     }
                 })
-                .collect::<Vec<_>>();
-
-            if ratios.len() != 2 {
-                return None;
-            }
-
-            Some(ratios[0] * ratios[1])
+                .collect::<Vec<_>>()
         })
+        .filter(|ratios| ratios.len() == 2)
+        .map(|ratios| ratios[0] * ratios[1])
         .sum::<usize>()
         .to_string())
 }
