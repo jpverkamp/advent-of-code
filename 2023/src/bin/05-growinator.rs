@@ -24,9 +24,9 @@ pub struct RangeMap {
 impl RangeMap {
     pub fn apply(&self, x: u64) -> Option<u64> {
         if x < self.src || x >= self.src + self.len {
-            return None;
+            None
         } else {
-            return Some(self.dst + x - self.src);
+            Some(self.dst + x - self.src)
         }
     }
 }
@@ -43,8 +43,7 @@ impl CategoryMap {
         self.range_maps
             .iter()
             .find_map(|range_map| range_map.apply(x))
-            .or(Some(x))
-            .unwrap()
+            .unwrap_or(x)
     }
 }
 
@@ -151,8 +150,7 @@ fn part2(filename: &Path) -> Result<String> {
     simulation.seeds = simulation
         .seeds
         .chunks(2)
-        .map(|lo_hi| (lo_hi[0]..=(lo_hi[0] + lo_hi[1])).collect::<Vec<_>>())
-        .flatten()
+        .flat_map(|lo_hi| (lo_hi[0]..=(lo_hi[0] + lo_hi[1])).collect::<Vec<_>>())
         .collect::<Vec<_>>();
 
     let (cat, values) = simulation.range_maps.iter().fold(

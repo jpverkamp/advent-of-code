@@ -74,7 +74,7 @@ mod parse {
             s,
             times
                 .into_iter()
-                .zip(records.into_iter())
+                .zip(records)
                 .map(|(time, record)| Race { time, record })
                 .collect::<Vec<_>>(),
         ))
