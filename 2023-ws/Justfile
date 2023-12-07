@@ -1,3 +1,11 @@
+init day:
+    #!/usr/bin/env bash
+    padday=`printf "%02d" {{day}}`
+    cp -r solutions/_template solutions/day${padday}
+    sed -i '' -e "s/__day__/${padday}/g" solutions/day${padday}/Cargo.toml
+    sed -i '' -e "s/__day__/${padday}/g" solutions/day${padday}/src/bin/part1.rs
+    sed -i '' -e "s/__day__/${padday}/g" solutions/day${padday}/src/bin/part2.rs
+
 test day part: 
     cat data/test/$(printf "%02d" {{day}}).txt \
         | cargo run \
