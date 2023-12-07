@@ -1,5 +1,8 @@
 use anyhow::Result;
-use std::{io::{self, BufRead}, fs::read_to_string};
+use std::{
+    fs::read_to_string,
+    io::{self, BufRead},
+};
 
 use day__day__::types::*;
 

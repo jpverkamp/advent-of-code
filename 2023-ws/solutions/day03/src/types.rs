@@ -74,3 +74,59 @@ impl From<String> for Schematic {
         Schematic { numbers, symbols }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn test_parse_numer() {
+        let schematic = super::Schematic::from(String::from("1..2\n3..4"));
+        assert_eq!(schematic.numbers.len(), 4);
+        assert_eq!(schematic.numbers[0].value, 1);
+        assert_eq!(schematic.numbers[0].x_min, 0);
+        assert_eq!(schematic.numbers[0].x_max, 1);
+        assert_eq!(schematic.numbers[0].y, 0);
+        assert_eq!(schematic.numbers[1].value, 2);
+        assert_eq!(schematic.numbers[1].x_min, 3);
+        assert_eq!(schematic.numbers[1].x_max, 4);
+        assert_eq!(schematic.numbers[1].y, 0);
+    }
+
+    #[test]
+    fn test_parse_longer_number() {
+        let schematic = super::Schematic::from(String::from("....\n.123"));
+        assert_eq!(schematic.numbers.len(), 1);
+        assert_eq!(schematic.numbers[0].value, 123);
+        assert_eq!(schematic.numbers[0].x_min, 1);
+        assert_eq!(schematic.numbers[0].x_max, 4);
+        assert_eq!(schematic.numbers[0].y, 1);
+    }
+
+    #[test]
+    fn test_symbols() {
+        let schematic = super::Schematic::from(String::from("1..2\n3..4"));
+        assert_eq!(schematic.symbols.len(), 0);
+
+        let schematic = super::Schematic::from(String::from("1..2\n3..4\n..*."));
+        assert_eq!(schematic.symbols.len(), 1);
+        assert_eq!(schematic.symbols[0].value, '*');
+        assert_eq!(schematic.symbols[0].x, 2);
+        assert_eq!(schematic.symbols[0].y, 2);
+    }
+
+    #[test]
+    fn test_neighbor() {
+        let number = super::Number {
+            value: 1,
+            x_min: 0,
+            x_max: 1,
+            y: 0,
+        };
+
+        assert!(number.is_neighbor(0, 0));
+        assert!(number.is_neighbor(1, 0));
+        assert!(number.is_neighbor(0, 1));
+        assert!(number.is_neighbor(1, 1));
+        assert!(!number.is_neighbor(2, 0));
+        assert!(!number.is_neighbor(0, 2));
+    }
+}
