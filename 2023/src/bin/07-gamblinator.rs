@@ -42,8 +42,7 @@ impl From<char> for Card {
     }
 }
 
-#[allow(clippy::derive_ord_xor_partial_ord)]
-#[derive(Debug, PartialEq, Eq, Ord, Copy, Clone)]
+#[derive(Debug, PartialEq, Eq, Copy, Clone)]
 struct Hand {
     cards: [Card; 5],
     bid: u64,
@@ -112,18 +111,47 @@ impl Hand {
     }
 }
 
-impl PartialOrd for Hand {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+impl Ord for Hand {
+    fn cmp(&self, other: &Self) -> Ordering {
         let self_counts = self.counts();
         let other_counts = other.counts();
 
+        // Counts are sorted in descending order, so we can compare them directly
+        // IE five of a kind is <5>, four of a is <4, 1>, full house is <3, 2>, three of a is <3, 1, 1> etc
+        // If two counts are the same, compare the cards lexicographically (using Ord on Card)
         if self_counts == other_counts {
-            // If we have the same counts of cards, compare the cards themselves left to right
-            self.cards.partial_cmp(&other.cards)
+            self.cards.cmp(&other.cards)
         } else {
-            // Otherwise, compare the counts
-            self_counts.partial_cmp(&other_counts)
+            self_counts.cmp(&other_counts)
         }
+    }
+
+    fn max(self, other: Self) -> Self
+    where
+        Self: Sized,
+    {
+        std::cmp::max_by(self, other, Ord::cmp)
+    }
+
+    fn min(self, other: Self) -> Self
+    where
+        Self: Sized,
+    {
+        std::cmp::min_by(self, other, Ord::cmp)
+    }
+
+    fn clamp(self, _min: Self, _max: Self) -> Self
+    where
+        Self: Sized,
+        Self: PartialOrd,
+    {
+        unimplemented!("Hand::clamp")
+    }
+}
+
+impl PartialOrd for Hand {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
     }
 }
 
