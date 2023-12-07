@@ -1,7 +1,7 @@
 use anyhow::Result;
 use std::io::{self, BufRead};
 
-use day__day__::types::*;
+use day__day__::{types::*, parse};
 
 // #[aoc_test("data/test/__day__.txt", "")]
 // #[aoc_test("data/__day__.txt", "")]
