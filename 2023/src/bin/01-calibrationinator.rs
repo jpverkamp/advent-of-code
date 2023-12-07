@@ -2,26 +2,6 @@ use anyhow::Result;
 use aoc::*;
 use std::path::Path;
 
-fn part1(filename: &Path) -> Result<String> {
-    Ok(iter_lines(filename)
-        .filter_map(|l| {
-            let mut first = None;
-            let mut last = None;
-
-            for c in l.chars() {
-                if c.is_numeric() {
-                    if first.is_none() {
-                        first = Some(c);
-                    }
-                    last = Some(c);
-                }
-            }
-
-            Some(10 * first?.to_digit(10)? + last?.to_digit(10)?)
-        })
-        .sum::<u32>()
-        .to_string())
-}
 
 mod first_and_last {
     pub(crate) trait IteratorExt: Iterator {
