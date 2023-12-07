@@ -6,6 +6,14 @@ init day:
     sed -i '' -e "s/__day__/${padday}/g" solutions/day${padday}/src/bin/part1.rs
     sed -i '' -e "s/__day__/${padday}/g" solutions/day${padday}/src/bin/part2.rs
 
+check day:
+    cargo fmt -p day$(printf "%02d" {{day}})
+    cargo clippy -p day$(printf "%02d" {{day}})
+    just test {{day}} 1
+    just run {{day}} 1
+    just test {{day}} 2
+    just run {{day}} 2
+
 test day part: 
     cat data/test/$(printf "%02d" {{day}}).txt \
         | cargo run \
