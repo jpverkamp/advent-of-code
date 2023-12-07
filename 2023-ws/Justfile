@@ -1,0 +1,11 @@
+test day part: 
+    cat data/test/$(printf "%02d" {{day}}).txt \
+        | cargo run \
+            -p day$(printf "%02d" {{day}}) \
+            --bin part{{part}}
+
+run day part:
+    cat data/$(printf "%02d" {{day}}).txt \
+        | cargo run \
+            -p day$(printf "%02d" {{day}}) \
+            --bin part{{part}}
