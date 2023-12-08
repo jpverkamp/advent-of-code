@@ -1,6 +1,6 @@
 use anyhow::Result;
-use std::io;
 use rayon::prelude::*;
+use std::io;
 
 use day05::{parse, types::*};
 

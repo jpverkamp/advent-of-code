@@ -18,20 +18,19 @@ fn main() -> Result<()> {
         .map(|lo_hi| lo_hi[0]..=(lo_hi[0] + lo_hi[1]))
         .collect::<Vec<_>>();
 
-    let (cat, values) =
-        simulation
-            .category_maps
-            .iter()
-            .fold((Category::Seed, ranges), |(cat, values), range_map| {
-                assert_eq!(cat, range_map.src_cat);
-                (
-                    range_map.dst_cat,
-                    values
-                        .iter()
-                        .flat_map(|r| range_map.apply_range(r.clone()))
-                        .collect(),
-                )
-            });
+    let (cat, values) = simulation.category_maps.iter().fold(
+        (Category::Seed, ranges),
+        |(cat, values), range_map| {
+            assert_eq!(cat, range_map.src_cat);
+            (
+                range_map.dst_cat,
+                values
+                    .iter()
+                    .flat_map(|r| range_map.apply_range(r.clone()))
+                    .collect(),
+            )
+        },
+    );
     assert_eq!(cat, Category::Location);
 
     assert_eq!(cat, Category::Location);
