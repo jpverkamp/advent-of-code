@@ -22,6 +22,9 @@ test day part:
 
 run day part:
     cat data/$(printf "%02d" {{day}}).txt \
-        | cargo run \
+        | cargo run --release \
             -p day$(printf "%02d" {{day}}) \
             --bin part{{part}}
+
+time day part:
+    hyperfine 'just run {{day}} {{part}}'
