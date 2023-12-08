@@ -122,7 +122,7 @@ impl CategoryMap {
 #[derive(Debug)]
 pub struct Simulation {
     pub seeds: Vec<u64>,
-    pub range_maps: Vec<CategoryMap>,
+    pub category_maps: Vec<CategoryMap>,
 }
 
 #[cfg(test)]

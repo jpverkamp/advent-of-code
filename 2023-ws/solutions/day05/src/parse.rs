@@ -59,5 +59,5 @@ pub fn simulation(s: &str) -> IResult<&str, Simulation> {
     let (s, range_maps) = separated_list1(many1(newline), category_map)(s)?;
     let (s, _) = many0(newline)(s)?;
 
-    Ok((s, Simulation { seeds, range_maps }))
+    Ok((s, Simulation { seeds, category_maps: range_maps }))
 }

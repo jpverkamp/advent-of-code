@@ -20,7 +20,7 @@ fn main() -> Result<()> {
 
     let (cat, values) =
         simulation
-            .range_maps
+            .category_maps
             .iter()
             .fold((Category::Seed, ranges), |(cat, values), range_map| {
                 assert_eq!(cat, range_map.src_cat);

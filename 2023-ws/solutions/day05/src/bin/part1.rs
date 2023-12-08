@@ -11,7 +11,7 @@ fn main() -> Result<()> {
     let (s, simulation) = parse::simulation(&input).unwrap();
     assert_eq!(s, "");
 
-    let (cat, values) = simulation.range_maps.iter().fold(
+    let (cat, values) = simulation.category_maps.iter().fold(
         (Category::Seed, simulation.seeds),
         |(cat, values), range_map| {
             assert_eq!(cat, range_map.src_cat);
