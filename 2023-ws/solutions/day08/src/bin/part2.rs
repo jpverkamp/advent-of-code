@@ -9,6 +9,9 @@ use day08::{parse, types::*};
 // #[aoc_test("data/08.txt", "9064949303801")]
 fn main() -> Result<()> {
     // https://math.stackexchange.com/questions/2218763/how-to-find-lcm-of-two-numbers-when-one-starts-with-an-offset
+    // I actually originally checked for any Z's along the cycle
+    // But in the given test case it doesn't matter and in the final example it doesn't happen
+    // It's weird to me that when the cycle starts doesn't end up matter? But it works
 
     let stdin = io::stdin();
     let input = io::read_to_string(stdin.lock())?;
@@ -32,7 +35,7 @@ fn main() -> Result<()> {
             let mut cycle_length: usize = 0;
             let mut count = 0;
 
-            // Previously states: position in input list + node
+            // Previous states: position in input list + node
             let mut visited = BTreeMap::new();
 
             for (i, m) in simulation.moves.iter().enumerate().cycle() {
