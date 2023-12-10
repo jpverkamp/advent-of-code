@@ -27,4 +27,4 @@ run day part:
             --bin part{{part}}
 
 time day part:
-    hyperfine 'just run {{day}} {{part}}'
+    hyperfine --warmup 3 'just run {{day}} {{part}}'
