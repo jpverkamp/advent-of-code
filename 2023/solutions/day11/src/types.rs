@@ -23,7 +23,7 @@ pub struct Galaxy {
 }
 
 impl Galaxy {
-    pub fn expand(&mut self) {
+    pub fn expand(&mut self, age: i128) {
         let get_err = |f: fn(&Point) -> i128| {
             self.stars
                 .iter()
@@ -33,39 +33,7 @@ impl Galaxy {
                 .sorted()
                 .fold((None, 0, BTreeMap::new()), |(last, err, mut errs), &v| {
                     let err = match last {
-                        Some(last) => err + v - last - 1,
-                        None => 0,
-                    };
-                    errs.insert(v, err);
-                    (Some(v), err, errs)
-                })
-                .2
-        };
-
-        let x_err = get_err(|p| p.x);
-        let y_err = get_err(|p| p.y);
-
-        self.stars = self
-            .stars
-            .iter()
-            .map(|p| Point {
-                x: p.x + x_err[&p.x],
-                y: p.y + y_err[&p.y],
-            })
-            .collect();
-    }
-
-    pub fn expand_n(&mut self, age: i128) {
-        let get_err = |f: fn(&Point) -> i128| {
-            self.stars
-                .iter()
-                .map(f)
-                .collect::<HashSet<_>>()
-                .iter()
-                .sorted()
-                .fold((None, 0, BTreeMap::new()), |(last, err, mut errs), &v| {
-                    let err = match last {
-                        Some(last) => err + (age - 1) * (v - last - 1),
+                        Some(last) => err + (age - 1).max(1) * (v - last - 1),
                         None => 0,
                     };
                     errs.insert(v, err);

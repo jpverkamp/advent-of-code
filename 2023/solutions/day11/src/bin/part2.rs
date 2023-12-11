@@ -13,15 +13,15 @@ fn main() -> Result<()> {
     let input = io::read_to_string(stdin.lock())?;
     let mut galaxy = Galaxy::from(input);
 
-    // galaxy.expand_n(10);
-    // galaxy.expand_n(100);
-    galaxy.expand_n(1_000_000);
+    // galaxy.expand(10);
+    // galaxy.expand(100);
+    galaxy.expand(1_000_000);
 
     let result = galaxy
         .stars
         .iter()
         .cartesian_product(galaxy.stars.iter())
-        .map(|(a, b)| a.manhattan_distance(b))
+        .map(|(a, b)| a.manhattan_distance(b) as i128)
         .sum::<i128>()
         / 2; // we're double counting
 
