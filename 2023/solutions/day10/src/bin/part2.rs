@@ -122,30 +122,6 @@ fn main() -> Result<()> {
                 }
                 _ => panic!("Invalid direction: ({}, {})", xd, yd),
             }
-
-            // match (xd, yd) {
-            //     (0, -1) => {
-            //         // Up
-            //         outside_cw |= flood_fill(&mut region_cw, (x2 + 1, y2));
-            //         outside_ccw |= flood_fill(&mut region_ccw, (x2 - 1, y2));
-            //     }
-            //     (1, 0) => {
-            //         // Right
-            //         outside_cw |= flood_fill(&mut region_cw, (x2, y2 + 1));
-            //         outside_ccw |= flood_fill(&mut region_ccw, (x2, y2 - 1));
-            //     }
-            //     (0, 1) => {
-            //         // Down
-            //         outside_cw |= flood_fill(&mut region_cw, (x2 - 1, y2));
-            //         outside_ccw |= flood_fill(&mut region_ccw, (x2 + 1, y2));
-            //     }
-            //     (-1, 0) => {
-            //         // Left
-            //         outside_cw |= flood_fill(&mut region_cw, (x2, y2 - 1));
-            //         outside_ccw |= flood_fill(&mut region_ccw, (x2, y2 + 1));
-            //     }
-            //     _ => panic!("Invalid direction: ({}, {})", xd, yd),
-            // }
         });
     assert!(outside_cw ^ outside_ccw);
 

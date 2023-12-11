@@ -152,14 +152,18 @@ impl<'a> Iterator for MapIterator<'a> {
     type Item = &'a Node;
 
     fn next(&mut self) -> Option<Self::Item> {
+        // If we manage to run off a trail, something went wrong, but this will stop iter
         self.current_index?;
 
+        // The node we're about to return
         let node = &self.map.nodes[self.current_index.unwrap()];
 
+        // Only return the Start node once
         if !self.fresh && node.value == 'S' {
             return None;
         }
 
+        // Find the next node, if 'a' points to the one we were just at, use 'b' instead
         let mut next_index = node.neighbor_a_index;
         if next_index == self.previous_index {
             next_index = node.neighbor_b_index;
