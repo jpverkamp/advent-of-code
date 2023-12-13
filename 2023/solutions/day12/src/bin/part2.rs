@@ -1,6 +1,6 @@
 use anyhow::Result;
-use std::io;
 use fxhash::FxHashMap;
+use std::io;
 
 type Key<'a> = (&'a [u8], u8, u8, &'a [u64], u64);
 struct Solver<'a> {
