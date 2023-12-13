@@ -106,8 +106,8 @@ impl<'a> Solver<'a> {
     }
 }
 
-// #[aoc_test("data/test/12.txt", "21")]
-// #[aoc_test("data/12.txt", "7025")]
+// #[aoc_test("data/test/12.txt", "525152")]
+// #[aoc_test("data/12.txt", "11461095383315")]
 fn main() -> Result<()> {
     use Condition::*;
 

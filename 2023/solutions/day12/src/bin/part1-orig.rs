@@ -3,8 +3,8 @@ use std::io;
 
 use day12::{parse, types::*};
 
-// #[aoc_test("data/test/12.txt", "")]
-// #[aoc_test("data/12.txt", "")]
+// #[aoc_test("data/test/12.txt", "21")]
+// #[aoc_test("data/12.txt", "7025")]
 fn main() -> Result<()> {
     let stdin = io::stdin();
     let input = io::read_to_string(stdin.lock())?;
