@@ -21,7 +21,6 @@ fn main() -> Result<()> {
         })
         .collect::<Vec<_>>()
         .join("\n");
-    println!("{input}");
 
     let (s, springs) = parse::springs(&input).unwrap();
     assert_eq!(s.trim(), "");
