@@ -1,15 +1,16 @@
 use anyhow::Result;
-use std::{collections::HashMap, io};
+use std::io;
+use fxhash::FxHashMap;
 
 type Key<'a> = (&'a [u8], u8, u8, &'a [u64], u64);
 struct Solver<'a> {
-    cache: HashMap<Key<'a>, u128>,
+    cache: FxHashMap<Key<'a>, u128>,
 }
 
 impl<'a> Solver<'a> {
     fn new() -> Self {
         Self {
-            cache: HashMap::new(),
+            cache: FxHashMap::default(),
         }
     }
 
