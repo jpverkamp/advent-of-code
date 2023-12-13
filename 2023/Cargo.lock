@@ -155,6 +155,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "day13"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "fxhash",
+]
+
+[[package]]
 name = "day__day__"
 version = "0.1.0"
 dependencies = [
