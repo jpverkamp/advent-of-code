@@ -3,6 +3,45 @@ use std::io;
 
 use day13::types::*;
 
+// Find the first reflection
+// on_x if reflecting about the x axis, false otherwise
+// if ignore is set, don't return this axis
+fn reflect(ashflow: &AshFlow, on_x: bool, ignore: Option<isize>) -> Option<isize> {
+    let axis_range = if on_x {
+        ashflow.bounds.min_x..ashflow.bounds.max_x
+    } else {
+        ashflow.bounds.min_y..ashflow.bounds.max_y
+    };
+
+    for axis in axis_range {
+        if ignore == Some(axis) {
+            continue;
+        }
+
+        if ashflow.rocks.iter().all(|p| {
+            let pr = if on_x {
+                p.reflect_x(axis)
+            } else {
+                p.reflect_y(axis)
+            };
+            !ashflow.bounds.contains(&pr) || ashflow.rocks.contains(&pr)
+        }) {
+            return Some(axis);
+        }
+    }
+
+    None
+}
+
+// Used to smudge either way
+fn toggle(ashflow: &mut AshFlow, p: &Point) {
+    if ashflow.rocks.contains(p) {
+        ashflow.rocks.remove(p);
+    } else {
+        ashflow.rocks.insert(*p);
+    }
+}
+
 // #[aoc_test("data/test/13.txt", "400")]
 // #[aoc_test("data/13.txt", "36771")]
 fn main() -> Result<()> {
@@ -19,45 +58,6 @@ fn main() -> Result<()> {
 
             // TODO: Is it possible to have more than one mirror?
             // in the input cases, no
-
-            // Find the first reflection
-            // on_x if reflecting about the x axis, false otherwise
-            // if ignore is set, don't return this axis
-            fn reflect(ashflow: &AshFlow, on_x: bool, ignore: Option<isize>) -> Option<isize> {
-                let axis_range = if on_x {
-                    ashflow.bounds.min_x..ashflow.bounds.max_x
-                } else {
-                    ashflow.bounds.min_y..ashflow.bounds.max_y
-                };
-
-                for axis in axis_range {
-                    if ignore == Some(axis) {
-                        continue;
-                    }
-
-                    if ashflow.rocks.iter().all(|p| {
-                        let pr = if on_x {
-                            p.reflect_x(axis)
-                        } else {
-                            p.reflect_y(axis)
-                        };
-                        !ashflow.bounds.contains(&pr) || ashflow.rocks.contains(&pr)
-                    }) {
-                        return Some(axis);
-                    }
-                }
-
-                None
-            }
-
-            // Used to smudge either way
-            fn toggle(ashflow: &mut AshFlow, p: &Point) {
-                if ashflow.rocks.contains(p) {
-                    ashflow.rocks.remove(p);
-                } else {
-                    ashflow.rocks.insert(*p);
-                }
-            }
 
             // Calculate the old axis of reflection (to ignore)
             let old_x = reflect(&ashflow, true, None);
