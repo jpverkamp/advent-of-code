@@ -1,6 +1,5 @@
 use anyhow::Result;
 use fxhash::FxHashMap;
-use itertools::Itertools;
 use std::io;
 
 use day14::types::*;
