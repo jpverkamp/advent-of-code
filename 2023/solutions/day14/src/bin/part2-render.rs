@@ -119,7 +119,6 @@ fn main() -> Result<()> {
                     platform.occupied.insert(next);
 
                     changed = true;
-                    break;
                 }
 
                 if !changed {

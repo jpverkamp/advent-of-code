@@ -51,7 +51,6 @@ fn main() -> Result<()> {
                     platform.round_rocks[i].y = next.y;
 
                     changed = true;
-                    break;
                 }
 
                 if !changed {
