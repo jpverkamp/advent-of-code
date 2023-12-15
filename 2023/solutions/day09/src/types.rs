@@ -1,3 +1,5 @@
+use itertools::Itertools;
+
 #[derive(Debug)]
 pub struct Equation {
     pub terms: Vec<i64>,
@@ -21,7 +23,7 @@ impl Equation {
             stack.push(
                 bottom
                     .iter()
-                    .zip(bottom.iter().skip(1))
+                    .tuple_windows()
                     .map(|(a, b)| *b - *a)
                     .collect(),
             );
