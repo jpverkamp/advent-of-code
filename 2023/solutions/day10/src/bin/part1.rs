@@ -12,18 +12,14 @@ fn main() -> Result<()> {
     let input = io::read_to_string(stdin.lock())?;
     let map = Map::from(input.as_str());
 
+    // Original:
     // Set off two iters, one at double speed
-    // Skip the first nyde for each to avoid the start node
+    // Skip the first node for each to avoid the start node
     // When they are equal, they have reached the farthest point
-    let mut result = map
-        .iter()
-        .cycle()
-        .skip(1)
-        .zip(map.iter().cycle().skip(2).step_by(2))
-        .position(|(n1, n2)| n1 == n2)
-        .unwrap();
 
-    result = (result + 1) / 2;
+    // New version:
+    // Half the loop is the farthest point...
+    let result = map.iter().count() / 2;
 
     println!("{result}");
     Ok(())

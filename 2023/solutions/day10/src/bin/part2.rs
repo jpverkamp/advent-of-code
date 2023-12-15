@@ -1,4 +1,5 @@
 use anyhow::Result;
+use itertools::Itertools;
 use std::{collections::HashSet, io};
 
 use day10::types::*;
@@ -69,60 +70,58 @@ fn main() -> Result<()> {
 
     // Over each pair of points, determine which side is 'clockwise' and which 'counter-clockwise' from that point
     // Flood fill the approproiate region
-    map.iter()
-        .zip(map.iter().cycle().skip(1))
-        .for_each(|(n1, n2)| {
-            let (x1, y1) = (n1.x(), n1.y());
-            let (x2, y2) = (n2.x(), n2.y());
-            let xd = x2 - x1;
-            let yd = y2 - y1;
+    map.iter().tuple_windows().for_each(|(n1, n2)| {
+        let (x1, y1) = (n1.x(), n1.y());
+        let (x2, y2) = (n2.x(), n2.y());
+        let xd = x2 - x1;
+        let yd = y2 - y1;
 
-            match (xd, yd) {
-                (0, -1) => {
-                    // Up
-                    // ...
-                    // .2x
-                    // .1x
-                    // ...
-                    (0..=1).for_each(|yd| {
-                        outside_cw |= flood_fill(&mut region_cw, (x2 + 1, y2 + yd));
-                        outside_ccw |= flood_fill(&mut region_ccw, (x2 - 1, y2 + yd));
-                    });
-                }
-                (1, 0) => {
-                    // Right
-                    // ....
-                    // .12.
-                    // .xx.
-                    (-1..=0).for_each(|xd| {
-                        outside_cw |= flood_fill(&mut region_cw, (x2 + xd, y2 + 1));
-                        outside_ccw |= flood_fill(&mut region_ccw, (x2 + xd, y2 - 1));
-                    });
-                }
-                (0, 1) => {
-                    // Down
-                    // ...
-                    // x1.
-                    // x2.
-                    // ...
-                    (-1..=0).for_each(|yd| {
-                        outside_cw |= flood_fill(&mut region_cw, (x2 - 1, y2 + yd));
-                        outside_ccw |= flood_fill(&mut region_ccw, (x2 + 1, y2 + yd));
-                    });
-                }
-                (-1, 0) => {
-                    // Left
-                    // .xx.
-                    // .21.
-                    // ....
-                    (0..=1).for_each(|xd| {
-                        outside_cw |= flood_fill(&mut region_cw, (x2 + xd, y2 - 1));
-                        outside_ccw |= flood_fill(&mut region_ccw, (x2 + xd, y2 + 1));
-                    });
-                }
-                _ => panic!("Invalid direction: ({}, {})", xd, yd),
+        match (xd, yd) {
+            (0, -1) => {
+                // Up
+                // ...
+                // .2x
+                // .1x
+                // ...
+                (0..=1).for_each(|yd| {
+                    outside_cw |= flood_fill(&mut region_cw, (x2 + 1, y2 + yd));
+                    outside_ccw |= flood_fill(&mut region_ccw, (x2 - 1, y2 + yd));
+                });
             }
-        });
+            (1, 0) => {
+                // Right
+                // ....
+                // .12.
+                // .xx.
+                (-1..=0).for_each(|xd| {
+                    outside_cw |= flood_fill(&mut region_cw, (x2 + xd, y2 + 1));
+                    outside_ccw |= flood_fill(&mut region_ccw, (x2 + xd, y2 - 1));
+                });
+            }
+            (0, 1) => {
+                // Down
+                // ...
+                // x1.
+                // x2.
+                // ...
+                (-1..=0).for_each(|yd| {
+                    outside_cw |= flood_fill(&mut region_cw, (x2 - 1, y2 + yd));
+                    outside_ccw |= flood_fill(&mut region_ccw, (x2 + 1, y2 + yd));
+                });
+            }
+            (-1, 0) => {
+                // Left
+                // .xx.
+                // .21.
+                // ....
+                (0..=1).for_each(|xd| {
+                    outside_cw |= flood_fill(&mut region_cw, (x2 + xd, y2 - 1));
+                    outside_ccw |= flood_fill(&mut region_ccw, (x2 + xd, y2 + 1));
+                });
+            }
+            _ => panic!("Invalid direction: ({}, {})", xd, yd),
+        }
+    });
     assert!(outside_cw ^ outside_ccw);
 
     let result = if outside_ccw { region_cw } else { region_ccw }.len();
