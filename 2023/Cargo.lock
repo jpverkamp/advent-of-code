@@ -33,6 +33,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bef38d45163c2f1dde094a7dfd33ccf595c92905c8f8f4fdc18d06fb1037718a"
 
 [[package]]
+name = "bounds"
+version = "0.1.0"
+dependencies = [
+ "point",
+]
+
+[[package]]
 name = "bytemuck"
 version = "1.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -303,6 +310,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "grid"
+version = "0.1.0"
+dependencies = [
+ "bounds",
+ "fxhash",
+ "point",
+]
+
+[[package]]
 name = "half"
 version = "2.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -447,6 +463,10 @@ dependencies = [
  "flate2",
  "miniz_oxide",
 ]
+
+[[package]]
+name = "point"
+version = "0.1.0"
 
 [[package]]
 name = "qoi"
