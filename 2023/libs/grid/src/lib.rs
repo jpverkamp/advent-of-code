@@ -2,6 +2,7 @@ use point::Point;
 use bounds::Bounds;
 use fxhash::FxHashMap;
 
+#[derive(Debug)]
 pub struct Grid<T> {
     pub bounds: Bounds,
     pub data: FxHashMap<Point, T>,
@@ -13,6 +14,18 @@ impl<T> Grid<T> {
             bounds: Bounds::default(),
             data: FxHashMap::default(),
         }
+    }
+
+    pub fn read(s: &str, from_c: impl Fn(char) -> Option<T>) -> Self {
+        let mut grid = Self::new();
+        for (y, line) in s.lines().enumerate() {
+            for (x, c) in line.chars().enumerate() {
+                if let Some(c) = from_c(c) {
+                    grid.insert(Point { x: x as isize, y: y as isize }, c);
+                }
+            }
+        }
+        grid
     }
 
     pub fn get(&self, point: &Point) -> Option<&T> {
@@ -50,5 +63,11 @@ impl<T> Grid<T> {
 
     pub fn iter_values_mut(&mut self) -> impl Iterator<Item = &mut T> {
         self.data.values_mut()
+    }
+}
+
+impl<T: Default> Default for Grid<T> {
+    fn default() -> Self {
+        Self::new()
     }
 }

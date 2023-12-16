@@ -10,11 +10,14 @@ impl Point {
     pub const EAST: Point = Point { x: 1, y: 0 };
     pub const WEST: Point = Point { x: -1, y: 0 };
 
+    pub fn new(x: isize, y: isize) -> Self {
+        Self { x, y }
+    }
+
     pub fn manhattan_distance(&self, other: &Point) -> isize {
         (self.x - other.x).abs() + (self.y - other.y).abs()
     }
 }
-
 
 impl std::ops::Add<Point> for Point {
     type Output = Point;

@@ -234,6 +234,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "day16"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "fxhash",
+ "grid",
+ "point",
+]
+
+[[package]]
 name = "day__day__"
 version = "0.1.0"
 dependencies = [
