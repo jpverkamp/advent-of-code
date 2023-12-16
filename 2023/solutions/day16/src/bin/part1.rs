@@ -8,10 +8,9 @@ use point::Point;
 
 // #[aoc_test("data/test/16.txt", "")]
 // #[aoc_test("data/16.txt", "")]
+#[allow(dead_code)]
 fn main() -> Result<()> {
     let stdin = io::stdin();
-    use Direction::*;
-    use Mirror::*;
 
     let input = io::read_to_string(stdin.lock())?;
     let mirrors = Grid::read(&input, |c| match c {
@@ -22,11 +21,21 @@ fn main() -> Result<()> {
         _ => None,
     });
 
+    let illuminated = illuminate(&mirrors, (Point::new(0, 0), Direction::East));
+    let result = illuminated.iter().count();
+
+    println!("{result}");
+    Ok(())
+}
+
+pub(crate) fn illuminate(mirrors: &Grid<Mirror>, start: (Point, Direction)) -> Grid<bool> {
+    use Direction::*;
+    use Mirror::*;
+
     let mut queue = Vec::new();
-    queue.push((Point::new(0, 0), Direction::East));
+    queue.push(start);
 
     let mut visited = fxhash::FxHashSet::default();
-
     let mut illuminated = Grid::new();
 
     while let Some((p, d)) = queue.pop() {
@@ -75,8 +84,5 @@ fn main() -> Result<()> {
         }
     }
 
-    let result = illuminated.iter().count();
-
-    println!("{result}");
-    Ok(())
+    illuminated
 }
