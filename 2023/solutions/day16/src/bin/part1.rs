@@ -21,8 +21,9 @@ fn main() -> Result<()> {
         _ => None,
     });
 
-    let illuminated = illuminate(&mirrors, (Point::new(0, 0), Direction::East));
-    let result = illuminated.iter().count();
+    let result = illuminate(&mirrors, (Point::new(0, 0), Direction::East))
+        .iter()
+        .count();
 
     println!("{result}");
     Ok(())

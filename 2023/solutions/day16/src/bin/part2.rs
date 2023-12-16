@@ -36,10 +36,7 @@ fn main() -> Result<()> {
 
     let result = starts
         .iter()
-        .map(|start| {
-            let illuminated = illuminate(&mirrors, *start);
-            illuminated.iter().count()
-        })
+        .map(|start| illuminate(&mirrors, *start).iter().count())
         .max()
         .unwrap();
 
