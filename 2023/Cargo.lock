@@ -240,6 +240,7 @@ dependencies = [
  "anyhow",
  "fxhash",
  "grid",
+ "image",
  "point",
 ]
 
@@ -325,6 +326,7 @@ version = "0.1.0"
 dependencies = [
  "bounds",
  "fxhash",
+ "image",
  "point",
 ]
 

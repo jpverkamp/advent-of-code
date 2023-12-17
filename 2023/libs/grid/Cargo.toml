@@ -9,3 +9,4 @@ edition = "2021"
 point = { path = "../point" }
 bounds = { path = "../bounds" }
 fxhash = { workspace = true }
+image = { workspace = true }

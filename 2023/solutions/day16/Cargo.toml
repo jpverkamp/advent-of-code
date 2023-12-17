@@ -8,5 +8,6 @@ edition = "2021"
 [dependencies]
 anyhow = { workspace = true }
 fxhash = { workspace = true }
+image = { workspace = true }
 point = { path = "../../libs/point" }
 grid = { path = "../../libs/grid" }
