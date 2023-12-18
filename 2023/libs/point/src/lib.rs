@@ -42,6 +42,17 @@ impl std::ops::Sub<Point> for Point {
     }
 }
 
+impl std::ops::Mul<isize> for Point {
+    type Output = Point;
+
+    fn mul(self, rhs: isize) -> Self::Output {
+        Point {
+            x: self.x * rhs,
+            y: self.y * rhs,
+        }
+    }
+}
+
 impl std::fmt::Display for Point {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "({}, {})", self.x, self.y)
