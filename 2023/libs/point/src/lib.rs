@@ -41,6 +41,19 @@ impl std::ops::Sub<Point> for Point {
         }
     }
 }
+
+impl std::ops::Mul<isize> for Point {
+    type Output = Point;
+
+    fn mul(self, rhs: isize) -> Self::Output {
+        Point {
+            x: self.x * rhs,
+            y: self.y * rhs,
+        }
+    }
+}
+
+
 impl std::ops::Mul<Point> for isize {
     type Output = Point;
 

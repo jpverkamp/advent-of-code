@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-point = { path = "../point" }
-bounds = { path = "../bounds" }
-fxhash = { workspace = true }
-image = { workspace = true }
+point.path = "../point"
+bounds.path = "../bounds"
+fxhash.workspace = true
+image.workspace = true
