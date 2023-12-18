@@ -5,6 +5,7 @@ pub struct Point {
 }
 
 impl Point {
+    pub const ORIGIN: Point = Point { x: 0, y: 0 };
     pub const NORTH: Point = Point { x: 0, y: -1 };
     pub const SOUTH: Point = Point { x: 0, y: 1 };
     pub const EAST: Point = Point { x: 1, y: 0 };

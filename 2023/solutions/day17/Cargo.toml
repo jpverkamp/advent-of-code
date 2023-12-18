@@ -1,0 +1,13 @@
+[package]
+name = "day17"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow.workspace = true
+fxhash.workspace = true
+pathfinding.workspace = true
+point.path = "../../libs/point"
+grid.path = "../../libs/grid"
