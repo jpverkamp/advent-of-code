@@ -32,6 +32,7 @@ fn main() -> Result<()> {
         .sum::<isize>()
         / 2;
 
+    // Since we want the border, add half of them (all left and up, it's arbitrary)
     result += commands
         .iter()
         .map(|c| {
@@ -43,10 +44,8 @@ fn main() -> Result<()> {
         })
         .sum::<isize>();
 
-    result += 1; // why?
-
-    //  target: 952408144115
-    // current: 952404941483
+    // Final result is always off by 1 for reasons? 
+    result += 1;
 
     println!("{result}");
     Ok(())
