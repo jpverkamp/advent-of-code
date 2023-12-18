@@ -256,6 +256,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "day18"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "grid",
+ "itertools",
+ "nom",
+ "point",
+]
+
+[[package]]
 name = "day__day__"
 version = "0.1.0"
 dependencies = [
