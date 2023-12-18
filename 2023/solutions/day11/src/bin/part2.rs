@@ -21,7 +21,7 @@ fn main() -> Result<()> {
         .stars
         .iter()
         .cartesian_product(galaxy.stars.iter())
-        .map(|(a, b)| a.manhattan_distance(b) as i128)
+        .map(|(a, b)| a.manhattan_distance(b))
         .sum::<i128>()
         / 2; // we're double counting
 
