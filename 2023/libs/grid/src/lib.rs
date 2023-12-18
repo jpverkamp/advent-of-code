@@ -8,13 +8,13 @@ pub struct Grid<T> {
     data: FxHashMap<Point, T>,
 }
 
-impl<T: Default> Default for Grid<T> {
+impl<T: Default + Copy + Clone> Default for Grid<T> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T> Grid<T> {
+impl<T: Copy + Clone> Grid<T> {
     pub fn new() -> Self {
         Self {
             bounds: Bounds::default(),
@@ -125,5 +125,31 @@ impl<T> Grid<T> {
 
     pub fn iter_values_mut(&mut self) -> impl Iterator<Item = &mut T> {
         self.data.values_mut()
+    }
+
+    pub fn len(&self) -> usize {
+        self.data.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.data.is_empty()
+    }
+
+    // Flood fill points not currently in the grid with the given value
+    // Will not extend bounds
+    pub fn flood_fill(&mut self, pt: Point, arg: T) {
+        let mut stack = vec![pt];
+
+        while let Some(pt) = stack.pop() {
+            assert!(self.bounds.contains(&pt));
+
+            if self.get(&pt).is_none() {
+                self.insert(pt, arg);
+                stack.push(pt + Point::new(0, 1));
+                stack.push(pt + Point::new(0, -1));
+                stack.push(pt + Point::new(1, 0));
+                stack.push(pt + Point::new(-1, 0));
+            }
+        }
     }
 }
