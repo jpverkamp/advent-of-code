@@ -53,7 +53,6 @@ impl std::ops::Mul<isize> for Point {
     }
 }
 
-
 impl std::ops::Mul<Point> for isize {
     type Output = Point;
 
@@ -70,4 +69,3 @@ impl std::fmt::Display for Point {
         write!(f, "({}, {})", self.x, self.y)
     }
 }
-

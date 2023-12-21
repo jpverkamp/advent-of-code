@@ -44,7 +44,7 @@ fn main() -> Result<()> {
         })
         .sum::<isize>();
 
-    // Final result is always off by 1 for reasons? 
+    // Final result is always off by 1 for reasons?
     result += 1;
 
     println!("{result}");
