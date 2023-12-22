@@ -305,6 +305,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "day21"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bounds",
+ "fxhash",
+ "grid",
+ "point",
+]
+
+[[package]]
 name = "day__day__"
 version = "0.1.0"
 dependencies = [
