@@ -136,6 +136,7 @@ fn main() -> Result<()> {
             }
 
             // Return the number of blocks that were removed
+            // Off by 1 because the original 'block' doesn't count as fallen
             blocks.len() - supported_by.len() - 1
         })
         .sum::<usize>();
