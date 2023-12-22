@@ -30,3 +30,9 @@ run day part:
 
 time day part:
     hyperfine --warmup 3 'just run {{day}} {{part}}'
+
+flame day part:
+    cat data/$(printf "%02d" {{day}}).txt \
+        | cargo flamegraph \
+            -p day$(printf "%02d" {{day}}) \
+            --bin part{{part}}

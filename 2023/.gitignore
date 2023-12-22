@@ -5,3 +5,4 @@ target/
 *.dot
 *.png
 *.mp4
+flamegraph.svg
