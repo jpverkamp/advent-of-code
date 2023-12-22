@@ -63,23 +63,12 @@ fn main() -> Result<()> {
         })
         .collect::<FxHashMap<_, _>>();
 
-    let block_name = |block: &Block| -> String {
-        let index = blocks.iter().position(|b| b == block).unwrap();
-        if index <= 26 {
-            format!("{}({index})", (b'A' + index as u8) as char)
-        } else if index <= 52 {
-            format!("{}({index})", (b'a' + index as u8) as char)
-        } else {
-            format!("{index}")
-        }
-    };
-
     log::info!("Supported blocks:");
     for (block, supported_by) in supported_by.iter() {
-        let name = block_name(block);
+        let name = block.name(&blocks);
         log::info!("- Block {name}: {block:?}");
         for other in supported_by.iter() {
-            let name = block_name(other);
+            let name = other.name(&blocks);
             log::info!("  - {name}: {other:?}");
         }
     }
@@ -100,14 +89,14 @@ fn main() -> Result<()> {
     let result = blocks
         .iter()
         .map(|block| {
-            let name = block_name(block);
+            let name = block.name(&blocks);
             log::info!("Attempting to remove {name}: {block:?}");
 
             // Make a local copy of supported blocks
             let mut supported_by = supported_by.clone();
 
             // Remove that block from any supports
-            let name = block_name(block);
+            let name = block.name(&blocks);
             log::info!("- Removing {name}: {block:?}");
             remove_from_supports(&mut supported_by, block);
 
@@ -124,7 +113,7 @@ fn main() -> Result<()> {
                     .collect::<Vec<_>>();
 
                 for block in to_remove.iter() {
-                    let name = block_name(block);
+                    let name = block.name(&blocks);
                     log::info!("  - Removing {name}: {block:?}");
 
                     remove_from_supports(&mut supported_by, block);

@@ -63,6 +63,17 @@ impl Block {
             && self.max.y >= other.min.y
             && self.max.z >= other.min.z
     }
+
+    pub fn name(&self, blocks: &[Block]) -> String {
+        let index = blocks.iter().position(|b| b == self).unwrap();
+        if index <= 26 {
+            format!("{}({index})", (b'A' + index as u8) as char)
+        } else if index <= 52 {
+            format!("{}({index})", (b'a' + index as u8) as char)
+        } else {
+            format!("{index}")
+        }
+    }
 }
 
 impl std::ops::Add<Point> for Block {
