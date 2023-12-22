@@ -18,6 +18,13 @@ impl Point {
     pub fn manhattan_distance(&self, other: &Point) -> isize {
         (self.x - other.x).abs() + (self.y - other.y).abs()
     }
+
+    pub fn neighbors(&self) -> IterNeighbors {
+        IterNeighbors {
+            point: *self,
+            index: 0,
+        }
+    }
 }
 
 impl std::ops::Add<Point> for Point {
@@ -67,5 +74,28 @@ impl std::ops::Mul<Point> for isize {
 impl std::fmt::Display for Point {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "({}, {})", self.x, self.y)
+    }
+}
+
+pub struct IterNeighbors {
+    point: Point,
+    index: usize,
+}
+
+impl Iterator for IterNeighbors {
+    type Item = Point;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let result = match self.index {
+            0 => Some(self.point + Point::NORTH),
+            1 => Some(self.point + Point::SOUTH),
+            2 => Some(self.point + Point::EAST),
+            3 => Some(self.point + Point::WEST),
+            _ => None,
+        };
+
+        self.index += 1;
+
+        result
     }
 }
