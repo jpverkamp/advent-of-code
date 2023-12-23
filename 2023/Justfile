@@ -33,6 +33,7 @@ time day part:
 
 flame day part:
     cat data/$(printf "%02d" {{day}}).txt \
-        | cargo flamegraph \
+        | sudo CARGO_PROFILE_RELEASE_DEBUG=true \
+            cargo flamegraph \
             -p day$(printf "%02d" {{day}}) \
             --bin part{{part}}
