@@ -1,8 +1,6 @@
 use anyhow::Result;
 use std::{cell::RefCell, io, rc::Rc};
 
-use day23::types::*;
-
 use grid::Grid;
 use point::Point;
 
@@ -13,11 +11,7 @@ fn main() -> Result<()> {
     let input = io::read_to_string(stdin.lock())?;
 
     let grid = Grid::read(input.as_str(), |c| match c {
-        '#' => Some(Object::Wall),
-        '^' => Some(Object::Slope(Slope::North)),
-        'v' => Some(Object::Slope(Slope::South)),
-        '>' => Some(Object::Slope(Slope::East)),
-        '<' => Some(Object::Slope(Slope::West)),
+        '#' => Some(true),
         _ => None,
     });
 
@@ -65,9 +59,8 @@ fn main() -> Result<()> {
             }
 
             // Cannot go through walls
-            match grid.get(&next_position) {
-                Some(Object::Wall) => continue,
-                _ => (),
+            if grid.get(&next_position).is_some() {
+                continue;
             }
 
             // Cannot visit the same point more than once
