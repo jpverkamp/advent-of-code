@@ -1,18 +1,23 @@
 use anyhow::Result;
 use std::io;
 
+use day23::types::*;
+
 use grid::Grid;
 use point::Point;
 
-// #[aoc_test("data/test/23.txt", "154")]
-// #[aoc_test("data/23.txt", "")]
+// #[aoc_test("data/test/23.txt", "94")]
+// #[aoc_test("data/23.txt", "2202")]
 fn main() -> Result<()> {
-    env_logger::init();
     let stdin = io::stdin();
     let input = io::read_to_string(stdin.lock())?;
 
     let grid = Grid::read(input.as_str(), |c| match c {
-        '#' => Some(true),
+        '#' => Some(Object::Wall),
+        '^' => Some(Object::Slope(Slope::North)),
+        'v' => Some(Object::Slope(Slope::South)),
+        '>' => Some(Object::Slope(Slope::East)),
+        '<' => Some(Object::Slope(Slope::West)),
         _ => None,
     });
 
@@ -25,19 +30,12 @@ fn main() -> Result<()> {
     let mut queue = Vec::new();
     queue.push(State {
         position: Point::new(1, 0),
-        path: Vec::new(),
+        path: Vec::with_capacity(1024),
     });
 
     let mut complete = Vec::new();
 
-    let start = std::time::Instant::now();
-    let mut count = 0;
     while let Some(state) = queue.pop() {
-        count += 1;
-        if count % 100_000 == 0 {
-            log::info!("{:?} {:?}", count, start.elapsed());
-        }
-
         for direction in &[
             Point::new(0, 1),
             Point::new(0, -1),
@@ -57,9 +55,17 @@ fn main() -> Result<()> {
                 continue;
             }
 
+            // If we're on a slope, we can only go in the direction of the slope
+            if let Some(Object::Slope(s)) = grid.get(&state.position) {
+                if direction != &Point::from(*s) {
+                    continue;
+                }
+            }
+
             // Cannot go through walls
-            if grid.get(&next_position).is_some() {
-                continue;
+            match grid.get(&next_position) {
+                Some(Object::Wall) => continue,
+                _ => (),
             }
 
             // Cannot visit the same point more than once

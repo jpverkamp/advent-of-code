@@ -7,6 +7,7 @@ use point::Point;
 // #[aoc_test("data/test/23.txt", "154")]
 // #[aoc_test("data/23.txt", "")]
 fn main() -> Result<()> {
+    env_logger::init();
     let stdin = io::stdin();
     let input = io::read_to_string(stdin.lock())?;
 
@@ -36,7 +37,7 @@ fn main() -> Result<()> {
     while let Some(mut state) = queue.pop() {
         count += 1;
         if count % 100_000 == 0 {
-            println!("{:?} {:?}", count, start.elapsed());
+            log::info!("{:?} {:?}", count, start.elapsed());
         }
 
         for direction in &[
