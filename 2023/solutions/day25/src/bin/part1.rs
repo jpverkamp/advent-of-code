@@ -21,7 +21,7 @@ fn main() -> Result<()> {
     // Add each edge in that path to the counter
     graph
         .node_indices()
-        .take(10)
+        .take(3)
         .inspect(|node| log::info!("{:?}", node))
         .cartesian_product(graph.node_indices())
         .for_each(|(a, b)|

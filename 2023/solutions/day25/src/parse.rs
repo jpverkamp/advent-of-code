@@ -20,7 +20,6 @@ fn edges(input: &str) -> IResult<&str, (&str, Vec<&str>)> {
 }
 
 pub fn read(input: &str) -> UnGraph<&str, ()> {
-// pub fn read(input: &str) -> (UnGraph<&str, ()>, FxHashMap<&str, NodeIndex>, Vec<(&str, &str)>) {
     let (s, lines) = separated_list1(line_ending, edges)(input).unwrap();
     assert!(s.trim().is_empty());
 
@@ -44,5 +43,4 @@ pub fn read(input: &str) -> UnGraph<&str, ()> {
     }
 
     graph
-    // (graph, nodes, edges)
 }

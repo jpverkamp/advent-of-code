@@ -13,8 +13,6 @@ fn main() -> Result<()> {
     let input = io::read_to_string(stdin.lock())?;
     let graph = parse::read(&input);
 
-    // fs::write("graph.dot", format!("{:?}", Dot::new(&graph)))?;
-
     let result = (0..3)
         .map(|_i| graph.edge_indices())
         .multi_cartesian_product()
