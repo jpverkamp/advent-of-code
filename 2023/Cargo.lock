@@ -411,6 +411,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "day25"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "env_logger",
+ "fxhash",
+ "itertools",
+ "log",
+ "nom",
+ "petgraph",
+]
+
+[[package]]
 name = "day__day__"
 version = "0.1.0"
 dependencies = [
