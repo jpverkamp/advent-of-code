@@ -5,4 +5,5 @@ target/
 *.dot
 *.png
 *.mp4
+.z3-trace
 flamegraph.svg
