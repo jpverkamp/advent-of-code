@@ -1,6 +1,9 @@
 use anyhow::Result;
 use std::io;
-use z3::{Config, Context, ast::{Ast, Int}, Solver};
+use z3::{
+    ast::{Ast, Int},
+    Config, Context, Solver,
+};
 
 use day24::parse;
 
@@ -44,21 +47,39 @@ fn main() -> Result<()> {
 
         let t = Int::fresh_const(&context, "t");
 
-        solver.assert(&(&line_origin_x + &line_direction_x * &t)._eq(&(&origin_x + &direction_x * &t)));
-        solver.assert(&(&line_origin_y + &line_direction_y * &t)._eq(&(&origin_y + &direction_y * &t)));
-        solver.assert(&(&line_origin_z + &line_direction_z * &t)._eq(&(&origin_z + &direction_z * &t)));
+        solver.assert(
+            &(&line_origin_x + &line_direction_x * &t)._eq(&(&origin_x + &direction_x * &t)),
+        );
+        solver.assert(
+            &(&line_origin_y + &line_direction_y * &t)._eq(&(&origin_y + &direction_y * &t)),
+        );
+        solver.assert(
+            &(&line_origin_z + &line_direction_z * &t)._eq(&(&origin_z + &direction_z * &t)),
+        );
     }
 
     solver.check();
     let model = solver.get_model().unwrap();
-    
-    let result_x =  model.get_const_interp(&origin_x).unwrap().as_i64().unwrap();
-    let result_y =  model.get_const_interp(&origin_y).unwrap().as_i64().unwrap();
-    let result_z =  model.get_const_interp(&origin_z).unwrap().as_i64().unwrap();
 
-    let result_dx =  model.get_const_interp(&direction_x).unwrap().as_i64().unwrap();
-    let result_dy =  model.get_const_interp(&direction_y).unwrap().as_i64().unwrap();
-    let result_dz =  model.get_const_interp(&direction_z).unwrap().as_i64().unwrap();
+    let result_x = model.get_const_interp(&origin_x).unwrap().as_i64().unwrap();
+    let result_y = model.get_const_interp(&origin_y).unwrap().as_i64().unwrap();
+    let result_z = model.get_const_interp(&origin_z).unwrap().as_i64().unwrap();
+
+    let result_dx = model
+        .get_const_interp(&direction_x)
+        .unwrap()
+        .as_i64()
+        .unwrap();
+    let result_dy = model
+        .get_const_interp(&direction_y)
+        .unwrap()
+        .as_i64()
+        .unwrap();
+    let result_dz = model
+        .get_const_interp(&direction_z)
+        .unwrap()
+        .as_i64()
+        .unwrap();
 
     log::info!(
         "result: {:?} + {:?}",

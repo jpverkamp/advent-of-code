@@ -31,7 +31,8 @@ fn main() -> Result<()> {
         .inspect(|p| log::info!("potential: {:?}", p))
         .filter(|p| p.x >= MIN_X && p.x <= MAX_X && p.y >= MIN_Y && p.y <= MAX_Y)
         .inspect(|p| log::info!("in bounds: {:?}", p))
-        .count() / 2; // counts l1,l2 and l2,l1
+        .count()
+        / 2; // counts l1,l2 and l2,l1
 
     println!("{result:?}");
     Ok(())
@@ -40,11 +41,27 @@ fn main() -> Result<()> {
 fn intersect_xy(l1: Line, l2: Line) -> Option<Point> {
     // origin is x1/y1/x2/y2
     // direction is dx1/dy1/dx2/dy2
-    let Point { x: x1, y: y1, z: _z1 } = l1.origin;
-    let Point { x: x2, y: y2, z: _z2 } = l2.origin;
-    let Point { x: dx1, y: dy1, z: _dz1 } = l1.direction;
-    let Point { x: dx2, y: dy2, z: _dz2 } = l2.direction;
-    
+    let Point {
+        x: x1,
+        y: y1,
+        z: _z1,
+    } = l1.origin;
+    let Point {
+        x: x2,
+        y: y2,
+        z: _z2,
+    } = l2.origin;
+    let Point {
+        x: dx1,
+        y: dy1,
+        z: _dz1,
+    } = l1.direction;
+    let Point {
+        x: dx2,
+        y: dy2,
+        z: _dz2,
+    } = l2.direction;
+
     // times are t and u
 
     // x1 + t * dx1 = x2 + u * dx2
@@ -71,7 +88,7 @@ fn intersect_xy(l1: Line, l2: Line) -> Option<Point> {
     if u < 0_f64 || t < 0_f64 {
         return None;
     }
-    
+
     let x = x1 + t * dx1;
     let y = y1 + t * dy1;
 

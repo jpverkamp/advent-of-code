@@ -18,29 +18,18 @@ fn point(input: &str) -> IResult<&str, Point> {
         |(x, y, z)| Point {
             x: x as f64,
             y: y as f64,
-            z: z as f64 
+            z: z as f64,
         },
     )(input)
 }
 
 fn line(input: &str) -> IResult<&str, Line> {
     map(
-        tuple((
-            point,
-            delimited(
-                space0,
-                complete::char('@'),
-                space0
-            ),
-            point,
-        )),
+        tuple((point, delimited(space0, complete::char('@'), space0), point)),
         |(origin, _, direction)| Line { origin, direction },
     )(input)
 }
 
 pub fn lines(input: &str) -> IResult<&str, Vec<Line>> {
-    separated_list1(
-        line_ending,
-        line,
-    )(input)
+    separated_list1(line_ending, line)(input)
 }
