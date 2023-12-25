@@ -1,9 +1,9 @@
 use anyhow::Result;
 use fxhash::FxHashMap;
-use std::io;
+use itertools::Itertools;
 use petgraph::algo::all_simple_paths;
 use petgraph::graph::DiGraph;
-use itertools::Itertools;
+use std::io;
 
 use grid::Grid;
 use point::Point;
@@ -170,17 +170,19 @@ fn main() -> Result<()> {
 
     // Get the length of the longest path
     let result = all_simple_paths::<Vec<_>, _>(&graph, start, end, 0, None)
-        .map(|path| 
-            path
-                .iter()
+        .map(|path| {
+            path.iter()
                 .tuple_windows()
-                .map(|(a, b)| 
-                    split_distances.get(&(
-                        *graph.node_weight(*a).unwrap(),
-                        *graph.node_weight(*b).unwrap(),
-                    )).unwrap())
+                .map(|(a, b)| {
+                    split_distances
+                        .get(&(
+                            *graph.node_weight(*a).unwrap(),
+                            *graph.node_weight(*b).unwrap(),
+                        ))
+                        .unwrap()
+                })
                 .sum::<usize>()
-        )
+        })
         .max()
         .unwrap();
 
