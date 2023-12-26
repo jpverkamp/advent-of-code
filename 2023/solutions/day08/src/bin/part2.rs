@@ -7,15 +7,20 @@ use day08::{parse, types::*};
 // #[aoc_test("data/test/08b.txt", "6")]
 // #[aoc_test("data/test/08c.txt", "10")]
 // #[aoc_test("data/08.txt", "9064949303801")]
-fn main() -> Result<()> {
+fn main() {
+    let stdin = io::stdin();
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
+
+fn process(input: &str) -> Result<String> {
     // https://math.stackexchange.com/questions/2218763/how-to-find-lcm-of-two-numbers-when-one-starts-with-an-offset
     // I actually originally checked for any Z's along the cycle
     // But in the given test case it doesn't matter and in the final example it doesn't happen
     // It's weird to me that when the cycle starts doesn't end up matter? But it works
 
-    let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
-    let (s, ref simulation) = parse::simulation(&input).unwrap();
+    let (s, ref simulation) = parse::simulation(input).unwrap();
     assert_eq!(s.trim(), "");
 
     // Get all nodes that end in A
@@ -72,8 +77,5 @@ fn main() -> Result<()> {
         a / gcd(a, b) * b
     }
 
-    let result = cycles.clone().into_iter().reduce(lcm).unwrap();
-
-    println!("{result}");
-    Ok(())
+    Ok(cycles.clone().into_iter().reduce(lcm).unwrap().to_string())
 }

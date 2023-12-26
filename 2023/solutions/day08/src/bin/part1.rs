@@ -5,10 +5,15 @@ use day08::{parse, types::*};
 
 // #[aoc_test("data/test/08.txt", "6")]
 // #[aoc_test("data/08.txt", "12737")]
-fn main() -> Result<()> {
+fn main() {
     let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
-    let (s, ref simulation) = parse::simulation(&input).unwrap();
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
+
+fn process(input: &str) -> Result<String> {
+    let (s, ref simulation) = parse::simulation(input).unwrap();
     assert_eq!(s.trim(), "");
 
     let mut current: Label = ['A', 'A', 'A'];
@@ -28,6 +33,5 @@ fn main() -> Result<()> {
         }
     }
 
-    println!("{result}");
-    Ok(())
+    Ok(result.to_string())
 }

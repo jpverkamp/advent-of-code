@@ -1,5 +1,5 @@
 use anyhow::Result;
-use std::io::{self, BufRead};
+use std::io;
 
 trait IteratorExt: Iterator {
     fn first_and_last(mut self) -> [Self::Item; 2]
@@ -30,14 +30,18 @@ mod tests {
 // #[aoc_test("data/test/01.txt", 142)]
 // #[aoc_test("data/test/01b.txt", 209)]
 // #[aoc_test("data/01.txt", 53651)]
-fn main() -> Result<()> {
+fn main() {
     let stdin = io::stdin();
-    let lines = stdin.lock().lines();
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
 
-    let result = lines
+fn process(input: &str) -> Result<String> {
+    Ok(input
+        .lines()
         .map(|l| {
-            l.expect("have input")
-                .chars()
+            l.chars()
                 .filter(|c| c.is_numeric())
                 .first_and_last()
                 .iter()
@@ -45,8 +49,6 @@ fn main() -> Result<()> {
                 .parse::<u32>()
                 .unwrap()
         })
-        .sum::<u32>();
-
-    println!("{result}");
-    Ok(())
+        .sum::<u32>()
+        .to_string())
 }

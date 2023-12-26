@@ -44,10 +44,15 @@ fn toggle(ashflow: &mut AshFlow, p: &Point) {
 
 // #[aoc_test("data/test/13.txt", "400")]
 // #[aoc_test("data/13.txt", "36771")]
-fn main() -> Result<()> {
+fn main() {
     let stdin = io::stdin();
 
-    let input = io::read_to_string(stdin.lock())?;
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
+
+fn process(input: &str) -> Result<String> {
     let result = input
         .split("\n\n")
         .collect::<Vec<_>>()
@@ -92,6 +97,5 @@ fn main() -> Result<()> {
         })
         .sum::<isize>();
 
-    println!("{result}");
-    Ok(())
+    Ok(result.to_string())
 }

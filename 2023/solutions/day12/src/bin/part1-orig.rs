@@ -5,13 +5,18 @@ use day12::{parse, types::*};
 
 // #[aoc_test("data/test/12.txt", "21")]
 // #[aoc_test("data/12.txt", "7025")]
-fn main() -> Result<()> {
+fn main() {
     let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
-    let (s, springs) = parse::springs(&input).unwrap();
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
+
+fn process(input: &str) -> Result<String> {
+    let (s, springs) = parse::springs(input).unwrap();
     assert_eq!(s.trim(), "");
 
-    let result = springs
+    Ok(springs
         .iter()
         .map(|s| {
             use Condition::*;
@@ -70,8 +75,6 @@ fn main() -> Result<()> {
 
             possibles
         })
-        .sum::<u64>();
-
-    println!("{result}");
-    Ok(())
+        .sum::<u64>()
+        .to_string())
 }

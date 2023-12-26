@@ -1,4 +1,4 @@
-use anyhow::{Ok, Result};
+use anyhow::{anyhow, Ok, Result};
 use std::io;
 
 use day17::types::*;
@@ -81,11 +81,16 @@ fn best_path(
 // #[aoc_test("data/test/17.txt", "")]
 // #[aoc_test("data/17.txt", "796")]
 // 796 is too high
-fn main() -> Result<()> {
+fn main() {
+    env_logger::init();
     let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
 
-    let grid = Grid::read(input.as_str(), |c| c.to_digit(10));
+fn process(input: &str) -> Result<String> {
+    let grid = Grid::read(input, |c| c.to_digit(10));
     let mut cache = fxhash::FxHashMap::default();
 
     // Pre-populate the cache
@@ -95,7 +100,7 @@ fn main() -> Result<()> {
             let _ = best_path(&grid, &mut cache, p, South, 0, vec![], 100);
         }
     }
-    println!("pre-cache done, cache size: {}", cache.len());
+    log::info!("pre-cache done, cache size: {}", cache.len());
 
     if let Some((score, direction)) = best_path(
         &grid,
@@ -106,10 +111,8 @@ fn main() -> Result<()> {
         vec![],
         usize::MAX,
     ) {
-        println!("{} {:?}", score, direction);
+        Ok(format!("{} {:?}", score, direction))
     } else {
-        println!("No solution found");
+        Err(anyhow!("No solution found"))
     }
-
-    Ok(())
 }

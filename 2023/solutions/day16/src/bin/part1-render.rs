@@ -1,4 +1,3 @@
-use anyhow::Result;
 use std::{fs::create_dir_all, io};
 
 use day16::types::*;
@@ -9,10 +8,9 @@ use point::Point;
 // #[aoc_test("data/test/16.txt", "")]
 // #[aoc_test("data/16.txt", "")]
 #[allow(dead_code)]
-fn main() -> Result<()> {
+fn main() {
     let stdin = io::stdin();
-
-    let input = io::read_to_string(stdin.lock())?;
+    let input = io::read_to_string(stdin.lock()).expect("read input");
     let mirrors = Grid::read(&input, |c| match c {
         '|' => Some(Mirror::VerticalSplitter),
         '-' => Some(Mirror::HorizontalSplitter),
@@ -21,7 +19,7 @@ fn main() -> Result<()> {
         _ => None,
     });
 
-    let result = illuminate(&mirrors, (Point::new(0, 0), Direction::East))
+    let _result = illuminate(&mirrors, (Point::new(0, 0), Direction::East))
         .iter()
         .count();
 
@@ -46,9 +44,6 @@ fn main() -> Result<()> {
             .expect("command failed");
         child.wait().expect("process didn't finish");
     }
-
-    println!("{result}");
-    Ok(())
 }
 
 const RENDER_FRAMES: usize = 1000;

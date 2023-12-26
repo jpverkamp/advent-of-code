@@ -17,12 +17,16 @@ const DIRECTIONS: [Point; 4] = [
 
 // #[aoc_test("data/test/23.txt", "154")]
 // #[aoc_test("data/23.txt", "6226")]
-fn main() -> Result<()> {
+fn main() {
     env_logger::init();
     let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
 
-    let walls = Grid::read(input.as_str(), |c| match c {
+fn process(input: &str) -> Result<String> {
+    let walls = Grid::read(input, |c| match c {
         '#' => Some(true),
         _ => None,
     });
@@ -169,7 +173,7 @@ fn main() -> Result<()> {
     };
 
     // Get the length of the longest path
-    let result = all_simple_paths::<Vec<_>, _>(&graph, start, end, 0, None)
+    Ok(all_simple_paths::<Vec<_>, _>(&graph, start, end, 0, None)
         .map(|path| {
             path.iter()
                 .tuple_windows()
@@ -184,8 +188,6 @@ fn main() -> Result<()> {
                 .sum::<usize>()
         })
         .max()
-        .unwrap();
-
-    println!("{result}");
-    Ok(())
+        .unwrap()
+        .to_string())
 }

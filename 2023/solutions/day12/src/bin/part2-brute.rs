@@ -5,9 +5,10 @@ use day12::{parse, types::*};
 
 // #[aoc_test("data/test/12.txt", "525152")]
 // #[aoc_test("data/12.txt", "11461095383315")]
-fn main() -> Result<()> {
+fn main() {
+    env_logger::init();
     let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
+    let input = io::read_to_string(stdin.lock()).expect("read input");
 
     fn drep(s: &str, d: &str, n: usize) -> String {
         std::iter::repeat(s).take(n).collect::<Vec<_>>().join(d)
@@ -22,10 +23,15 @@ fn main() -> Result<()> {
         .collect::<Vec<_>>()
         .join("\n");
 
-    let (s, springs) = parse::springs(&input).unwrap();
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
+
+fn process(input: &str) -> Result<String> {
+    let (s, springs) = parse::springs(input).unwrap();
     assert_eq!(s.trim(), "");
 
-    let result = springs
+    Ok(springs
         .iter()
         .map(|s| {
             use Condition::*;
@@ -37,19 +43,19 @@ fn main() -> Result<()> {
             let mut i = 0;
             while let Some(current) = queue.pop_back() {
                 if i % 1_000_000 == 0 {
-                    println!("{i}, q={}, p={possibles}: {current}", queue.len());
+                    log::info!("{i}, q={}, p={possibles}: {current}", queue.len());
                 }
                 i += 1;
 
                 // If the current state is impossible, skip it
                 if !current.is_valid() {
-                    // println!("{current} is invalid");
+                    // log::info!("{current} is invalid");
                     continue;
                 }
 
                 // If it is possible and completely known, score it
                 if current.is_correct() {
-                    // println!("{current} is scoring");
+                    // log::info!("{current} is scoring");
                     possibles += 1;
                     continue;
                 }
@@ -69,10 +75,9 @@ fn main() -> Result<()> {
                 }
             }
 
-            dbg!(possibles)
+            log::info!("possibles: {:?}", possibles);
+            possibles
         })
-        .sum::<u64>();
-
-    println!("{result}");
-    Ok(())
+        .sum::<u64>()
+        .to_string())
 }

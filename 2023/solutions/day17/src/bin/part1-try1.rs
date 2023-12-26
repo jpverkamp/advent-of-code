@@ -1,4 +1,4 @@
-use anyhow::{Ok, Result};
+use anyhow::{anyhow, Ok, Result};
 use std::io;
 
 use day17::types::*;
@@ -7,13 +7,17 @@ use point::Point;
 
 // #[aoc_test("data/test/17.txt", "")]
 // #[aoc_test("data/17.txt", "")]
-fn main() -> Result<()> {
-    use Direction::*;
-
+fn main() {
+    env_logger::init();
     let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
 
-    let grid = Grid::read(input.as_str(), |c| c.to_digit(10));
+fn process(input: &str) -> Result<String> {
+    use Direction::*;
+    let grid = Grid::read(input, |c| c.to_digit(10));
 
     type Key = (Point, Direction, usize);
     let mut cache = fxhash::FxHashMap::default();
@@ -26,7 +30,7 @@ fn main() -> Result<()> {
         c: usize,
         visited: Vec<(Point, Direction, usize)>,
     ) -> Option<(u32, Direction)> {
-        println!("{p} {d:?} {c}");
+        log::info!("{p} {d:?} {c}");
 
         // Already cached
         let key = (p, d, c);
@@ -102,10 +106,8 @@ fn main() -> Result<()> {
 
     // Fill in the cache
     if let Some((score, _)) = best_path(&grid, &mut cache, Point::new(0, 0), South, 0, vec![]) {
-        println!("{:?}", score);
+        Ok(score.to_string())
     } else {
-        println!("No path found");
+        Err(anyhow!("No path found"))
     }
-
-    Ok(())
 }

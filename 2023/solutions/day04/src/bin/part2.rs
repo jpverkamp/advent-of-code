@@ -5,10 +5,15 @@ use day04::parse;
 
 // #[aoc_test("data/test/04.txt", "30")]
 // #[aoc_test("data/04.txt", "9236992")]
-fn main() -> Result<()> {
+fn main() {
     let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
-    let (_, cards) = parse::cards(&input).unwrap();
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
+
+fn process(input: &str) -> Result<String> {
+    let (_, cards) = parse::cards(input).unwrap();
 
     let mut result = 0;
     let mut counts = vec![1; cards.len()];
@@ -40,6 +45,5 @@ fn main() -> Result<()> {
         }
     }
 
-    println!("{result}");
-    Ok(())
+    Ok(result.to_string())
 }

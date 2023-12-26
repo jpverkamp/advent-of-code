@@ -1,4 +1,4 @@
-use anyhow::{Ok, Result};
+use anyhow::{anyhow, Result};
 use std::io;
 
 use day17::types::*;
@@ -8,13 +8,17 @@ use point::Point;
 // #[aoc_test("data/test/17.txt", "")]
 // #[aoc_test("data/17.txt", "796")]
 // 796 is too high
-fn main() -> Result<()> {
-    use Direction::*;
-
+fn main() {
+    env_logger::init();
     let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
 
-    let grid = Grid::read(input.as_str(), |c| c.to_digit(10));
+fn process(input: &str) -> Result<String> {
+    use Direction::*;
+    let grid = Grid::read(input, |c| c.to_digit(10));
 
     #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Default)]
     struct State {
@@ -47,12 +51,12 @@ fn main() -> Result<()> {
 
                 for d in &[North, South, East, West] {
                     let p_next = p_current + Point::from(*d);
-                    // println!("{p_current} {d:?} {p_next}");
+                    // log::info!("{p_current} {d:?} {p_next}");
 
                     // Moving to square that doesn't have a solution yet
                     // This includes moving out of bounds
                     if best.get(&p_next).is_none() {
-                        // println!("- no solution yet");
+                        // log::info!("- no solution yet");
                         continue;
                     }
 
@@ -70,17 +74,17 @@ fn main() -> Result<()> {
 
                     // Moving 3 in the same direction
                     if new.count > 3 {
-                        // println!("- 3 in a row");
+                        // log::info!("- 3 in a row");
                         continue;
                     }
 
                     // Score isn't better
                     if current_best.is_some_and(|b: State| b.score <= new.score) {
-                        // println!("- score not better {} <= {}", current_best.unwrap().score, new.score);
+                        // log::info!("- score not better {} <= {}", current_best.unwrap().score, new.score);
                         continue;
                     }
 
-                    // println!("  - new best: {:?}", new);
+                    // log::info!("  - new best: {:?}", new);
 
                     // Found a new best, update
                     best.insert(p_current, new);
@@ -90,12 +94,12 @@ fn main() -> Result<()> {
             }
         }
 
-        println!(
+        log::info!(
             "{:?}",
             best.get(&Point::ORIGIN).unwrap().score - grid.get(&Point::ORIGIN).unwrap()
         );
 
-        println!(
+        log::info!(
             "{}",
             &best.to_string('.', |state| match state.direction {
                 North => '^',
@@ -110,12 +114,12 @@ fn main() -> Result<()> {
         }
     }
 
-    println!(
+    log::info!(
         "{:?}",
         best.get(&Point::ORIGIN).unwrap().score - grid.get(&Point::ORIGIN).unwrap()
     );
 
-    println!(
+    log::info!(
         "{}",
         &best.to_string('.', |state| match state.direction {
             North => '^',
@@ -125,5 +129,5 @@ fn main() -> Result<()> {
         })
     );
 
-    Ok(())
+    Err(anyhow!("Not finished"))
 }

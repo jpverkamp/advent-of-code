@@ -9,3 +9,5 @@ edition = "2021"
 anyhow.workspace = true
 nom.workspace = true
 fxhash.workspace = true
+env_logger.workspace = true
+log.workspace = true

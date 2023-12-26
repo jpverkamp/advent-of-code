@@ -1,17 +1,22 @@
 use anyhow::Result;
-use std::io;
-use petgraph::{algo::connected_components, visit::Dfs};
 use itertools::Itertools;
+use petgraph::{algo::connected_components, visit::Dfs};
+use std::io;
 
 use day25::parse;
 
 // #[aoc_test("data/test/25.txt", "")]
 // #[aoc_test("data/25.txt", "")]
-fn main() -> Result<()> {
+fn main() {
     env_logger::init();
     let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
-    let graph = parse::read(&input);
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
+
+fn process(input: &str) -> Result<String> {
+    let graph = parse::read(input);
 
     let result = (0..3)
         .map(|_i| graph.edge_indices())
@@ -30,16 +35,12 @@ fn main() -> Result<()> {
 
             let mut dfs = Dfs::new(&graph2, graph.node_indices().next().unwrap());
             let mut count = 0;
-            while let Some(_) = dfs.next(&graph2) {
+            while dfs.next(&graph2).is_some() {
                 count += 1;
             }
             Some(count * (graph.node_count() - count))
         })
         .unwrap();
 
-    
-    println!("{:?}", result);
-
-    // println!("{result}");
-    Ok(())
+    Ok(result.to_string())
 }

@@ -18,12 +18,17 @@ const EPSILON: f64 = 0.01_f64;
 
 // #[aoc_test("data/test/24.txt", "47")]
 // #[aoc_test("data/24.txt", "976976197397181")]
-fn main() -> Result<()> {
+fn main() {
     env_logger::init();
 
     let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
-    let (s, lines) = parse::lines(input.as_str()).unwrap();
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
+
+fn process(input: &str) -> Result<String> {
+    let (s, lines) = parse::lines(input).unwrap();
     assert!(s.trim().is_empty());
 
     #[allow(unused_assignments)]
@@ -237,6 +242,5 @@ fn main() -> Result<()> {
     let position = position.unwrap();
     let result = position.0 + position.1 + position.2;
 
-    println!("{result:?}");
-    Ok(())
+    Ok(format!("{result:?}"))
 }

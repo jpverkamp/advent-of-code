@@ -8,6 +8,8 @@ edition = "2021"
 [dependencies]
 anyhow.workspace = true
 fxhash.workspace = true
+env_logger.workspace = true
+log.workspace = true
 point.path = "../../libs/point"
 bounds.path = "../../libs/bounds"
 grid.path = "../../libs/grid"

@@ -25,8 +25,8 @@ pub struct Schematic {
     pub symbols: Vec<Symbol>,
 }
 
-impl From<String> for Schematic {
-    fn from(value: String) -> Self {
+impl From<&str> for Schematic {
+    fn from(value: &str) -> Self {
         let mut numbers = Vec::new();
         let mut symbols = Vec::new();
 

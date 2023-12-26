@@ -8,10 +8,15 @@ use point::Point;
 
 // #[aoc_test("data/test/18.txt", "62")]
 // #[aoc_test("data/18.txt", "52055")]
-fn main() -> Result<()> {
+fn main() {
     let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
-    let (s, commands) = parse::commands(&input).unwrap();
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
+
+fn process(input: &str) -> Result<String> {
+    let (s, commands) = parse::commands(input).unwrap();
     assert_eq!(s.trim(), "");
 
     let mut vertexes = vec![];
@@ -47,6 +52,5 @@ fn main() -> Result<()> {
     // Final result is always off by 1 for reasons?
     result += 1;
 
-    println!("{result}");
-    Ok(())
+    Ok(result.to_string())
 }

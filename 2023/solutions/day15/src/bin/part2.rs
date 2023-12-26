@@ -3,10 +3,14 @@ use std::io;
 
 // #[aoc_test("data/test/15.txt", "145")]
 // #[aoc_test("data/15.txt", "265462")]
-fn main() -> Result<()> {
+fn main() {
     let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
 
+fn process(input: &str) -> Result<String> {
     fn hash(s: &str) -> u8 {
         s.chars()
             .fold(0, |v, c| ((v.wrapping_add(c as u8)).wrapping_mul(17)))
@@ -37,7 +41,7 @@ fn main() -> Result<()> {
         }
     });
 
-    let result = boxes
+    Ok(boxes
         .iter()
         .enumerate()
         .map(|(i, b)| {
@@ -46,9 +50,6 @@ fn main() -> Result<()> {
                 .map(|(j, (_, v))| (i + 1) * (j + 1) * (*v as usize))
                 .sum::<usize>()
         })
-        .sum::<usize>();
-
-    println!("{result}");
-
-    Ok(())
+        .sum::<usize>()
+        .to_string())
 }

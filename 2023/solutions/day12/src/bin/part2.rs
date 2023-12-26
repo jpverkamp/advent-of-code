@@ -105,9 +105,9 @@ impl<'a> Solver<'a> {
 
 // #[aoc_test("data/test/12.txt", "525152")]
 // #[aoc_test("data/12.txt", "11461095383315")]
-fn main() -> Result<()> {
+fn main() {
     let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
+    let input = io::read_to_string(stdin.lock()).expect("read input");
 
     fn drep(s: &str, d: &str, n: usize) -> String {
         std::iter::repeat(s).take(n).collect::<Vec<_>>().join(d)
@@ -122,7 +122,12 @@ fn main() -> Result<()> {
         .collect::<Vec<_>>()
         .join("\n");
 
-    let result = input
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
+
+fn process(input: &str) -> Result<String> {
+    Ok(input
         .lines()
         .map(|line| {
             let parts = line.split_once(' ').unwrap();
@@ -135,10 +140,8 @@ fn main() -> Result<()> {
 
             Solver::new().check(conditions, b'.', b'.', &groups, 0)
         })
-        .sum::<u128>();
-
-    println!("{result}");
-    Ok(())
+        .sum::<u128>()
+        .to_string())
 }
 
 #[cfg(test)]

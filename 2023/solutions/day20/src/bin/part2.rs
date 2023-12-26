@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use fxhash::FxHashMap;
 use std::{collections::VecDeque, io};
 
@@ -6,12 +6,17 @@ use day20::{parse, types::*};
 
 // #[aoc_test("data/test/20.txt", "no result")]
 // #[aoc_test("data/20.txt", "240162699605221")]
-fn main() -> Result<()> {
+fn main() {
     env_logger::init();
 
     let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
-    let (s, mut modules) = parse::modules(&input).unwrap();
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
+
+fn process(input: &str) -> Result<String> {
+    let (s, mut modules) = parse::modules(input).unwrap();
     assert_eq!(s.trim(), "");
 
     let mut state = modules
@@ -122,10 +127,8 @@ fn main() -> Result<()> {
     }
 
     if let Some(result) = cycles.into_iter().reduce(lcm) {
-        println!("{result}");
+        Ok(result.to_string())
     } else {
-        println!("no result");
+        Err(anyhow!("no result"))
     }
-
-    Ok(())
 }

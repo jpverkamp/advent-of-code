@@ -7,13 +7,17 @@ use fxhash::FxHashMap;
 
 // #[aoc_test("data/test/22.txt", "7")]
 // #[aoc_test("data/22.txt", "102770")]
-fn main() -> Result<()> {
+fn main() {
     env_logger::init();
 
     let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
 
-    let (s, mut blocks) = parse::blocks(&input).unwrap();
+fn process(input: &str) -> Result<String> {
+    let (s, mut blocks) = parse::blocks(input).unwrap();
     assert!(s.trim().is_empty());
 
     let gravity: Point = Point::new(0, 0, -1);
@@ -86,7 +90,7 @@ fn main() -> Result<()> {
         supported_by.remove(block);
     }
 
-    let result = blocks
+    Ok(blocks
         .iter()
         .map(|block| {
             let name = block.name(&blocks);
@@ -128,8 +132,6 @@ fn main() -> Result<()> {
             // Return the number of blocks that were removed
             blocks.len() - supported_by.len() - 1
         })
-        .sum::<usize>();
-
-    println!("{result:?}");
-    Ok(())
+        .sum::<usize>()
+        .to_string())
 }

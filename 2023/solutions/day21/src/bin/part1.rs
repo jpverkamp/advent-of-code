@@ -13,11 +13,15 @@ const STEPS: i32 = 64;
 // #[aoc_test("data/test/21.txt", "16")]    // if steps = 6
 // #[aoc_test("data/test/21.txt", "4056")]  // if steps = 64
 // #[aoc_test("data/21.txt", "")]
-fn main() -> Result<()> {
+fn main() {
     let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
 
-    let (walls, start) = parse::read(&input);
+fn process(input: &str) -> Result<String> {
+    let (walls, start) = parse::read(input);
 
     #[allow(unused_variables)]
     let wall_bounds = Bounds::from(walls.iter());
@@ -58,8 +62,5 @@ fn main() -> Result<()> {
         // }
     }
 
-    let result = active.len();
-
-    println!("{result}");
-    Ok(())
+    Ok(active.len().to_string())
 }

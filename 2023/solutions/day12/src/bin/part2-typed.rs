@@ -108,16 +108,20 @@ impl<'a> Solver<'a> {
 
 // #[aoc_test("data/test/12.txt", "525152")]
 // #[aoc_test("data/12.txt", "11461095383315")]
-fn main() -> Result<()> {
+fn main() {
+    let stdin = io::stdin();
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
+
+fn process(input: &str) -> Result<String> {
     use Condition::*;
 
-    let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
-
-    let (s, springs) = parse::springs(&input).unwrap();
+    let (s, springs) = parse::springs(input).unwrap();
     assert_eq!(s.trim(), "");
 
-    let result = springs
+    Ok(springs
         .iter()
         .map(|spring| Spring {
             conditions: (spring
@@ -139,8 +143,6 @@ fn main() -> Result<()> {
                 .collect::<Vec<_>>(),
         })
         .map(|spring| Solver::new().check(&spring.conditions, Damaged, Damaged, &spring.groups, 0))
-        .sum::<u128>();
-
-    println!("{result}");
-    Ok(())
+        .sum::<u128>()
+        .to_string())
 }

@@ -277,7 +277,9 @@ name = "day12"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "env_logger",
  "fxhash",
+ "log",
  "nom",
 ]
 
@@ -322,8 +324,10 @@ name = "day17"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "env_logger",
  "fxhash",
  "grid",
+ "log",
  "pathfinding",
  "point",
 ]
@@ -368,8 +372,10 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "bounds",
+ "env_logger",
  "fxhash",
  "grid",
+ "log",
  "point",
 ]
 

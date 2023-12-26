@@ -1,18 +1,26 @@
 use anyhow::Result;
 use fxhash::FxHashMap;
-use std::io;
-use petgraph::{algo::{connected_components, astar}, visit::Dfs};
 use itertools::Itertools;
+use petgraph::{
+    algo::{astar, connected_components},
+    visit::Dfs,
+};
+use std::io;
 
 use day25::parse;
 
 // #[aoc_test("data/test/25.txt", "")]
 // #[aoc_test("data/25.txt", "")]
-fn main() -> Result<()> {
+fn main() {
     env_logger::init();
     let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
-    let graph = parse::read(&input);
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
+
+fn process(input: &str) -> Result<String> {
+    let graph = parse::read(input);
 
     // Count how many times we cross each edge
     let mut counter: FxHashMap<_, usize> = FxHashMap::default();
@@ -24,23 +32,16 @@ fn main() -> Result<()> {
         .take(3)
         .inspect(|node| log::info!("{:?}", node))
         .cartesian_product(graph.node_indices())
-        .for_each(|(a, b)|
-            astar(
-                &graph, 
-                a, |node| node == b,
-                |_| 1,
-                |_| 0
-            )
-            .unwrap()
-            .1
-            .iter()
-            .tuple_windows()
-            .map(|(a, b)| graph.find_edge(*a, *b).unwrap())
-            .for_each(|edge| 
-                *counter.entry(edge).or_default() += 1
-            )
-        );
-        
+        .for_each(|(a, b)| {
+            astar(&graph, a, |node| node == b, |_| 1, |_| 0)
+                .unwrap()
+                .1
+                .iter()
+                .tuple_windows()
+                .map(|(a, b)| graph.find_edge(*a, *b).unwrap())
+                .for_each(|edge| *counter.entry(edge).or_default() += 1)
+        });
+
     // Sort the list of edges with the heaviest first
     let heavy_edges = counter
         .iter()
@@ -67,13 +68,12 @@ fn main() -> Result<()> {
 
             let mut dfs = Dfs::new(&graph2, graph.node_indices().next().unwrap());
             let mut count = 0;
-            while let Some(_) = dfs.next(&graph2) {
+            while dfs.next(&graph2).is_some() {
                 count += 1;
             }
             Some(count * (graph.node_count() - count))
         })
         .unwrap();
-   
-    println!("{result}");
-    Ok(())
+
+    Ok(result.to_string())
 }

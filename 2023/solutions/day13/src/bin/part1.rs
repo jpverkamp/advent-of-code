@@ -5,11 +5,16 @@ use day13::types::*;
 
 // #[aoc_test("data/test/13.txt", "405")]
 // #[aoc_test("data/13.txt", "43614")]
-fn main() -> Result<()> {
+fn main() {
     let stdin = io::stdin();
 
-    let input = io::read_to_string(stdin.lock())?;
-    let result = input
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
+
+fn process(input: &str) -> Result<String> {
+    Ok(input
         .split("\n\n")
         .collect::<Vec<_>>()
         .iter()
@@ -40,8 +45,6 @@ fn main() -> Result<()> {
 
             result
         })
-        .sum::<isize>();
-
-    println!("{result}");
-    Ok(())
+        .sum::<isize>()
+        .to_string())
 }

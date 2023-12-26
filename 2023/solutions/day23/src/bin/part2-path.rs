@@ -6,12 +6,16 @@ use point::Point;
 
 // #[aoc_test("data/test/23.txt", "154")]
 // #[aoc_test("data/23.txt", "")]
-fn main() -> Result<()> {
+fn main() {
     env_logger::init();
     let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
 
-    let grid = Grid::read(input.as_str(), |c| match c {
+fn process(input: &str) -> Result<String> {
+    let grid = Grid::read(input, |c| match c {
         '#' => Some(true),
         _ => None,
     });
@@ -79,14 +83,12 @@ fn main() -> Result<()> {
     }
 
     // Find the longest path
-    let result = complete
+    Ok((complete
         .iter()
         .max_by(|a, b| a.len().cmp(&b.len()))
         .unwrap()
-        .len();
-
-    println!("{result}");
-    Ok(())
+        .len())
+    .to_string())
 }
 
 /* Custom implementation of path */
@@ -143,6 +145,10 @@ impl Path {
         self.length
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.length == 0
+    }
+
     pub fn contains(&self, p: Point) -> bool {
         // Check the current point
         if self.path.borrow().points[self.index] == p {
@@ -171,7 +177,7 @@ mod path_test {
         let p = Point::new(0, 0);
         let path = Path::new(p);
         assert_eq!(path.len(), 1);
-        assert_eq!(path.contains(p), true);
+        assert!(path.contains(p));
     }
 
     #[test]
@@ -186,7 +192,7 @@ mod path_test {
         let p = Point::new(2, 0);
         path = path.extend(p);
         assert_eq!(path.len(), 3);
-        assert_eq!(path.contains(p), true);
+        assert!(path.contains(p));
     }
 
     #[test]
@@ -213,13 +219,13 @@ mod path_test {
 
         assert_eq!(path_a.len(), 4);
 
-        assert_eq!(path_a.contains(Point::new(1, 0)), true);
-        assert_eq!(path_a.contains(Point::new(2, 1)), true);
-        assert_eq!(!path_b.contains(Point::new(2, 1)), true);
+        assert!(path_a.contains(Point::new(1, 0)));
+        assert!(path_a.contains(Point::new(2, 1)));
+        assert!(!path_b.contains(Point::new(2, 1)));
 
         assert_eq!(path_b.len(), 5);
-        assert_eq!(path_b.contains(Point::new(1, 0)), true);
-        assert_eq!(path_b.contains(Point::new(1, 2)), true);
-        assert_eq!(!path_a.contains(Point::new(1, 2)), true);
+        assert!(path_b.contains(Point::new(1, 0)));
+        assert!(path_b.contains(Point::new(1, 2)));
+        assert!(!path_a.contains(Point::new(1, 2)));
     }
 }

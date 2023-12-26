@@ -56,8 +56,8 @@ impl Galaxy {
     }
 }
 
-impl From<String> for Galaxy {
-    fn from(s: String) -> Self {
+impl From<&str> for Galaxy {
+    fn from(s: &str) -> Self {
         let stars = s
             .lines()
             .enumerate()

@@ -5,10 +5,15 @@ use day05::{parse, types::*};
 
 // #[aoc_test("data/test/05.txt", "46")]
 // #[aoc_test("data/05.txt", "136096660")]
-fn main() -> Result<()> {
+fn main() {
     let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
-    let (s, simulation) = parse::simulation(&input).unwrap();
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
+
+fn process(input: &str) -> Result<String> {
+    let (s, simulation) = parse::simulation(input).unwrap();
     assert_eq!(s, "");
 
     // Replace seeds with ranges
@@ -34,12 +39,11 @@ fn main() -> Result<()> {
     assert_eq!(cat, Category::Location);
 
     assert_eq!(cat, Category::Location);
-    let result = values
+
+    Ok(values
         .iter()
         .map(|r| r.clone().min().unwrap())
         .min()
-        .unwrap();
-
-    println!("{result}");
-    Ok(())
+        .unwrap()
+        .to_string())
 }

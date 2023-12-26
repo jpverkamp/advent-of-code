@@ -11,12 +11,17 @@ use part1::illuminate;
 
 // #[aoc_test("data/test/16.txt", "")]
 // #[aoc_test("data/16.txt", "")]
-fn main() -> Result<()> {
+fn main() {
     let stdin = io::stdin();
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
+
+fn process(input: &str) -> Result<String> {
     use Direction::*;
 
-    let input = io::read_to_string(stdin.lock())?;
-    let mirrors = Grid::read(&input, |c| match c {
+    let mirrors = Grid::read(input, |c| match c {
         '|' => Some(Mirror::VerticalSplitter),
         '-' => Some(Mirror::HorizontalSplitter),
         '/' => Some(Mirror::ForwardReflector),
@@ -34,12 +39,10 @@ fn main() -> Result<()> {
         starts.push((Point::new(mirrors.bounds.max_x, y), West));
     }
 
-    let result = starts
+    Ok(starts
         .iter()
         .map(|start| illuminate(&mirrors, *start).iter().count())
         .max()
-        .unwrap();
-
-    println!("{result}");
-    Ok(())
+        .unwrap()
+        .to_string())
 }

@@ -1,15 +1,12 @@
-use anyhow::Result;
 use fxhash::FxHashMap;
 use image::ImageBuffer;
 use std::{fs::create_dir_all, io};
 
 use day14::types::*;
 
-// #[aoc_test("data/test/14.txt", "64")]
-// #[aoc_test("data/14.txt", "90982")]
-fn main() -> Result<()> {
+fn main() {
     let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
+    let input = io::read_to_string(stdin.lock()).expect("read input");
     let mut platform = PlatformV2::from(Platform::from(input.as_str()));
 
     let mut seen = FxHashMap::default();
@@ -42,7 +39,7 @@ fn main() -> Result<()> {
                     image::Rgb([0, 0, 0])
                 }
             });
-            image.save(filename)?;
+            image.save(filename).expect("save frame");
         }
 
         // Check if we've seen this platform state before (it's deterministic, thus cycling)
@@ -84,7 +81,7 @@ fn main() -> Result<()> {
                         image::Rgb([0, 0, 0])
                     }
                 });
-                image.save(filename)?;
+                image.save(filename).expect("save frame");
             }
 
             // Let the rocks slide until they stop moving
@@ -129,7 +126,7 @@ fn main() -> Result<()> {
     }
 
     // Calculate final score
-    let result = platform
+    platform
         .round_rocks
         .iter()
         .map(|r| platform.bounds.max_y - r.y + 1)
@@ -161,7 +158,4 @@ fn main() -> Result<()> {
             .expect("command failed");
         child.wait().expect("process didn't finish");
     }
-
-    println!("{result}");
-    Ok(())
 }

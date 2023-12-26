@@ -5,13 +5,18 @@ use day09::parse;
 
 // #[aoc_test("data/test/09.txt", "2")]
 // #[aoc_test("data/09.txt", "990")]
-fn main() -> Result<()> {
+fn main() {
     let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
-    let (s, equations) = parse::equations(&input).unwrap();
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
+
+fn process(input: &str) -> Result<String> {
+    let (s, equations) = parse::equations(input).unwrap();
     assert_eq!(s.trim(), "");
 
-    let result = equations
+    Ok(equations
         .iter()
         .map(|equation| {
             // Build the stacks as in part 1, but reverse them all (so we can generate a new 'first' element)
@@ -28,8 +33,6 @@ fn main() -> Result<()> {
             // The new last value is the value 'before' the original list
             *stack[0].last().unwrap()
         })
-        .sum::<i64>();
-
-    println!("{result}");
-    Ok(())
+        .sum::<i64>()
+        .to_string())
 }

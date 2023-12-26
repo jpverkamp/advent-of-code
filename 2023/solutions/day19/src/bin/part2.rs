@@ -6,12 +6,17 @@ use log::info;
 
 // #[aoc_test("data/test/19.txt", "167409079868000")]
 // #[aoc_test("data/19.txt", "132380153677887")]
-fn main() -> Result<()> {
+fn main() {
     env_logger::init();
 
     let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
-    let (s, (rules, _)) = parse::simulation(&input).unwrap();
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
+
+fn process(input: &str) -> Result<String> {
+    let (s, (rules, _)) = parse::simulation(input).unwrap();
     assert_eq!(s.trim(), "");
 
     #[derive(Debug, Clone)]
@@ -199,7 +204,7 @@ fn main() -> Result<()> {
         });
     }
 
-    let result = accepted
+    Ok(accepted
         .iter()
         .map(|part| {
             (part.x.end() - part.x.start() + 1) as u128
@@ -207,8 +212,6 @@ fn main() -> Result<()> {
                 * (part.a.end() - part.a.start() + 1) as u128
                 * (part.s.end() - part.s.start() + 1) as u128
         })
-        .sum::<u128>();
-
-    println!("{result}");
-    Ok(())
+        .sum::<u128>()
+        .to_string())
 }

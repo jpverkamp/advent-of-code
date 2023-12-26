@@ -1,5 +1,5 @@
 use anyhow::Result;
-use std::io::{self, BufRead};
+use std::io;
 
 const DIGIT_WORDS: [&str; 10] = [
     "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
@@ -8,13 +8,17 @@ const DIGIT_WORDS: [&str; 10] = [
 // #[aoc_test("data/test/01.txt", 142)]
 // #[aoc_test("data/test/01b.txt", 281)]
 // #[aoc_test("data/01.txt", 53894)]
-fn main() -> Result<()> {
+fn main() {
     let stdin = io::stdin();
-    let lines = stdin.lock().lines();
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
 
-    let result = lines
+fn process(input: &str) -> Result<String> {
+    Ok(input
+        .lines()
         .filter_map(|l| {
-            let l = l.ok()?;
             let mut first = None;
             let mut last = None;
 
@@ -44,8 +48,5 @@ fn main() -> Result<()> {
             Some(10 * first? + last?)
         })
         .sum::<usize>()
-        .to_string();
-
-    println!("{result}");
-    Ok(())
+        .to_string())
 }

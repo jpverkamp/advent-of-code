@@ -9,12 +9,17 @@ use day24::parse;
 
 // #[aoc_test("data/test/24.txt", "2")] // with first bounds
 // #[aoc_test("data/24.txt", "")]
-fn main() -> Result<()> {
+fn main() {
     env_logger::init();
 
     let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
-    let (s, lines) = parse::lines(input.as_str()).unwrap();
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
+
+fn process(input: &str) -> Result<String> {
+    let (s, lines) = parse::lines(input).unwrap();
     assert!(s.trim().is_empty());
 
     // Make a giant system of equations
@@ -89,6 +94,5 @@ fn main() -> Result<()> {
 
     let result = result_x + result_y + result_z;
 
-    println!("{result:?}");
-    Ok(())
+    Ok(format!("{result:?}"))
 }

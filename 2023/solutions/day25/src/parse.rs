@@ -31,8 +31,8 @@ pub fn read(input: &str) -> UnGraph<&str, ()> {
         if !nodes.contains_key(label) {
             nodes.insert(label, graph.add_node(label));
         }
-        
-        for target in targets { 
+
+        for target in targets {
             if !nodes.contains_key(target) {
                 nodes.insert(target, graph.add_node(target));
             }

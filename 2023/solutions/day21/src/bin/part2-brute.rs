@@ -17,11 +17,16 @@ const STEPS: i32 = 100;
 // #[aoc_test("data/test/21.txt", "668697")]    // if steps = 1000
 // #[aoc_test("data/test/21.txt", "16733044")]  // if steps = 5000
 // #[aoc_test("data/21.txt", "")]
-fn main() -> Result<()> {
+fn main() {
+    env_logger::init();
     let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
 
-    let (walls, start) = parse::read(&input);
+fn process(input: &str) -> Result<String> {
+    let (walls, start) = parse::read(input);
     let wall_bounds = Bounds::from(walls.iter());
 
     // Note: Assuming min bounds are 0
@@ -58,32 +63,31 @@ fn main() -> Result<()> {
 
         active = next_active;
 
-        println!("{_i} {}", active.len());
+        log::info!("{_i} {}", active.len());
 
         #[cfg(debug_assertions)]
         {
-            println!("=== {_i} ===");
+            let mut s = String::new();
+
+            s.push_str("=== {_i} ===");
             let bounds = wall_bounds + Bounds::from(active.iter());
 
             for y in bounds.min_y..=bounds.max_y {
                 for x in bounds.min_x..=bounds.max_x {
                     let p = Point::new(x, y);
                     if active.contains(&p) {
-                        print!("O");
+                        s.push('O');
                     } else if wall_mod_contains(&p) {
-                        print!("#");
+                        s.push('#');
                     } else {
-                        print!(".");
+                        s.push('.');
                     }
                 }
-                println!();
+                s.push('\n');
             }
-            println!();
+            log::info!("{s}");
         }
     }
 
-    let result = active.len();
-
-    println!("{result}");
-    Ok(())
+    Ok(active.len().to_string())
 }

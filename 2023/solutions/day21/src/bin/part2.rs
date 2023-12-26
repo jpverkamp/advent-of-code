@@ -11,11 +11,15 @@ const STEPS: i32 = 26501365;
 
 // #[aoc_test("data/test/21.txt", "522388151441217")] // I dunno
 // #[aoc_test("data/21.txt", "612941134797232")]
-fn main() -> Result<()> {
+fn main() {
     let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
 
-    let (walls, start) = parse::read(&input);
+fn process(input: &str) -> Result<String> {
+    let (walls, start) = parse::read(input);
     let wall_bounds = Bounds::from(walls.iter());
 
     // Note: Assuming min bounds are 0
@@ -96,6 +100,5 @@ fn main() -> Result<()> {
     let target = target as i128;
     let result = (a as i128) * target * target + (b as i128) * target + (c as i128);
 
-    println!("{result}");
-    Ok(())
+    Ok(result.to_string())
 }

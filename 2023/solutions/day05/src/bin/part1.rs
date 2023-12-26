@@ -5,10 +5,15 @@ use day05::{parse, types::*};
 
 // #[aoc_test("data/test/05.txt", "35")]
 // #[aoc_test("data/05.txt", "825516882")]
-fn main() -> Result<()> {
+fn main() {
     let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
-    let (s, simulation) = parse::simulation(&input).unwrap();
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
+
+fn process(input: &str) -> Result<String> {
+    let (s, simulation) = parse::simulation(input).unwrap();
     assert_eq!(s, "");
 
     let (cat, values) = simulation.category_maps.iter().fold(
@@ -22,8 +27,6 @@ fn main() -> Result<()> {
         },
     );
     assert_eq!(cat, Category::Location);
-    let result = values.iter().min().unwrap();
 
-    println!("{result}");
-    Ok(())
+    Ok(values.iter().min().unwrap().to_string())
 }

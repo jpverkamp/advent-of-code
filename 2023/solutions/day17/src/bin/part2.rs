@@ -1,4 +1,4 @@
-use anyhow::{Ok, Result};
+use anyhow::{anyhow, Ok, Result};
 use std::io;
 
 use day17::types::*;
@@ -11,11 +11,15 @@ use pathfinding::prelude::astar;
 // #[aoc_test("data/test/17.txt", "94")]
 // #[aoc_test("data/test/17b.txt", "71")]
 // #[aoc_test("data/17.txt", "930")]
-fn main() -> Result<()> {
+fn main() {
     let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
 
-    let grid = Grid::read(input.as_str(), |c| c.to_digit(10));
+fn process(input: &str) -> Result<String> {
+    let grid = Grid::read(input, |c| c.to_digit(10));
 
     #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Ord, PartialOrd)]
     struct State {
@@ -84,10 +88,8 @@ fn main() -> Result<()> {
         //     println!();
         // }
 
-        println!("{score}");
+        Ok(score.to_string())
     } else {
-        eprintln!("no path found");
+        Err(anyhow!("no path found"))
     }
-
-    Ok(())
 }

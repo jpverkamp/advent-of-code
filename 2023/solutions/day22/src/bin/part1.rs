@@ -5,13 +5,17 @@ use day22::{parse, types::*};
 
 // #[aoc_test("data/test/22.txt", "5")]
 // #[aoc_test("data/22.txt", "509")]
-fn main() -> Result<()> {
+fn main() {
     env_logger::init();
 
     let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
 
-    let (s, mut blocks) = parse::blocks(&input).unwrap();
+fn process(input: &str) -> Result<String> {
+    let (s, mut blocks) = parse::blocks(input).unwrap();
     assert!(s.trim().is_empty());
 
     let gravity: Point = Point::new(0, 0, -1);
@@ -85,15 +89,13 @@ fn main() -> Result<()> {
     }
 
     // Safe blocks are those that never are the only support for any other block
-    let result = blocks
+    Ok(blocks
         .iter()
         .filter(|block| {
             !supported_by
                 .iter()
                 .any(|(_, supports)| supports.contains(block) && supports.len() == 1)
         })
-        .count();
-
-    println!("{result}");
-    Ok(())
+        .count()
+        .to_string())
 }

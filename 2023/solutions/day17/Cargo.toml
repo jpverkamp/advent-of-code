@@ -9,5 +9,7 @@ edition = "2021"
 anyhow.workspace = true
 fxhash.workspace = true
 pathfinding.workspace = true
+env_logger.workspace = true
+log.workspace = true
 point.path = "../../libs/point"
 grid.path = "../../libs/grid"

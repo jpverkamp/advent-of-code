@@ -1,13 +1,13 @@
-use anyhow::Result;
 use std::io;
 
 use day20::{parse, types::*};
 
-fn main() -> Result<()> {
+fn main() {
     env_logger::init();
 
     let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+
     let (s, modules) = parse::modules(&input).unwrap();
     assert_eq!(s.trim(), "");
 
@@ -37,6 +37,4 @@ fn main() -> Result<()> {
     });
 
     println!("}}");
-
-    Ok(())
 }

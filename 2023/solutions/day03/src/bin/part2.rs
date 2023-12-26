@@ -5,12 +5,17 @@ use day03::types::*;
 
 // #[aoc_test("data/test/__day__.txt", "467835")]
 // #[aoc_test("data/__day__.txt", "81166799")]
-fn main() -> Result<()> {
+fn main() {
     let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
+
+fn process(input: &str) -> Result<String> {
     let schematic = Schematic::from(input);
 
-    let result = schematic
+    Ok(schematic
         .symbols
         .iter()
         .filter(|s| s.value == '*')
@@ -29,8 +34,6 @@ fn main() -> Result<()> {
         })
         .filter(|ratios| ratios.len() == 2)
         .map(|ratios| ratios[0] * ratios[1])
-        .sum::<usize>();
-
-    println!("{result}");
-    Ok(())
+        .sum::<usize>()
+        .to_string())
 }

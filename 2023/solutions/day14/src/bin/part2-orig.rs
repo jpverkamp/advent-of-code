@@ -6,10 +6,15 @@ use day14::types::*;
 
 // #[aoc_test("data/test/14.txt", "64")]
 // #[aoc_test("data/14.txt", "90982")]
-fn main() -> Result<()> {
+fn main() {
     let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
-    let mut platform = Platform::from(input.as_str());
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
+
+fn process(input: &str) -> Result<String> {
+    let mut platform = Platform::from(input);
 
     let mut seen = FxHashMap::default();
 
@@ -61,12 +66,10 @@ fn main() -> Result<()> {
     }
 
     // Calculate final score
-    let result = platform
+    Ok(platform
         .round_rocks
         .iter()
         .map(|r| platform.bounds.max_y - r.y + 1)
-        .sum::<isize>();
-
-    println!("{result}");
-    Ok(())
+        .sum::<isize>()
+        .to_string())
 }

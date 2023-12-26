@@ -7,19 +7,24 @@ use itertools::Itertools;
 
 // #[aoc_test("data/test/19.txt", "19114")]
 // #[aoc_test("data/19.txt", "476889")]
-fn main() -> Result<()> {
+fn main() {
     let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
-    let (s, (rules, _)) = parse::simulation(&input).unwrap();
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
+
+fn process(input: &str) -> Result<String> {
+    let (s, (rules, _)) = parse::simulation(input).unwrap();
     assert_eq!(s.trim(), "");
 
     let values = 1..=4000;
     let start = std::time::Instant::now();
 
-    let result = values
+    Ok(values
         .clone()
         .cartesian_product(values.clone())
-        .inspect(|v| println!("{v:?} in {sec:?}", sec = start.elapsed()))
+        .inspect(|v| log::info!("{v:?} in {sec:?}", sec = start.elapsed()))
         .cartesian_product(values.clone())
         .cartesian_product(values.clone())
         .flat_map(|(((x, m), a), s)| {
@@ -60,8 +65,6 @@ fn main() -> Result<()> {
                 }
             }
         })
-        .count();
-
-    println!("{result}");
-    Ok(())
+        .count()
+        .to_string())
 }

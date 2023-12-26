@@ -5,13 +5,18 @@ use day19::{parse, types::*};
 
 // #[aoc_test("data/test/19.txt", "19114")]
 // #[aoc_test("data/19.txt", "476889")]
-fn main() -> Result<()> {
+fn main() {
     let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
-    let (s, (rules, parts)) = parse::simulation(&input).unwrap();
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
+
+fn process(input: &str) -> Result<String> {
+    let (s, (rules, parts)) = parse::simulation(input).unwrap();
     assert_eq!(s.trim(), "");
 
-    let result = parts
+    Ok(parts
         .iter()
         .filter_map(|part| {
             let mut label = Label::Input;
@@ -50,8 +55,6 @@ fn main() -> Result<()> {
             }
         })
         .map(|part| part.x + part.m + part.a + part.s)
-        .sum::<u64>();
-
-    println!("{result}");
-    Ok(())
+        .sum::<u64>()
+        .to_string())
 }

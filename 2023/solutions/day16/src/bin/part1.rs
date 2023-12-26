@@ -9,11 +9,16 @@ use point::Point;
 // #[aoc_test("data/test/16.txt", "")]
 // #[aoc_test("data/16.txt", "")]
 #[allow(dead_code)]
-fn main() -> Result<()> {
+fn main() {
     let stdin = io::stdin();
 
-    let input = io::read_to_string(stdin.lock())?;
-    let mirrors = Grid::read(&input, |c| match c {
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
+
+fn process(input: &str) -> Result<String> {
+    let mirrors = Grid::read(input, |c| match c {
         '|' => Some(Mirror::VerticalSplitter),
         '-' => Some(Mirror::HorizontalSplitter),
         '/' => Some(Mirror::ForwardReflector),
@@ -21,12 +26,10 @@ fn main() -> Result<()> {
         _ => None,
     });
 
-    let result = illuminate(&mirrors, (Point::new(0, 0), Direction::East))
+    Ok(illuminate(&mirrors, (Point::new(0, 0), Direction::East))
         .iter()
-        .count();
-
-    println!("{result}");
-    Ok(())
+        .count()
+        .to_string())
 }
 
 pub(crate) fn illuminate(mirrors: &Grid<Mirror>, start: (Point, Direction)) -> Grid<bool> {

@@ -5,13 +5,18 @@ use day02::parse;
 
 // #[aoc_test("data/test/00.txt", "8")]
 // #[aoc_test("data/00.txt", "2061")]
-fn main() -> Result<()> {
+fn main() {
     let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
-    let (s, games) = parse::games(&input).unwrap();
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
+
+fn process(input: &str) -> Result<String> {
+    let (s, games) = parse::games(input).unwrap();
     assert_eq!(s.trim(), "");
 
-    let result = games
+    Ok(games
         .into_iter()
         .filter(|game| {
             game.rounds
@@ -19,8 +24,6 @@ fn main() -> Result<()> {
                 .all(|round| round.red <= 12 && round.green <= 13 && round.blue <= 14)
         })
         .map(|game| game.id)
-        .sum::<u32>();
-
-    println!("{result}");
-    Ok(())
+        .sum::<u32>()
+        .to_string())
 }

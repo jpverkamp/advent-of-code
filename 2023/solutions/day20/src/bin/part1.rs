@@ -7,12 +7,17 @@ use day20::{parse, types::*};
 // #[aoc_test("data/test/20.txt", "32000000")]
 // #[aoc_test("data/test/20b.txt", "11687500")]
 // #[aoc_test("data/20.txt", "832957356")]
-fn main() -> Result<()> {
+fn main() {
     env_logger::init();
 
     let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
-    let (s, mut modules) = parse::modules(&input).unwrap();
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
+
+fn process(input: &str) -> Result<String> {
+    let (s, mut modules) = parse::modules(input).unwrap();
     assert_eq!(s.trim(), "");
 
     let mut state = modules
@@ -83,8 +88,5 @@ fn main() -> Result<()> {
     log::info!(" low_sent: {low_sent}");
     log::info!("high_sent: {high_sent}");
 
-    let result = low_sent * high_sent;
-
-    println!("{result}");
-    Ok(())
+    Ok((low_sent * high_sent).to_string())
 }

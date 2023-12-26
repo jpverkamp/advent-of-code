@@ -16,26 +16,32 @@ const MAX_Y: f64 = 400000000000000_f64;
 
 // #[aoc_test("data/test/24.txt", "2")] // with first bounds
 // #[aoc_test("data/24.txt", "")]
-fn main() -> Result<()> {
+fn main() {
     env_logger::init();
 
     let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
-    let (s, lines) = parse::lines(input.as_str()).unwrap();
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
+
+fn process(input: &str) -> Result<String> {
+    let (s, lines) = parse::lines(input).unwrap();
     assert!(s.trim().is_empty());
 
-    let result = lines
-        .iter()
-        .cartesian_product(lines.iter())
-        .filter_map(|(l1, l2)| intersect_xy(*l1, *l2))
-        .inspect(|p| log::info!("potential: {:?}", p))
-        .filter(|p| p.x >= MIN_X && p.x <= MAX_X && p.y >= MIN_Y && p.y <= MAX_Y)
-        .inspect(|p| log::info!("in bounds: {:?}", p))
-        .count()
-        / 2; // counts l1,l2 and l2,l1
-
-    println!("{result:?}");
-    Ok(())
+    Ok((
+        lines
+            .iter()
+            .cartesian_product(lines.iter())
+            .filter_map(|(l1, l2)| intersect_xy(*l1, *l2))
+            .inspect(|p| log::info!("potential: {:?}", p))
+            .filter(|p| p.x >= MIN_X && p.x <= MAX_X && p.y >= MIN_Y && p.y <= MAX_Y)
+            .inspect(|p| log::info!("in bounds: {:?}", p))
+            .count()
+            / 2
+        // counts l1,l2 and l2,l1
+    )
+    .to_string())
 }
 
 fn intersect_xy(l1: Line, l2: Line) -> Option<Point> {

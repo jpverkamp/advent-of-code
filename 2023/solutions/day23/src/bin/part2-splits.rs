@@ -14,12 +14,16 @@ const DIRECTIONS: [Point; 4] = [
 
 // #[aoc_test("data/test/23.txt", "154")]
 // #[aoc_test("data/23.txt", "6226")]
-fn main() -> Result<()> {
+fn main() {
     env_logger::init();
     let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
 
-    let walls = Grid::read(input.as_str(), |c| match c {
+fn process(input: &str) -> Result<String> {
+    let walls = Grid::read(input, |c| match c {
         '#' => Some(true),
         _ => None,
     });
@@ -156,11 +160,9 @@ fn main() -> Result<()> {
 
         // Which nodes can we go to next?
         let nexts = splits.iter().filter_map(|dst| {
-            if let Some(distance) = split_distances.get(&(state.position, *dst)) {
-                Some((*dst, *distance))
-            } else {
-                None
-            }
+            split_distances
+                .get(&(state.position, *dst))
+                .map(|distance| (*dst, *distance))
         });
 
         for (next, distance) in nexts {
@@ -189,8 +191,5 @@ fn main() -> Result<()> {
         }
     }
 
-    let result = complete.iter().map(|(_, d)| d).max().unwrap();
-
-    println!("{result}");
-    Ok(())
+    Ok(complete.iter().map(|(_, d)| d).max().unwrap().to_string())
 }

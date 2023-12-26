@@ -11,10 +11,15 @@ use day10::types::*;
 // #[aoc_test("data/test/10e.txt", "8")]
 // #[aoc_test("data/test/10f.txt", "10")]
 // #[aoc_test("data/10.txt", "455")]
-fn main() -> Result<()> {
+fn main() {
     let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
-    let map = Map::from(input.as_str());
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
+
+fn process(input: &str) -> Result<String> {
+    let map = Map::from(input);
 
     let (min_x, min_y, max_x, max_y) = map.bounds();
 
@@ -124,8 +129,7 @@ fn main() -> Result<()> {
     });
     assert!(outside_cw ^ outside_ccw);
 
-    let result = if outside_ccw { region_cw } else { region_ccw }.len();
-
-    println!("{result}");
-    Ok(())
+    Ok(if outside_ccw { region_cw } else { region_ccw }
+        .len()
+        .to_string())
 }

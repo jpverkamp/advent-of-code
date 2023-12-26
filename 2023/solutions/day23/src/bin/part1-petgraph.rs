@@ -10,11 +10,15 @@ use point::Point;
 
 // #[aoc_test("data/test/23.txt", "94")]
 // #[aoc_test("data/23.txt", "2202")]
-fn main() -> Result<()> {
+fn main() {
     let stdin = io::stdin();
-    let input = io::read_to_string(stdin.lock())?;
+    let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
 
-    let grid = Grid::read(input.as_str(), |c| match c {
+fn process(input: &str) -> Result<String> {
+    let grid = Grid::read(input, |c| match c {
         '#' => Some(Object::Wall),
         '^' => Some(Object::Slope(Slope::North)),
         'v' => Some(Object::Slope(Slope::South)),
@@ -75,9 +79,8 @@ fn main() -> Result<()> {
                 }
 
                 // Cannot go through walls
-                match grid.get(&next_position) {
-                    Some(Object::Wall) => continue,
-                    _ => (),
+                if let Some(Object::Wall) = grid.get(&next_position) {
+                    continue;
                 }
 
                 // Otherwise, queue it up
@@ -93,11 +96,9 @@ fn main() -> Result<()> {
         (g, start.unwrap(), end.unwrap())
     };
 
-    let result = all_simple_paths::<Vec<_>, _>(&graph, start, end, 0, None)
+    Ok(all_simple_paths::<Vec<_>, _>(&graph, start, end, 0, None)
         .map(|path| path.len() - 1)
         .max()
-        .unwrap();
-
-    println!("{result}");
-    Ok(())
+        .unwrap()
+        .to_string())
 }
