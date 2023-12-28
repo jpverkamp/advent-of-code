@@ -3,8 +3,9 @@ use std::io;
 
 use day09::parse;
 
-// #[aoc_test("data/test/09.txt", "2")]
-// #[aoc_test("data/09.txt", "990")]
+aoc_test::generate!{day09_part2_test_09 as "test/09.txt" => "2"}
+aoc_test::generate!{day09_part2_09 as "09.txt" => "990"}
+
 fn main() {
     let stdin = io::stdin();
     let input = io::read_to_string(stdin.lock()).expect("read input");

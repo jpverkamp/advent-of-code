@@ -4,9 +4,10 @@ use std::{collections::VecDeque, io};
 
 use day20::{parse, types::*};
 
-// #[aoc_test("data/test/20.txt", "32000000")]
-// #[aoc_test("data/test/20b.txt", "11687500")]
-// #[aoc_test("data/20.txt", "832957356")]
+aoc_test::generate!{day20_part1_test_20 as "test/20.txt" => "32000000"}
+aoc_test::generate!{day20_part1_test_20b as "test/20b.txt" => "11687500"}
+aoc_test::generate!{day20_part1_20 as "20.txt" => "832957356"}
+
 fn main() {
     env_logger::init();
 

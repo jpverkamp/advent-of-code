@@ -3,8 +3,9 @@ use std::io;
 
 use day05::{parse, types::*};
 
-// #[aoc_test("data/test/05.txt", "46")]
-// #[aoc_test("data/05.txt", "136096660")]
+aoc_test::generate!{day05_part2_brute_test_05 as "test/05.txt" => "46"}
+// aoc_test::generate!{day05_part2_brute_05 as "05.txt" => "136096660"}
+
 fn main() {
     let stdin = io::stdin();
     let input = io::read_to_string(stdin.lock()).expect("read input");

@@ -42,8 +42,9 @@ fn toggle(ashflow: &mut AshFlow, p: &Point) {
     }
 }
 
-// #[aoc_test("data/test/13.txt", "400")]
-// #[aoc_test("data/13.txt", "36771")]
+aoc_test::generate!{day13_part2_test_13 as "test/13.txt" => "400"}
+aoc_test::generate!{day13_part2_13 as "13.txt" => "36771"}
+
 fn main() {
     let stdin = io::stdin();
 

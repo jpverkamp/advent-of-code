@@ -3,8 +3,9 @@ use std::io;
 
 use day03::types::*;
 
-// #[aoc_test("data/test/__day__.txt", "467835")]
-// #[aoc_test("data/__day__.txt", "81166799")]
+aoc_test::generate!{day03_part2_test_03 as "test/03.txt" => "467835"}
+aoc_test::generate!{day03_part2_03 as "03.txt" => "81166799"}
+
 fn main() {
     let stdin = io::stdin();
     let input = io::read_to_string(stdin.lock()).expect("read input");

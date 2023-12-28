@@ -10,9 +10,10 @@ use point::Point;
 
 const STEPS: i32 = 64;
 
-// #[aoc_test("data/test/21.txt", "16")]    // if steps = 6
-// #[aoc_test("data/test/21.txt", "4056")]  // if steps = 64
-// #[aoc_test("data/21.txt", "")]
+// aoc_test::generate!{day21_part1_test_21 as "test/21.txt" => "16")]    // if steps = 6
+aoc_test::generate!{day21_part1_test_21 as "test/21.txt" => "4056"}
+aoc_test::generate!{day21_part1_21 as "21.txt" => "3649"}
+
 fn main() {
     let stdin = io::stdin();
     let input = io::read_to_string(stdin.lock()).expect("read input");

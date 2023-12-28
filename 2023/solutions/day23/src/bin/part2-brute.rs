@@ -4,8 +4,9 @@ use std::io;
 use grid::Grid;
 use point::Point;
 
-// #[aoc_test("data/test/23.txt", "154")]
-// #[aoc_test("data/23.txt", "")]
+aoc_test::generate!{day23_part2_brute_test_23 as "test/23.txt" => "154"}
+// aoc_test::generate!{day23_part2_brute_23 as "23.txt" => ""}
+
 fn main() {
     env_logger::init();
     let stdin = io::stdin();

@@ -3,10 +3,11 @@ use std::io;
 
 use day10::types::*;
 
-// #[aoc_test("data/test/10.txt", "4")]
-// #[aoc_test("data/test/10b.txt", "4")]
-// #[aoc_test("data/test/10c.txt", "8")]
-// #[aoc_test("data/10.txt", "6956")]
+aoc_test::generate!{day10_part1_10 as "test/10.txt" => "4"}
+aoc_test::generate!{day10_part1_10b as "test/10b.txt" => "4"}
+aoc_test::generate!{day10_part1_10c as "test/10c.txt" => "8"}
+aoc_test::generate!{day10_part1_solution as "10.txt" => "6956"}
+
 fn main() {
     let stdin = io::stdin();
     let input = io::read_to_string(stdin.lock()).expect("read input");

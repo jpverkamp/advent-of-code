@@ -1,8 +1,9 @@
 use anyhow::Result;
 use std::io;
 
-// #[aoc_test("data/test/__day__.txt", "")]
-// #[aoc_test("data/__day__.txt", "")]
+// aoc_test::generate!{_template_part1_test___day__ as "test/__day__.txt" => ""}
+// aoc_test::generate!{_template_part1___day__ as "__day__.txt" => ""}
+
 fn main() {
     let stdin = io::stdin();
     let input = io::read_to_string(stdin.lock()).expect("read input");

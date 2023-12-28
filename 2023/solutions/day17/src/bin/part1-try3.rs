@@ -78,9 +78,10 @@ fn best_path(
     result
 }
 
-// #[aoc_test("data/test/17.txt", "")]
-// #[aoc_test("data/17.txt", "796")]
+// aoc_test::generate!{day17_part1_try3_test_17 as "test/17.txt" => ""}
+// aoc_test::generate!{day17_part1_try3_17 as "17.txt" => "796"}
 // 796 is too high
+
 fn main() {
     env_logger::init();
     let stdin = io::stdin();

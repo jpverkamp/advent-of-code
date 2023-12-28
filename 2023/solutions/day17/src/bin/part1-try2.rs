@@ -5,9 +5,10 @@ use day17::types::*;
 use grid::Grid;
 use point::Point;
 
-// #[aoc_test("data/test/17.txt", "")]
-// #[aoc_test("data/17.txt", "796")]
+// aoc_test::generate!{day17_part1_try2_test_17 as "test/17.txt" => ""}
+// aoc_test::generate!{day17_part1_try2_17 as "17.txt" => "796"}
 // 796 is too high
+
 fn main() {
     env_logger::init();
     let stdin = io::stdin();

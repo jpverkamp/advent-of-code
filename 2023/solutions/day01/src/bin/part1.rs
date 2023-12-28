@@ -1,9 +1,10 @@
 use anyhow::Result;
 use std::io;
 
-// #[aoc_test("data/test/01.txt", 142)]
-// #[aoc_test("data/test/01b.txt", 209)]
-// #[aoc_test("data/01.txt", 53651)]
+aoc_test::generate!{day01_part1_test_01 as "test/01.txt" => "142"}
+aoc_test::generate!{day01_part1_test_01b as "test/01b.txt" => "209"}
+aoc_test::generate!{day01_part1_01 as "01.txt" => "53651"}
+
 fn main() {
     let stdin = io::stdin();
     let input = io::read_to_string(stdin.lock()).expect("read input");

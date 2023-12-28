@@ -3,8 +3,9 @@ use std::{collections::VecDeque, io};
 
 use day12::{parse, types::*};
 
-// #[aoc_test("data/test/12.txt", "21")]
-// #[aoc_test("data/12.txt", "7025")]
+aoc_test::generate!{day12_part1_test_12 as "test/12.txt" => "21"}
+aoc_test::generate!{day12_part1_12 as "12.txt" => "7025"}
+
 fn main() {
     let stdin = io::stdin();
     let input = io::read_to_string(stdin.lock()).expect("read input");

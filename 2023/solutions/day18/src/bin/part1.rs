@@ -6,8 +6,9 @@ use day18::{parse, types::*};
 use grid::Grid;
 use point::Point;
 
-// #[aoc_test("data/test/18.txt", "62")]
-// #[aoc_test("data/18.txt", "52055")]
+aoc_test::generate!{day18_part1_test_18 as "test/18.txt" => "62"}
+aoc_test::generate!{day18_part1_18 as "18.txt" => "52055"}
+
 fn main() {
     let stdin = io::stdin();
     let input = io::read_to_string(stdin.lock()).expect("read input");

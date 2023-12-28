@@ -3,8 +3,9 @@ use std::io;
 
 use day13::types::*;
 
-// #[aoc_test("data/test/13.txt", "405")]
-// #[aoc_test("data/13.txt", "43614")]
+aoc_test::generate!{day13_part1_test_13 as "test/13.txt" => "405"}
+aoc_test::generate!{day13_part1_13 as "13.txt" => "43614"}
+
 fn main() {
     let stdin = io::stdin();
 

@@ -5,8 +5,6 @@ use day16::types::*;
 use grid::Grid;
 use point::Point;
 
-// #[aoc_test("data/test/16.txt", "")]
-// #[aoc_test("data/16.txt", "")]
 #[allow(dead_code)]
 fn main() {
     let stdin = io::stdin();

@@ -4,8 +4,9 @@ use std::io;
 use day19::{parse, types::*};
 use log::info;
 
-// #[aoc_test("data/test/19.txt", "167409079868000")]
-// #[aoc_test("data/19.txt", "132380153677887")]
+aoc_test::generate!{day19_part2_test_19 as "test/19.txt" => "167409079868000"}
+aoc_test::generate!{day19_part2_19 as "19.txt" => "132380153677887"}
+
 fn main() {
     env_logger::init();
 

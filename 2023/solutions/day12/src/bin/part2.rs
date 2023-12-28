@@ -103,12 +103,17 @@ impl<'a> Solver<'a> {
     }
 }
 
-// #[aoc_test("data/test/12.txt", "525152")]
-// #[aoc_test("data/12.txt", "11461095383315")]
+aoc_test::generate!{day12_part2_test_12 as "test/12.txt" => "525152"}
+aoc_test::generate!{day12_part2_12 as "12.txt" => "11461095383315"}
+
 fn main() {
     let stdin = io::stdin();
     let input = io::read_to_string(stdin.lock()).expect("read input");
+    let result = process(input.as_str()).expect("no errors");
+    println!("{}", result);
+}
 
+fn process(input: &str) -> Result<String> {
     fn drep(s: &str, d: &str, n: usize) -> String {
         std::iter::repeat(s).take(n).collect::<Vec<_>>().join(d)
     }
@@ -122,11 +127,6 @@ fn main() {
         .collect::<Vec<_>>()
         .join("\n");
 
-    let result = process(input.as_str()).expect("no errors");
-    println!("{}", result);
-}
-
-fn process(input: &str) -> Result<String> {
     Ok(input
         .lines()
         .map(|line| {

@@ -9,14 +9,9 @@ use point::Point;
 
 const STEPS: i32 = 100;
 
-// #[aoc_test("data/test/21.txt", "16")]        // if steps = 6
-// #[aoc_test("data/test/21.txt", "50")]        // if steps = 10
-// #[aoc_test("data/test/21.txt", "1594")]      // if steps = 50
-// #[aoc_test("data/test/21.txt", "6536")]      // if steps = 100
-// #[aoc_test("data/test/21.txt", "167004")]    // if steps = 500
-// #[aoc_test("data/test/21.txt", "668697")]    // if steps = 1000
-// #[aoc_test("data/test/21.txt", "16733044")]  // if steps = 5000
-// #[aoc_test("data/21.txt", "")]
+// aoc_test::generate!{day21_part2_brute_test_21 as "test/21.txt" => "16733044"}
+// aoc_test::generate!{day21_part2_brute_21 as "21.txt" => ""}
+
 fn main() {
     env_logger::init();
     let stdin = io::stdin();

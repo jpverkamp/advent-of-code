@@ -4,8 +4,9 @@ use std::io;
 
 use day11::types::*;
 
-// #[aoc_test("data/test/11.txt", "374")]
-// #[aoc_test("data/11.txt", "9556896")]
+aoc_test::generate!{day11_part1_test_11 as "test/11.txt" => "374"}
+aoc_test::generate!{day11_part1_11 as "11.txt" => "9556896"}
+
 fn main() {
     let stdin = io::stdin();
     let input = io::read_to_string(stdin.lock()).expect("read input");

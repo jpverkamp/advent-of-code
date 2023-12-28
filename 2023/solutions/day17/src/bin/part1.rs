@@ -8,9 +8,9 @@ use Direction::*;
 
 use pathfinding::prelude::astar;
 
-// #[aoc_test("data/test/17.txt", "102")]
-// #[aoc_test("data/17.txt", "771")]
-// 796 is too high
+aoc_test::generate!{day17_part1_test_17 as "test/17.txt" => "102"}
+aoc_test::generate!{day17_part1_17 as "17.txt" => "771"}
+
 fn main() {
     let stdin = io::stdin();
     let input = io::read_to_string(stdin.lock()).expect("read input");

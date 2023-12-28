@@ -7,8 +7,9 @@ use z3::{
 
 use day24::parse;
 
-// #[aoc_test("data/test/24.txt", "2")] // with first bounds
-// #[aoc_test("data/24.txt", "")]
+// aoc_test::generate!{day24_part2_test_24 as "test/24.txt" => "2"} // with first bounds
+aoc_test::generate!{day24_part2_24 as "24.txt" => "976976197397181"}
+
 fn main() {
     env_logger::init();
 

@@ -4,13 +4,14 @@ use std::{collections::HashSet, io};
 
 use day10::types::*;
 
-// #[aoc_test("data/test/10.txt", "1")]
-// #[aoc_test("data/test/10b.txt", "1")]
-// #[aoc_test("data/test/10c.txt", "1")]
-// #[aoc_test("data/test/10d.txt", "4")]
-// #[aoc_test("data/test/10e.txt", "8")]
-// #[aoc_test("data/test/10f.txt", "10")]
-// #[aoc_test("data/10.txt", "455")]
+aoc_test::generate!{day10_part2_test_10 as "test/10.txt" => "1"}
+aoc_test::generate!{day10_part2_test_10b as "test/10b.txt" => "1"}
+aoc_test::generate!{day10_part2_test_10c as "test/10c.txt" => "1"}
+aoc_test::generate!{day10_part2_test_10d as "test/10d.txt" => "4"}
+aoc_test::generate!{day10_part2_test_10e as "test/10e.txt" => "8"}
+aoc_test::generate!{day10_part2_test_10f as "test/10f.txt" => "10"}
+aoc_test::generate!{day10_part2_10 as "10.txt" => "455"}
+
 fn main() {
     let stdin = io::stdin();
     let input = io::read_to_string(stdin.lock()).expect("read input");

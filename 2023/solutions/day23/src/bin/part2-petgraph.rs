@@ -15,8 +15,9 @@ const DIRECTIONS: [Point; 4] = [
     Point { x: -1, y: 0 },
 ];
 
-// #[aoc_test("data/test/23.txt", "154")]
-// #[aoc_test("data/23.txt", "6226")]
+aoc_test::generate!{day23_part2_petgraph_test_23 as "test/23.txt" => "154"}
+aoc_test::generate!{day23_part2_petgraph_23 as "23.txt" => "6226"}
+
 fn main() {
     env_logger::init();
     let stdin = io::stdin();

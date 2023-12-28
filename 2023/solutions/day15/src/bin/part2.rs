@@ -1,8 +1,9 @@
 use anyhow::Result;
 use std::io;
 
-// #[aoc_test("data/test/15.txt", "145")]
-// #[aoc_test("data/15.txt", "265462")]
+aoc_test::generate!{day15_part2_test_15 as "test/15.txt" => "145"}
+aoc_test::generate!{day15_part2_15 as "15.txt" => "265462"}
+
 fn main() {
     let stdin = io::stdin();
     let input = io::read_to_string(stdin.lock()).expect("read input");

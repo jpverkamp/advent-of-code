@@ -6,8 +6,8 @@ use day16::types::*;
 use grid::Grid;
 use point::Point;
 
-// #[aoc_test("data/test/16.txt", "")]
-// #[aoc_test("data/16.txt", "")]
+aoc_test::generate!{day16_part1_test_16 as "test/16.txt" => "46"}
+aoc_test::generate!{day16_part1_16 as "16.txt" => "6994"}
 #[allow(dead_code)]
 fn main() {
     let stdin = io::stdin();

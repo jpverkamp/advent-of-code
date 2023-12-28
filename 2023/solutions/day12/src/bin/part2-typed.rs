@@ -106,8 +106,9 @@ impl<'a> Solver<'a> {
     }
 }
 
-// #[aoc_test("data/test/12.txt", "525152")]
-// #[aoc_test("data/12.txt", "11461095383315")]
+aoc_test::generate!{day12_part2_typed_test_12 as "test/12.txt" => "525152"}
+aoc_test::generate!{day12_part2_typed_12 as "12.txt" => "11461095383315"}
+
 fn main() {
     let stdin = io::stdin();
     let input = io::read_to_string(stdin.lock()).expect("read input");
@@ -118,7 +119,7 @@ fn main() {
 fn process(input: &str) -> Result<String> {
     use Condition::*;
 
-    let (s, springs) = parse::springs(input).unwrap();
+    let (s, springs) = parse::springs(&input).unwrap();
     assert_eq!(s.trim(), "");
 
     Ok(springs

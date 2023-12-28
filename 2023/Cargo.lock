@@ -24,6 +24,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a4668cab20f66d8d020e1fbc0ebe47217433c1b6c8f2040faf858554e394ace6"
 
 [[package]]
+name = "aoc_test"
+version = "0.1.0"
+
+[[package]]
 name = "autocfg"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -189,6 +193,7 @@ name = "day01"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "aoc_test",
 ]
 
 [[package]]
@@ -196,6 +201,7 @@ name = "day02"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "aoc_test",
  "nom",
 ]
 
@@ -204,6 +210,7 @@ name = "day03"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "aoc_test",
 ]
 
 [[package]]
@@ -211,6 +218,7 @@ name = "day04"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "aoc_test",
  "nom",
 ]
 
@@ -219,6 +227,7 @@ name = "day05"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "aoc_test",
  "nom",
  "rayon",
 ]
@@ -228,6 +237,7 @@ name = "day06"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "aoc_test",
  "nom",
 ]
 
@@ -236,6 +246,7 @@ name = "day07"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "aoc_test",
  "nom",
 ]
 
@@ -244,6 +255,7 @@ name = "day08"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "aoc_test",
  "nom",
 ]
 
@@ -252,6 +264,7 @@ name = "day09"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "aoc_test",
  "itertools",
  "nom",
 ]
@@ -261,6 +274,7 @@ name = "day10"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "aoc_test",
  "itertools",
 ]
 
@@ -269,6 +283,7 @@ name = "day11"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "aoc_test",
  "itertools",
 ]
 
@@ -277,6 +292,7 @@ name = "day12"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "aoc_test",
  "env_logger",
  "fxhash",
  "log",
@@ -288,6 +304,7 @@ name = "day13"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "aoc_test",
  "fxhash",
 ]
 
@@ -296,6 +313,7 @@ name = "day14"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "aoc_test",
  "fxhash",
  "image",
  "itertools",
@@ -306,6 +324,7 @@ name = "day15"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "aoc_test",
 ]
 
 [[package]]
@@ -313,6 +332,7 @@ name = "day16"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "aoc_test",
  "fxhash",
  "grid",
  "image",
@@ -324,6 +344,7 @@ name = "day17"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "aoc_test",
  "env_logger",
  "fxhash",
  "grid",
@@ -337,6 +358,7 @@ name = "day18"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "aoc_test",
  "grid",
  "itertools",
  "nom",
@@ -348,6 +370,7 @@ name = "day19"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "aoc_test",
  "env_logger",
  "fxhash",
  "itertools",
@@ -360,6 +383,7 @@ name = "day20"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "aoc_test",
  "env_logger",
  "fxhash",
  "log",
@@ -371,6 +395,7 @@ name = "day21"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "aoc_test",
  "bounds",
  "env_logger",
  "fxhash",
@@ -384,6 +409,7 @@ name = "day22"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "aoc_test",
  "env_logger",
  "fxhash",
  "log",
@@ -395,6 +421,7 @@ name = "day23"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "aoc_test",
  "env_logger",
  "fxhash",
  "grid",
@@ -409,6 +436,7 @@ name = "day24"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "aoc_test",
  "env_logger",
  "itertools",
  "log",
@@ -421,6 +449,7 @@ name = "day25"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "aoc_test",
  "env_logger",
  "fxhash",
  "itertools",
@@ -434,6 +463,7 @@ name = "day__day__"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "aoc_test",
 ]
 
 [[package]]

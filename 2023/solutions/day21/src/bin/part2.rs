@@ -9,8 +9,9 @@ use point::Point;
 
 const STEPS: i32 = 26501365;
 
-// #[aoc_test("data/test/21.txt", "522388151441217")] // I dunno
-// #[aoc_test("data/21.txt", "612941134797232")]
+aoc_test::generate!{day21_part2_test_21 as "test/21.txt" => "522388151441217"} // I dunno
+aoc_test::generate!{day21_part2_21 as "21.txt" => "612941134797232"}
+
 fn main() {
     let stdin = io::stdin();
     let input = io::read_to_string(stdin.lock()).expect("read input");

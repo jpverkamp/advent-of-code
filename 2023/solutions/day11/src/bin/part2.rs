@@ -4,10 +4,11 @@ use std::io;
 
 use day11::types::*;
 
-// #[aoc_test("data/test/11.txt", "1030")] // with n = 10
-// #[aoc_test("data/test/11.txt", "8410")] // with n = 100
-// #[aoc_test("data/test/11.txt", "82000210")] // with n = 1_000_000
-// #[aoc_test("data/11.txt", "685038871866")] // too high
+// aoc_test::generate!{day11_part2_test_11 as "test/11.txt" => "1030"} // with n = 10
+// aoc_test::generate!{day11_part2_test_11 as "test/11.txt" => "8410"} // with n = 100
+aoc_test::generate!{day11_part2_test_11 as "test/11.txt" => "82000210"} // with n = 1_000_000
+aoc_test::generate!{day11_part2_11 as "11.txt" => "685038186836"}
+
 fn main() {
     let stdin = io::stdin();
     let input = io::read_to_string(stdin.lock()).expect("read input");

@@ -9,8 +9,9 @@ use point::Point;
 mod part1;
 use part1::illuminate;
 
-// #[aoc_test("data/test/16.txt", "")]
-// #[aoc_test("data/16.txt", "")]
+aoc_test::generate!{day16_part2_test_16 as "test/16.txt" => "51"}
+aoc_test::generate!{day16_part2_16 as "16.txt" => "7488"}
+
 fn main() {
     let stdin = io::stdin();
     let input = io::read_to_string(stdin.lock()).expect("read input");

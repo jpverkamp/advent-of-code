@@ -3,10 +3,11 @@ use std::{collections::BTreeMap, io};
 
 use day08::{parse, types::*};
 
-// #[aoc_test("data/test/08.txt", "3")]
-// #[aoc_test("data/test/08b.txt", "6")]
-// #[aoc_test("data/test/08c.txt", "10")]
-// #[aoc_test("data/08.txt", "9064949303801")]
+aoc_test::generate!{day08_part2_test_08 as "test/08.txt" => "3"}
+aoc_test::generate!{day08_part2_test_08b as "test/08b.txt" => "6"}
+aoc_test::generate!{day08_part2_test_08c as "test/08c.txt" => "10"}
+aoc_test::generate!{day08_part2_08 as "08.txt" => "9064949303801"}
+
 fn main() {
     let stdin = io::stdin();
     let input = io::read_to_string(stdin.lock()).expect("read input");

@@ -9,8 +9,9 @@ use std::io;
 
 use day25::parse;
 
-// #[aoc_test("data/test/25.txt", "")]
-// #[aoc_test("data/25.txt", "")]
+aoc_test::generate!{day25_part1_test_25 as "test/25.txt" => "54"}
+aoc_test::generate!{day25_part1_25 as "25.txt" => "583632"}
+
 fn main() {
     env_logger::init();
     let stdin = io::stdin();

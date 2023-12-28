@@ -6,8 +6,8 @@ use day18::{parse, types::*};
 
 use point::Point;
 
-// #[aoc_test("data/test/18.txt", "952408144115")]
-// #[aoc_test("data/18.txt", "67622758357096")]
+aoc_test::generate!{day18_part2_test_18 as "test/18.txt" => "952408144115"}
+aoc_test::generate!{day18_part2_18 as "18.txt" => "67622758357096"}
 // 67622694397113 is too low
 fn main() {
     let stdin = io::stdin();

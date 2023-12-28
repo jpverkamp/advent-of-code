@@ -3,8 +3,9 @@ use std::io;
 
 use day22::{parse, types::*};
 
-// #[aoc_test("data/test/22.txt", "5")]
-// #[aoc_test("data/22.txt", "509")]
+aoc_test::generate!{day22_part1_test_22 as "test/22.txt" => "5"}
+aoc_test::generate!{day22_part1_22 as "22.txt" => "509"}
+
 fn main() {
     env_logger::init();
 

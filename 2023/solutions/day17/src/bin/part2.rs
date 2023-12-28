@@ -8,9 +8,10 @@ use Direction::*;
 
 use pathfinding::prelude::astar;
 
-// #[aoc_test("data/test/17.txt", "94")]
-// #[aoc_test("data/test/17b.txt", "71")]
-// #[aoc_test("data/17.txt", "930")]
+aoc_test::generate!{day17_part2_test_17 as "test/17.txt" => "94"}
+aoc_test::generate!{day17_part2_test_17b as "test/17b.txt" => "71"}
+aoc_test::generate!{day17_part2_17 as "17.txt" => "930"}
+
 fn main() {
     let stdin = io::stdin();
     let input = io::read_to_string(stdin.lock()).expect("read input");

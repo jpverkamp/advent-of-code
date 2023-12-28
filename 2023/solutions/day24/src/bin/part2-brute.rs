@@ -16,8 +16,9 @@ const INVERSIONS: [(i64, i64, i64); 8] = [
 
 const EPSILON: f64 = 0.01_f64;
 
-// #[aoc_test("data/test/24.txt", "47")]
-// #[aoc_test("data/24.txt", "976976197397181")]
+aoc_test::generate!{day24_part2_brute_test_24 as "test/24.txt" => "47"}
+// aoc_test::generate!{day24_part2_brute_24 as "24.txt" => "976976197397181"}
+
 fn main() {
     env_logger::init();
 

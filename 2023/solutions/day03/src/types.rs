@@ -79,7 +79,7 @@ impl From<&str> for Schematic {
 mod tests {
     #[test]
     fn test_parse_numer() {
-        let schematic = super::Schematic::from(String::from("1..2\n3..4"));
+        let schematic = super::Schematic::from("1..2\n3..4");
         assert_eq!(schematic.numbers.len(), 4);
         assert_eq!(schematic.numbers[0].value, 1);
         assert_eq!(schematic.numbers[0].x_min, 0);
@@ -93,7 +93,7 @@ mod tests {
 
     #[test]
     fn test_parse_longer_number() {
-        let schematic = super::Schematic::from(String::from("....\n.123"));
+        let schematic = super::Schematic::from("....\n.123");
         assert_eq!(schematic.numbers.len(), 1);
         assert_eq!(schematic.numbers[0].value, 123);
         assert_eq!(schematic.numbers[0].x_min, 1);
@@ -103,10 +103,10 @@ mod tests {
 
     #[test]
     fn test_symbols() {
-        let schematic = super::Schematic::from(String::from("1..2\n3..4"));
+        let schematic = super::Schematic::from("1..2\n3..4");
         assert_eq!(schematic.symbols.len(), 0);
 
-        let schematic = super::Schematic::from(String::from("1..2\n3..4\n..*."));
+        let schematic = super::Schematic::from("1..2\n3..4\n..*.");
         assert_eq!(schematic.symbols.len(), 1);
         assert_eq!(schematic.symbols[0].value, '*');
         assert_eq!(schematic.symbols[0].x, 2);

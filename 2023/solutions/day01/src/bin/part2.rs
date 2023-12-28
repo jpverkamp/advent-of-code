@@ -5,9 +5,10 @@ const DIGIT_WORDS: [&str; 10] = [
     "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
 ];
 
-// #[aoc_test("data/test/01.txt", 142)]
-// #[aoc_test("data/test/01b.txt", 281)]
-// #[aoc_test("data/01.txt", 53894)]
+aoc_test::generate!{day01_part2_test_01 as "test/01.txt" => "142"}
+aoc_test::generate!{day01_part2_test_01b as "test/01b.txt" => "281"}
+aoc_test::generate!{day01_part2_01 as "01.txt" => "53894"}
+
 fn main() {
     let stdin = io::stdin();
     let input = io::read_to_string(stdin.lock()).expect("read input");

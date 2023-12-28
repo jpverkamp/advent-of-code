@@ -14,8 +14,9 @@ const MAX_X: f64 = 400000000000000_f64;
 const MIN_Y: f64 = 200000000000000_f64;
 const MAX_Y: f64 = 400000000000000_f64;
 
-// #[aoc_test("data/test/24.txt", "2")] // with first bounds
-// #[aoc_test("data/24.txt", "")]
+// aoc_test::generate!{day24_part1_test_24 as "test/24.txt" => "2"} // with first bounds
+aoc_test::generate!{day24_part1_24 as "24.txt" => "12938"}
+
 fn main() {
     env_logger::init();
 
