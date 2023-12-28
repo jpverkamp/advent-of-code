@@ -28,7 +28,7 @@ fn process(input: &str) -> Result<String> {
         })
         .collect::<Vec<_>>()
         .join("\n");
-    
+
     let (s, springs) = parse::springs(&input).unwrap();
     assert_eq!(s.trim(), "");
 
