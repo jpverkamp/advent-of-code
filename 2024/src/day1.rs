@@ -14,7 +14,7 @@ fn parse(input: &str) -> (Vec<i32>, Vec<i32>) {
 }
 
 #[aoc(day1, part1, i32)]
-fn part1(input: &str) -> i32 {
+pub fn part1(input: &str) -> i32 {
     let (mut ls1, mut ls2) = parse(input);
 
     ls1.sort();
@@ -27,7 +27,7 @@ fn part1(input: &str) -> i32 {
 }
 
 #[aoc(day1, part2, i32)]
-fn part2(input: &str) -> i32 {
+pub fn part2(input: &str) -> i32 {
     let (ls1, ls2) = parse(input);
 
     ls1.into_iter()
