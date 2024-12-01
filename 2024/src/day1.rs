@@ -35,3 +35,34 @@ pub fn part2(input: &(Vec<i32>, Vec<i32>)) -> i32 {
         .map(|v1| input.1.iter().filter(|v2| v1 == *v2).count() as i32 * v1)
         .sum::<i32>()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const TEST_INPUT: &str = "\
+3   4
+4   3
+2   5
+1   3
+3   9
+3   3";
+
+    #[test]
+    fn parse_example() {
+        let input = parse(TEST_INPUT);
+        assert_eq!(input, (vec![3, 4, 2, 1, 3, 3], vec![4, 3, 5, 3, 9, 3]));
+    }
+
+    #[test]
+    fn part1_example() {
+        let input = parse(TEST_INPUT);
+        assert_eq!(part1(&input), 11);
+    }
+
+    #[test]
+    fn part2_example() {
+        let input = parse(TEST_INPUT);
+        assert_eq!(part2(&input), 31);
+    }
+}
