@@ -1,4 +1,5 @@
 use aoc_runner_derive::{aoc, aoc_generator};
+
 #[aoc_generator(day2)]
 fn parse(input: &str) -> Vec<Vec<i32>> {
     input
@@ -13,7 +14,6 @@ fn parse(input: &str) -> Vec<Vec<i32>> {
 
 // Initial version takes in a vector and checks for 'safeness'
 // Must be either strictly increasing or decreasing with no difference greater than 3
-#[allow(dead_code)]
 fn safe(report: &[i32]) -> bool {
     (report.is_sorted() || report.iter().rev().is_sorted())
         && report
@@ -24,10 +24,7 @@ fn safe(report: &[i32]) -> bool {
 
 #[aoc(day2, part1, initial)]
 pub fn part1_initial(input: &[Vec<i32>]) -> usize {
-    input
-        .iter()
-        .filter(|report| safe(&report))
-        .count()
+    input.iter().filter(|report| safe(report)).count()
 }
 
 #[aoc(day2, part2, initial)]
@@ -49,18 +46,16 @@ pub fn part2_initial(input: &[Vec<i32>]) -> usize {
 
 // Optimized version that takes in a reversable iterator and does the same
 // This will allow us to skip values in the middle of the list
-// And somehow turns out to be faster
-#[allow(dead_code)]
+// And because we're only cloning the iter (not the entire vec) can be faster for part 2
 fn safe_iter<'a, I>(report_iter: I) -> bool
 where
     I: DoubleEndedIterator<Item = &'a i32> + Clone,
 {
-    (report_iter.clone().is_sorted()
-        || report_iter.clone().rev().is_sorted())
-            && report_iter
-                .clone()
-                .zip(report_iter.clone().skip(1))
-                .all(|(a, b)| a != b && (a - b).abs() <= 3)
+    (report_iter.clone().is_sorted() || report_iter.clone().rev().is_sorted())
+        && report_iter
+            .clone()
+            .zip(report_iter.clone().skip(1))
+            .all(|(a, b)| a != b && (a - b).abs() <= 3)
 }
 
 #[aoc(day2, part1, iterator)]
