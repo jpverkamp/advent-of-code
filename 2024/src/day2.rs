@@ -1,6 +1,5 @@
-use aoc_runner_derive::{aoc, aoc_generator};
+use aoc_runner_derive::aoc;
 
-#[aoc_generator(day2)]
 fn parse(input: &str) -> Vec<Vec<i32>> {
     input
         .lines()
@@ -23,12 +22,14 @@ fn safe(report: &[i32]) -> bool {
 }
 
 #[aoc(day2, part1, initial)]
-pub fn part1_initial(input: &[Vec<i32>]) -> usize {
+pub fn part1_initial(input: &str) -> usize {
+    let input = parse(input);
     input.iter().filter(|report| safe(report)).count()
 }
 
 #[aoc(day2, part2, initial)]
-pub fn part2_initial(input: &[Vec<i32>]) -> usize {
+pub fn part2_initial(input: &str) -> usize {
+    let input = parse(input);
     input
         .iter()
         .filter(|report| {
@@ -44,7 +45,7 @@ pub fn part2_initial(input: &[Vec<i32>]) -> usize {
         .count()
 }
 
-// Optimized version that takes in a reversable iterator and does the same
+// Optimized version that takes in a reversible iterator and does the same
 // This will allow us to skip values in the middle of the list
 // And because we're only cloning the iter (not the entire vec) can be faster for part 2
 fn safe_iter<'a, I>(report_iter: I) -> bool
@@ -59,7 +60,8 @@ where
 }
 
 #[aoc(day2, part1, iterator)]
-pub fn part1(input: &[Vec<i32>]) -> usize {
+pub fn part1(input: &str) -> usize {
+    let input = parse(input);
     input
         .iter()
         .filter(|report| safe_iter(report.iter()))
@@ -67,7 +69,8 @@ pub fn part1(input: &[Vec<i32>]) -> usize {
 }
 
 #[aoc(day2, part2, iterator)]
-pub fn part2(input: &[Vec<i32>]) -> usize {
+pub fn part2(input: &str) -> usize {
+    let input = parse(input);
     input
         .iter()
         .filter(|report| {
@@ -107,25 +110,21 @@ mod tests {
 
     #[test]
     fn part1_example_initial() {
-        let input = parse(TEST_INPUT);
-        assert_eq!(part1_initial(&input), 2);
+        assert_eq!(part1_initial(&TEST_INPUT), 2);
     }
 
     #[test]
     fn part2_example_initial() {
-        let input = parse(TEST_INPUT);
-        assert_eq!(part2_initial(&input), 4);
+        assert_eq!(part2_initial(&TEST_INPUT), 4);
     }
 
     #[test]
     fn part1_example() {
-        let input = parse(TEST_INPUT);
-        assert_eq!(part1(&input), 2);
+        assert_eq!(part1(&TEST_INPUT), 2);
     }
 
     #[test]
     fn part2_example() {
-        let input = parse(TEST_INPUT);
-        assert_eq!(part2(&input), 4);
+        assert_eq!(part2(&TEST_INPUT), 4);
     }
 }
