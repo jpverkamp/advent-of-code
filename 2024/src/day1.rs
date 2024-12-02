@@ -30,8 +30,7 @@ pub fn part1(input: &str) -> i32 {
 pub fn part2(input: &str) -> i32 {
     let (ls1, ls2) = parse(input);
 
-    ls1
-        .iter()
+    ls1.iter()
         .map(|v1| ls2.iter().filter(|v2| v1 == *v2).count() as i32 * v1)
         .sum::<i32>()
 }
