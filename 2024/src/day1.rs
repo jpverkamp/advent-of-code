@@ -31,7 +31,9 @@ pub fn part1(input: &(Vec<i32>, Vec<i32>)) -> i32 {
 
 #[aoc(day1, part2, i32)]
 pub fn part2(input: &(Vec<i32>, Vec<i32>)) -> i32 {
-    input.0.iter()
+    input
+        .0
+        .iter()
         .map(|v1| input.1.iter().filter(|v2| v1 == *v2).count() as i32 * v1)
         .sum::<i32>()
 }
