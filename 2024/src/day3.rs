@@ -1,5 +1,15 @@
 use aoc_runner_derive::aoc;
+
 use regex::Regex;
+
+use nom::{
+    bytes::complete::tag,
+    character::complete,
+    character::complete::anychar,
+    multi::{many1, many_till},
+    sequence::delimited,
+    sequence::separated_pair,
+};
 
 #[aoc(day3, part1, regex)]
 fn part1_regex(input: &str) -> u32 {
@@ -8,6 +18,23 @@ fn part1_regex(input: &str) -> u32 {
     re.captures_iter(input)
         .map(|c| c[1].parse::<u32>().unwrap() * c[2].parse::<u32>().unwrap())
         .sum::<u32>()
+}
+
+#[aoc(day3, part1, nom)]
+fn part1_nom(input: &str) -> u32 {
+    many1(many_till(
+        anychar::<_, (_, nom::error::ErrorKind)>,
+        delimited(
+            tag("mul("),
+            separated_pair(complete::u32, tag(","), complete::u32),
+            tag(")"),
+        ),
+    ))(input)
+    .unwrap()
+    .1
+    .iter()
+    .map(|(_, (a, b))| a * b)
+    .sum()
 }
 
 #[aoc(day3, part1, iterator)]
