@@ -77,16 +77,11 @@ fn part1(input: &str) -> i32 {
             // For each direction
             for dx in -1..=1 {
                 for dy in -1..=1 {
-                    // But have to be moving
                     if dx == 0 && dy == 0 {
                         continue;
                     }
 
-                    // I'm allowing the 0* and 1* because it's clearer to me and the compiler will (should?) remove
-                    #[allow(clippy::erasing_op)]
-                    #[allow(clippy::identity_op)]
-                    if grid.iget(x + 0 * dx, y + 0 * dy) == Some(&'X')
-                        && grid.iget(x + 1 * dx, y + 1 * dy) == Some(&'M')
+                    if grid.iget(x + dx, y + dy) == Some(&'M')
                         && grid.iget(x + 2 * dx, y + 2 * dy) == Some(&'A')
                         && grid.iget(x + 3 * dx, y + 3 * dy) == Some(&'S')
                     {
