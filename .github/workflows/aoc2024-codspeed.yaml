@@ -1,0 +1,43 @@
+# Based on https://gist.github.com/art049/a824a8607898241a3fe061488817099e
+
+name: AoC 2024 CodSpeed
+
+on:
+  push:
+    branches:
+      - "master"
+  pull_request:
+  # `workflow_dispatch` allows CodSpeed to trigger backtest
+  # performance analysis in order to generate initial data.
+  workflow_dispatch:
+
+jobs:
+  benchmarks:
+    name: Run benchmarks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup rust toolchain, cache and cargo-codspeed binary
+        uses: moonrepo/setup-rust@v1
+        with:
+          cache-target: release
+          bins: cargo-codspeed, aoc-cli
+
+      - name: Download available input files
+        env:
+          ADVENT_OF_CODE_SESSION: ${{ secrets.AOC_SESSION }}
+        run: |
+          mkdir -p inputs
+          for i in {1..25}; do
+            aoc download -I -i 2024/input/2024/day$i.txt --year 2024 -d $i || true
+          done
+
+      - name: Build the benchmark target(s)
+        run: cargo codspeed build
+
+      - name: Run the benchmarks
+        uses: CodSpeedHQ/action@v3
+        with:
+          run: cargo codspeed run
+          token: ${{ secrets.CODSPEED_TOKEN }}

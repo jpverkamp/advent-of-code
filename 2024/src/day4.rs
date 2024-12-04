@@ -57,8 +57,8 @@ fn part1_original(grid: &Grid<char>) -> i32 {
     count
 }
 
-#[aoc(day4, part1, direct)]
-fn part1(grid: &Grid<char>) -> i32 {
+#[aoc(day4, part1, inline)]
+fn part1_inline(grid: &Grid<char>) -> i32 {
     let mut count = 0;
 
     // For each starting point
@@ -95,7 +95,7 @@ fn part1(grid: &Grid<char>) -> i32 {
 }
 
 #[aoc(day4, part2)]
-fn part2(grid: &Grid<char>) -> i32 {
+fn part2_inline(grid: &Grid<char>) -> i32 {
     let mut count = 0;
 
     // Each center point of the X
@@ -153,18 +153,27 @@ SAXAMASAAA
 MAMMMXMMMM
 MXMXAXMASX";
 
-    // const EXAMPLE: &str = "\
-    // M.S
-    // .A.
-    // M.S";
-
     #[test]
-    fn part1_example() {
-        assert_eq!(part1(&parse(EXAMPLE)), 18);
+    fn part1_original_example() {
+        assert_eq!(part1_original(&parse(EXAMPLE)), 18);
     }
 
     #[test]
-    fn part2_example() {
-        assert_eq!(part2(&parse(EXAMPLE)), 9);
+    fn part1_inline_example() {
+        assert_eq!(part1_inline(&parse(EXAMPLE)), 18);
     }
+
+    #[test]
+    fn part2_inline_example() {
+        assert_eq!(part2_inline(&parse(EXAMPLE)), 9);
+    }
+}
+
+// For codspeed
+pub fn part1(input: &str) -> String {
+    part1_inline(&parse(input)).to_string()
+}
+
+pub fn part2(input: &str) -> String {
+    part2_inline(&parse(input)).to_string()
 }

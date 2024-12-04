@@ -125,3 +125,12 @@ mod tests {
         assert_eq!(part2_iter(&parse(TEST_INPUT)), 4);
     }
 }
+
+// For codspeed
+pub fn part1(input: &str) -> String {
+    part1_iter(&parse(input)).to_string()
+}
+
+pub fn part2(input: &str) -> String {
+    part2_iter(&parse(input)).to_string()
+}

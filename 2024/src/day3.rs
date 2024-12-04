@@ -226,3 +226,12 @@ mod tests {
         );
     }
 }
+
+// For codspeed
+pub fn part1(input: &str) -> String {
+    part1_iterator(input).to_string()
+}
+
+pub fn part2(input: &str) -> String {
+    part2_iterator(input).to_string()
+}

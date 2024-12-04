@@ -16,8 +16,8 @@ fn parse(input: &str) -> (Vec<i32>, Vec<i32>) {
         .unzip()
 }
 
-#[aoc(day1, part1, i32)]
-fn part1(input: &(Vec<i32>, Vec<i32>)) -> i32 {
+#[aoc(day1, part1)]
+fn part1_original(input: &(Vec<i32>, Vec<i32>)) -> i32 {
     let mut ls1 = input.0.clone();
     let mut ls2 = input.1.clone();
 
@@ -30,8 +30,8 @@ fn part1(input: &(Vec<i32>, Vec<i32>)) -> i32 {
         .sum::<i32>()
 }
 
-#[aoc(day1, part2, i32)]
-fn part2(input: &(Vec<i32>, Vec<i32>)) -> i32 {
+#[aoc(day1, part2)]
+fn part2_original(input: &(Vec<i32>, Vec<i32>)) -> i32 {
     input
         .0
         .iter()
@@ -59,11 +59,20 @@ mod tests {
 
     #[test]
     fn part1_example() {
-        assert_eq!(part1(&parse(TEST_INPUT)), 11);
+        assert_eq!(part1_original(&parse(TEST_INPUT)), 11);
     }
 
     #[test]
     fn part2_example() {
-        assert_eq!(part2(&parse(TEST_INPUT)), 31);
+        assert_eq!(part2_original(&parse(TEST_INPUT)), 31);
     }
+}
+
+// For codspeed
+pub fn part1(input: &str) -> String {
+    part1_original(&parse(input)).to_string()
+}
+
+pub fn part2(input: &str) -> String {
+    part2_original(&parse(input)).to_string()
 }
