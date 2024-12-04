@@ -1,3 +1,6 @@
+use aoc_runner_derive::{aoc, aoc_generator};
+
+#[aoc_generator(day1)]
 fn parse(input: &str) -> (Vec<i32>, Vec<i32>) {
     input
         .lines()
@@ -14,8 +17,9 @@ fn parse(input: &str) -> (Vec<i32>, Vec<i32>) {
 }
 
 #[aoc(day1, part1, i32)]
-pub fn part1(input: &str) -> i32 {
-    let (mut ls1, mut ls2) = parse(input);
+fn part1(input: &(Vec<i32>, Vec<i32>)) -> i32 {
+    let mut ls1 = input.0.clone();
+    let mut ls2 = input.1.clone();
 
     ls1.sort();
     ls2.sort();
@@ -27,11 +31,9 @@ pub fn part1(input: &str) -> i32 {
 }
 
 #[aoc(day1, part2, i32)]
-pub fn part2(input: &str) -> i32 {
-    let (ls1, ls2) = parse(input);
-
-    ls1.iter()
-        .map(|v1| ls2.iter().filter(|v2| v1 == *v2).count() as i32 * v1)
+fn part2(input: &(Vec<i32>, Vec<i32>)) -> i32 {
+    input.0.iter()
+        .map(|v1| input.1.iter().filter(|v2| v1 == *v2).count() as i32 * v1)
         .sum::<i32>()
 }
 
@@ -55,11 +57,11 @@ mod tests {
 
     #[test]
     fn part1_example() {
-        assert_eq!(part1(&TEST_INPUT), 11);
+        assert_eq!(part1(&parse(TEST_INPUT)), 11);
     }
 
     #[test]
     fn part2_example() {
-        assert_eq!(part2(&TEST_INPUT), 31);
+        assert_eq!(part2(&parse(TEST_INPUT)), 31);
     }
 }

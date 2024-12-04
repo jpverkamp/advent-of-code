@@ -5,6 +5,7 @@ pub struct Grid<T> {
     data: Vec<T>,
 }
 
+#[allow(dead_code)]
 impl<T> Grid<T>
 where
     T: Default + Clone + Sized,

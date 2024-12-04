@@ -38,7 +38,7 @@ fn part1_nom(input: &str) -> u32 {
 }
 
 #[aoc(day3, part1, iterator)]
-fn part1(input: &str) -> u32 {
+fn part1_iterator(input: &str) -> u32 {
     let input = input.chars().collect::<Vec<_>>();
 
     #[derive(Debug)]
@@ -115,7 +115,7 @@ fn part2_regex(input: &str) -> u32 {
 }
 
 #[aoc(day3, part2, iterator)]
-fn part2(input: &str) -> u32 {
+fn part2_iterator(input: &str) -> u32 {
     let input = input.chars().collect::<Vec<_>>();
 
     #[derive(Debug)]
@@ -199,7 +199,7 @@ mod tests {
     #[test]
     fn part1_iterator_example() {
         assert_eq!(
-            part1("xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))"),
+            part1_iterator("xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))"),
             161
         );
     }
@@ -217,7 +217,7 @@ mod tests {
     #[test]
     fn part2_example() {
         assert_eq!(
-            part2("xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))"),
+            part2_iterator("xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))"),
             48
         );
     }

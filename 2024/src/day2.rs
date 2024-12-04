@@ -1,5 +1,6 @@
-use aoc_runner_derive::aoc;
+use aoc_runner_derive::{aoc, aoc_generator};
 
+#[aoc_generator(day2)]
 fn parse(input: &str) -> Vec<Vec<i32>> {
     input
         .lines()
@@ -22,14 +23,12 @@ fn safe(report: &[i32]) -> bool {
 }
 
 #[aoc(day2, part1, initial)]
-pub fn part1_initial(input: &str) -> usize {
-    let input = parse(input);
+fn part1_initial(input: &[Vec<i32>]) -> usize {
     input.iter().filter(|report| safe(report)).count()
 }
 
 #[aoc(day2, part2, initial)]
-pub fn part2_initial(input: &str) -> usize {
-    let input = parse(input);
+fn part2_initial(input: &[Vec<i32>]) -> usize {
     input
         .iter()
         .filter(|report| {
@@ -60,8 +59,7 @@ where
 }
 
 #[aoc(day2, part1, iterator)]
-pub fn part1(input: &str) -> usize {
-    let input = parse(input);
+fn part1_iter(input: &[Vec<i32>]) -> usize {
     input
         .iter()
         .filter(|report| safe_iter(report.iter()))
@@ -69,8 +67,7 @@ pub fn part1(input: &str) -> usize {
 }
 
 #[aoc(day2, part2, iterator)]
-pub fn part2(input: &str) -> usize {
-    let input = parse(input);
+fn part2_iter(input: &[Vec<i32>]) -> usize {
     input
         .iter()
         .filter(|report| {
@@ -110,21 +107,21 @@ mod tests {
 
     #[test]
     fn part1_example_initial() {
-        assert_eq!(part1_initial(&TEST_INPUT), 2);
+        assert_eq!(part1_initial(&parse(TEST_INPUT)), 2);
     }
 
     #[test]
     fn part2_example_initial() {
-        assert_eq!(part2_initial(&TEST_INPUT), 4);
+        assert_eq!(part2_initial(&parse(TEST_INPUT)), 4);
     }
 
     #[test]
     fn part1_example() {
-        assert_eq!(part1(&TEST_INPUT), 2);
+        assert_eq!(part1_iter(&parse(TEST_INPUT)), 2);
     }
 
     #[test]
     fn part2_example() {
-        assert_eq!(part2(&TEST_INPUT), 4);
+        assert_eq!(part2_iter(&parse(TEST_INPUT)), 4);
     }
 }

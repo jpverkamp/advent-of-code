@@ -1,7 +1,8 @@
-use aoc_runner_derive::aoc;
+use aoc_runner_derive::{aoc, aoc_generator};
 
 use crate::Grid;
 
+#[aoc_generator(day4)]
 fn parse(input: &str) -> Grid<char> {
     fn id(c: char) -> char {
         c
@@ -11,8 +12,7 @@ fn parse(input: &str) -> Grid<char> {
 }
 
 #[aoc(day4, part1, inner_looping)]
-fn part1_original(input: &str) -> i32 {
-    let grid = parse(input);
+fn part1_original(grid: &Grid<char>) -> i32 {
     let mut count = 0;
 
     // For each starting point
@@ -58,8 +58,7 @@ fn part1_original(input: &str) -> i32 {
 }
 
 #[aoc(day4, part1, direct)]
-fn part1(input: &str) -> i32 {
-    let grid = parse(input);
+fn part1(grid: &Grid<char>) -> i32 {
     let mut count = 0;
 
     // For each starting point
@@ -96,8 +95,7 @@ fn part1(input: &str) -> i32 {
 }
 
 #[aoc(day4, part2)]
-fn part2(input: &str) -> i32 {
-    let grid = parse(input);
+fn part2(grid: &Grid<char>) -> i32 {
     let mut count = 0;
 
     // Each center point of the X
@@ -162,11 +160,11 @@ MXMXAXMASX";
 
     #[test]
     fn part1_example() {
-        assert_eq!(part1(EXAMPLE), 18);
+        assert_eq!(part1(&parse(EXAMPLE)), 18);
     }
 
     #[test]
     fn part2_example() {
-        assert_eq!(part2(EXAMPLE), 9);
+        assert_eq!(part2(&parse(EXAMPLE)), 9);
     }
 }
