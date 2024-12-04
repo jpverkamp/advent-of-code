@@ -11,6 +11,10 @@ on:
   # performance analysis in order to generate initial data.
   workflow_dispatch:
 
+defaults:
+  run:
+    working-directory: "2024"
+
 jobs:
   benchmarks:
     name: Run benchmarks
@@ -28,9 +32,9 @@ jobs:
         env:
           ADVENT_OF_CODE_SESSION: ${{ secrets.AOC_SESSION }}
         run: |
-          mkdir -p inputs
+          mkdir -p input/2024
           for i in {1..25}; do
-            aoc download -I -i 2024/input/2024/day$i.txt --year 2024 -d $i || true
+            aoc download -I -i input/2024/day$i.txt --year 2024 -d $i || true
           done
 
       - name: Build the benchmark target(s)
@@ -39,5 +43,6 @@ jobs:
       - name: Run the benchmarks
         uses: CodSpeedHQ/action@v3
         with:
+          working-directory: "2024"
           run: cargo codspeed run
           token: ${{ secrets.CODSPEED_TOKEN }}
