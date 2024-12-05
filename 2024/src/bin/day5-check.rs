@@ -9,11 +9,11 @@ fn main() {
 
     for a in ordering.values() {
         for b in ordering.values() {
-            let proceeds = ordering.can_preceed(a, b);
-            let proceeds_transitive = ordering.can_preceed_transitive(a, b);
+            let proceeds = ordering.can_precede(a, b);
+            let proceeds_transitive = ordering.can_precede_transitive(a, b);
 
             if proceeds_transitive && !proceeds {
-                println!("{a} {b} {:?}", ordering.can_preceed_transitive_path(a, b));
+                println!("{a} {b} {:?}", ordering.can_precede_transitive_path(a, b));
             }
         }
     }

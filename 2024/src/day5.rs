@@ -39,12 +39,12 @@ impl Ordering {
     */
 
     // To proceed, either a is directly before b or recursively before it
-    pub fn can_preceed_transitive(&self, a: u32, b: u32) -> bool {
+    pub fn can_precede_transitive(&self, a: u32, b: u32) -> bool {
         self.data.contains_key(&a)
-            && (self.data[&a].contains(&b) || self.data[&a].iter().any(|&c| self.can_preceed(c, b)))
+            && (self.data[&a].contains(&b) || self.data[&a].iter().any(|&c| self.can_precede(c, b)))
     }
 
-    pub fn can_preceed_transitive_path(&self, a: u32, b: u32) -> Option<Vec<u32>> {
+    pub fn can_precede_transitive_path(&self, a: u32, b: u32) -> Option<Vec<u32>> {
         if !self.data.contains_key(&a) {
             return None;
         }
@@ -54,7 +54,7 @@ impl Ordering {
         }
 
         for &c in &self.data[&a] {
-            if let Some(mut path) = self.can_preceed_transitive_path(c, b) {
+            if let Some(mut path) = self.can_precede_transitive_path(c, b) {
                 path.insert(0, a);
                 return Some(path);
             }
@@ -63,13 +63,13 @@ impl Ordering {
         None
     }
 
-    pub fn can_preceed(&self, a: u32, b: u32) -> bool {
+    pub fn can_precede(&self, a: u32, b: u32) -> bool {
         !self.data.contains_key(&b) || !self.data[&b].contains(&a)
     }
 
     // A list is valid iff all elements are in order by this ordering
     pub fn validates(&self, list: &[u32]) -> bool {
-        list.iter().is_sorted_by(|&a, &b| self.can_preceed(*a, *b))
+        list.iter().is_sorted_by(|&a, &b| self.can_precede(*a, *b))
     }
 }
 
@@ -124,7 +124,7 @@ fn part2_v1((ordering, data): &(Ordering, Vec<Vec<u32>>)) -> u32 {
             // TODO: I don't want to have to clone this here, but AOC requires it
             let mut list = list.clone();
             list.sort_by(|&a, &b| {
-                if ordering.can_preceed(a, b) {
+                if ordering.can_precede(a, b) {
                     std::cmp::Ordering::Less
                 } else {
                     std::cmp::Ordering::Greater
