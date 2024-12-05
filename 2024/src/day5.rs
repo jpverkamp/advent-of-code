@@ -1,4 +1,5 @@
 use aoc_runner_derive::{aoc, aoc_generator};
+use bitvec::{vec::BitVec, prelude::bitvec};
 
 #[derive(Debug, Clone)]
 pub struct Ordering {
