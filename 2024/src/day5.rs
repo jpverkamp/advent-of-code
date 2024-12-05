@@ -1,43 +1,80 @@
 use aoc_runner_derive::{aoc, aoc_generator};
 
-struct Ordering {
+#[derive(Debug, Default, Clone)]
+pub struct Ordering {
     data: hashbrown::HashMap<u32, hashbrown::HashSet<u32>>,
 }
 
 impl Ordering {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             data: hashbrown::HashMap::new(),
         }
     }
 
-    fn insert(&mut self, a: u32, b: u32) {
+    pub fn values(&self) -> Vec<u32> {
+        self.data.keys().copied().collect()
+    }
+
+    pub fn insert(&mut self, a: u32, b: u32) {
         self.data.entry(a).or_default().insert(b);
     }
 
-    // Original version
-    // This, for some reason, doesn't actually work
-    // We actually only need to check that we *don't* have b|a
-    // It works on their example, but not my tests cases :shrug:
+    // This was my original (more complicated!) version, but it's not actually correct
+
+    /*
+    Imagine this input:
+
+        98|51
+        51|22
+        22|98
+
+    This would imply both that 98 is before 51 but that 51 is before 22 which is before 98.
+
+    But... that doesn't make any sense... *unless* you can never a valid list that has all three.
+
+    If you have 98 and 51, 98 goes first. But if you have 51,22 or 22,98 those are correct.
+
+    I expect this would do funny things to sort_by if you end up with all three :smile:
+    */
 
     // To proceed, either a is directly before b or recursively before it
-    // fn preceeds(&self, a: u32, b: u32) -> bool {
-    //     self.data.contains_key(&a)
-    //         && (self.data[&a].contains(&b) || self.data[&a].iter().any(|&c| self.preceeds(c, b)))
-    // }
+    pub fn can_preceed_transitive(&self, a: u32, b: u32) -> bool {
+        self.data.contains_key(&a)
+            && (self.data[&a].contains(&b) || self.data[&a].iter().any(|&c| self.can_preceed(c, b)))
+    }
 
-    fn preceeds(&self, a: u32, b: u32) -> bool {
+    pub fn can_preceed_transitive_path(&self, a: u32, b: u32) -> Option<Vec<u32>> {
+        if !self.data.contains_key(&a) {
+            return None;
+        }
+
+        if self.data[&a].contains(&b) {
+            return Some(vec![a, b]);
+        }
+
+        for &c in &self.data[&a] {
+            if let Some(mut path) = self.can_preceed_transitive_path(c, b) {
+                path.insert(0, a);
+                return Some(path);
+            }
+        }
+
+        None
+    }
+
+    pub fn can_preceed(&self, a: u32, b: u32) -> bool {
         !self.data.contains_key(&b) || !self.data[&b].contains(&a)
     }
 
     // A list is valid iff all elements are in order by this ordering
-    fn validates(&self, list: &[u32]) -> bool {
-        list.iter().is_sorted_by(|&a, &b| self.preceeds(*a, *b))
+    pub fn validates(&self, list: &[u32]) -> bool {
+        list.iter().is_sorted_by(|&a, &b| self.can_preceed(*a, *b))
     }
 }
 
 #[aoc_generator(day5)]
-fn parse(input: &str) -> (Ordering, Vec<Vec<u32>>) {
+pub fn parse(input: &str) -> (Ordering, Vec<Vec<u32>>) {
     use nom::{
         character::complete::{self, newline},
         multi::{many1, separated_list1},
@@ -87,7 +124,7 @@ fn part2_v1((ordering, data): &(Ordering, Vec<Vec<u32>>)) -> u32 {
             // TODO: I don't want to have to clone this here, but AOC requires it
             let mut list = list.clone();
             list.sort_by(|&a, &b| {
-                if ordering.preceeds(a, b) {
+                if ordering.can_preceed(a, b) {
                     std::cmp::Ordering::Less
                 } else {
                     std::cmp::Ordering::Greater
