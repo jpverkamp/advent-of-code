@@ -38,30 +38,37 @@ impl Ordering {
 
 #[aoc_generator(day5)]
 fn parse(input: &str) -> (Ordering, Vec<Vec<u32>>) {
-    let mut ordering = Ordering::new();
-    let mut data = Vec::new();
+    use nom::{
+        character::complete::{self, newline},
+        multi::{many1, separated_list1},
+        sequence::separated_pair,
+    };
 
-    let mut lines = input.lines();
+    fn parse_ordering(input: &str) -> nom::IResult<&str, Ordering> {
+        let (rest, ls) = separated_list1(
+            newline,
+            separated_pair(complete::u32, complete::char('|'), complete::u32),
+        )(input)?;
 
-    // First, read orderings a|b
-    for line in &mut lines {
-        if line.is_empty() {
-            break;
+        let mut ordering = Ordering::new();
+        for (a, b) in ls {
+            ordering.insert(a, b);
         }
-
-        let mut parts = line.split('|');
-        let a = parts.next().unwrap().parse().unwrap();
-        let b = parts.next().unwrap().parse().unwrap();
-
-        ordering.insert(a, b);
+        Ok((rest, ordering))
     }
 
-    // Then read multiple comma delimited lists of values
-    for line in lines {
-        data.push(line.split(',').map(|x| x.parse().unwrap()).collect());
+    fn parse_list(input: &str) -> nom::IResult<&str, Vec<u32>> {
+        separated_list1(complete::char(','), complete::u32)(input)
     }
 
-    (ordering, data)
+    fn parse_input(input: &str) -> nom::IResult<&str, (Ordering, Vec<Vec<u32>>)> {
+        let (input, ordering) = parse_ordering(input)?;
+        let (input, _) = many1(newline)(input)?;
+        let (input, data) = separated_list1(newline, parse_list)(input)?;
+        Ok((input, (ordering, data)))
+    }
+
+    parse_input(input).unwrap().1
 }
 
 #[aoc(day5, part1, v1)]
