@@ -1,23 +1,24 @@
 use aoc_runner_derive::{aoc, aoc_generator};
+use bitvec::{vec::BitVec, prelude::bitvec};
 
 #[derive(Debug, Clone)]
 pub struct Ordering {
-    data: [u32; 100*100]
+    data: BitVec,
 }
 
 impl Ordering {
     pub fn new() -> Self {
         Self {
-            data: [0; 100*100],
+            data: bitvec![0; 100*100],
         }
     }
 
     pub fn insert(&mut self, a: u32, b: u32) {
-        self.data[(a as usize)*100+(b as usize)] = 1;
+        self.data.set((a as usize)*100+(b as usize), true);
     }
 
     pub fn can_precede(&self, a: u32, b: u32) -> bool {
-        !self.data[(a as usize)*100+(b as usize)].eq(&0)
+        !self.data[(a as usize)*100+(b as usize)]
     }
 
     pub fn validates(&self, list: &[u32]) -> bool {
