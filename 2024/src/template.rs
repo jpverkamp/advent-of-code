@@ -5,13 +5,13 @@ fn parse(input: &str) -> String {
     todo!()
 }
 
-#[aoc(day5, part1, original)]
-fn part1_original(input: &str) -> String {
+#[aoc(day5, part1, v1)]
+fn part1_v1(input: &str) -> String {
     todo!()
 }
 
-#[aoc(day5, part2, original)]
-fn part2_original(input: &str) -> String {
+#[aoc(day5, part2, v1)]
+fn part2_v1(input: &str) -> String {
     todo!()
 }
 
@@ -20,22 +20,27 @@ fn part2_original(input: &str) -> String {
 mod tests {
     use super::*;
 
+
+    const EXAMPLE: &str = "\
+hello
+world";
+
     #[test]
     fn part1_example() {
-        assert_eq!(part1(&parse("<EXAMPLE>")), "<RESULT>");
+        assert_eq!(part1(&parse(EXAMPLE)), "<RESULT>");
     }
 
     #[test]
     fn part2_example() {
-        assert_eq!(part2(&parse("<EXAMPLE>")), "<RESULT>");
+        assert_eq!(part2(&parse(EXAMPLE)), "<RESULT>");
     }
 }
 
 // For codspeed
 pub fn part1(input: &str) -> String {
-    part1_original(&parse(input))
+    part1_v1(&parse(input)).to_string()
 }
 
 pub fn part2(input: &str) -> String {
-    part2_original(&parse(input))
+    part2_v1(&parse(input)).to_string()
 }

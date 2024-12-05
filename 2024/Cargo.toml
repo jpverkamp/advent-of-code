@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 aoc-runner = "0.3.0"
 aoc-runner-derive = "0.3.0"
+hashbrown = "0.15.2"
 nom = "7.1.3"
 regex = "1.11.1"
 
