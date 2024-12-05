@@ -18,6 +18,7 @@ impl Ordering {
     // Original version
     // This, for some reason, doesn't actually work
     // We actually only need to check that we *don't* have b|a
+    // It works on their example, but not my tests cases :shrug:
 
     // To proceed, either a is directly before b or recursively before it
     // fn preceeds(&self, a: u32, b: u32) -> bool {
@@ -76,6 +77,7 @@ fn part2_v1((ordering, data): &(Ordering, Vec<Vec<u32>>)) -> u32 {
     data.iter()
         .filter(|list| !ordering.validates(list))
         .map(|list| {
+            // TODO: I don't want to have to clone this here, but AOC requires it
             let mut list = list.clone();
             list.sort_by(|&a, &b| {
                 if ordering.preceeds(a, b) {
