@@ -1,73 +1,25 @@
 use aoc_runner_derive::{aoc, aoc_generator};
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Clone)]
 pub struct Ordering {
-    data: hashbrown::HashMap<u32, hashbrown::HashSet<u32>>,
+    data: [u32; 100*100]
 }
 
 impl Ordering {
     pub fn new() -> Self {
         Self {
-            data: hashbrown::HashMap::new(),
+            data: [0; 100*100],
         }
-    }
-
-    pub fn values(&self) -> Vec<u32> {
-        self.data.keys().copied().collect()
     }
 
     pub fn insert(&mut self, a: u32, b: u32) {
-        self.data.entry(a).or_default().insert(b);
-    }
-
-    // This was my original (more complicated!) version, but it's not actually correct
-
-    /*
-    Imagine this input:
-
-        98|51
-        51|22
-        22|98
-
-    This would imply both that 98 is before 51 but that 51 is before 22 which is before 98.
-
-    But... that doesn't make any sense... *unless* you can never a valid list that has all three.
-
-    If you have 98 and 51, 98 goes first. But if you have 51,22 or 22,98 those are correct.
-
-    I expect this would do funny things to sort_by if you end up with all three :smile:
-    */
-
-    // To proceed, either a is directly before b or recursively before it
-    pub fn can_precede_transitive(&self, a: u32, b: u32) -> bool {
-        self.data.contains_key(&a)
-            && (self.data[&a].contains(&b) || self.data[&a].iter().any(|&c| self.can_precede(c, b)))
-    }
-
-    pub fn can_precede_transitive_path(&self, a: u32, b: u32) -> Option<Vec<u32>> {
-        if !self.data.contains_key(&a) {
-            return None;
-        }
-
-        if self.data[&a].contains(&b) {
-            return Some(vec![a, b]);
-        }
-
-        for &c in &self.data[&a] {
-            if let Some(mut path) = self.can_precede_transitive_path(c, b) {
-                path.insert(0, a);
-                return Some(path);
-            }
-        }
-
-        None
+        self.data[(a as usize)*100+(b as usize)] = 1;
     }
 
     pub fn can_precede(&self, a: u32, b: u32) -> bool {
-        !self.data.contains_key(&b) || !self.data[&b].contains(&a)
+        !self.data[(a as usize)*100+(b as usize)].eq(&0)
     }
 
-    // A list is valid iff all elements are in order by this ordering
     pub fn validates(&self, list: &[u32]) -> bool {
         list.iter().is_sorted_by(|&a, &b| self.can_precede(*a, *b))
     }
