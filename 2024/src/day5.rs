@@ -64,7 +64,7 @@ fn parse(input: &str) -> (Ordering, Vec<Vec<u32>>) {
     (ordering, data)
 }
 
-#[aoc(day5, part1, inv_valid)]
+#[aoc(day5, part1, v1)]
 fn part1_v1((ordering, data): &(Ordering, Vec<Vec<u32>>)) -> u32 {
     data.iter()
         .filter(|list| ordering.validates(list))
@@ -72,7 +72,7 @@ fn part1_v1((ordering, data): &(Ordering, Vec<Vec<u32>>)) -> u32 {
         .sum()
 }
 
-#[aoc(day5, part2, original)]
+#[aoc(day5, part2, v1)]
 fn part2_v1((ordering, data): &(Ordering, Vec<Vec<u32>>)) -> u32 {
     data.iter()
         .filter(|list| !ordering.validates(list))
