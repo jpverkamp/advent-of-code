@@ -9,7 +9,7 @@ pub struct Ordering {
 impl Ordering {
     pub fn new() -> Self {
         Self {
-            data: Vec::with_capacity(200),
+            data: Vec::with_capacity(2000),
         }
     }
 
