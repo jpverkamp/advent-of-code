@@ -18,7 +18,7 @@ impl Ordering {
     }
 
     pub fn can_precede(&self, a: u32, b: u32) -> bool {
-        !self.data[(a as usize)*100+(b as usize)]
+        self.data[(a as usize)*100+(b as usize)]
     }
 
     pub fn validates(&self, list: &[u32]) -> bool {
@@ -141,8 +141,18 @@ mod tests {
     }
 
     #[test]
+    fn part1_final() {
+        assert_eq!(part1_v1(&parse(include_str!("../input/2024/day5.txt"))), 4924);
+    }
+
+    #[test]
     fn part2_example() {
         assert_eq!(part2_v1(&parse(EXAMPLE)), 123);
+    }
+
+    #[test]
+    fn part2_final() {
+        assert_eq!(part2_v1(&parse(include_str!("../input/2024/day5.txt"))), 6085);
     }
 }
 
