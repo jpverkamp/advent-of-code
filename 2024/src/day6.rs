@@ -1,6 +1,7 @@
 use crate::{Direction, Grid, Point};
 use aoc_runner_derive::{aoc, aoc_generator};
 use itertools::iproduct;
+use rayon::iter::{IntoParallelIterator, ParallelBridge, ParallelIterator};
 
 #[derive(Debug, Copy, Clone, Default)]
 enum Tile {
@@ -115,6 +116,34 @@ fn part2_limited(input: &Map) -> usize {
         .count()
 }
 
+// Add rayon parallelization
+#[aoc(day6, part2, limited_rayon)]
+fn part2_limited_rayon(input: &Map) -> usize {
+    let visited = input.visited(false).unwrap();
+    iproduct!(0..input.grid.width, 0..input.grid.height)
+        .into_iter()
+        .par_bridge()
+        .into_par_iter()
+        .map(|(x, y)| {
+            let p = Point::from((x, y));
+
+            if !(visited.get(p) == Some(&true)
+                || p.neighbors().iter().any(|&p| visited.get(p) == Some(&true))) {
+                    return 0;
+                }
+        
+            let mut input = input.clone();
+            input.grid.set((x, y), Tile::Wall);
+            
+            if input.visited(true).is_none() {
+                1
+            } else {
+                0
+            }
+        })
+        .sum::<usize>()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -169,6 +198,20 @@ mod tests {
             1939
         );
     }
+
+
+    #[test]
+    fn part2_limited_rayon_example() {
+        assert_eq!(part2_limited_rayon(&parse(EXAMPLE)), 6);
+    }
+
+    #[test]
+    fn part2_limited_rayon_final() {
+        assert_eq!(
+            part2_limited_rayon(&parse(include_str!("../input/2024/day6.txt"))),
+            1939
+        );
+    }
 }
 
 // For codspeed
@@ -177,5 +220,5 @@ pub fn part1(input: &str) -> String {
 }
 
 pub fn part2(input: &str) -> String {
-    part2_limited(&parse(input)).to_string()
+    part2_limited_rayon(&parse(input)).to_string()
 }
