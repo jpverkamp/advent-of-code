@@ -1,7 +1,7 @@
 use aoc_runner_derive::{aoc, aoc_generator};
-use bitvec::{vec::BitVec, prelude::bitvec};
+use bitvec::{prelude::bitvec, vec::BitVec};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct Ordering {
     data: BitVec,
 }
@@ -14,11 +14,11 @@ impl Ordering {
     }
 
     pub fn insert(&mut self, a: u32, b: u32) {
-        self.data.set((a as usize)*100+(b as usize), true);
+        self.data.set((a as usize) * 100 + (b as usize), true);
     }
 
     pub fn can_precede(&self, a: u32, b: u32) -> bool {
-        self.data[(a as usize)*100+(b as usize)]
+        self.data[(a as usize) * 100 + (b as usize)]
     }
 
     pub fn validates(&self, list: &[u32]) -> bool {
@@ -142,7 +142,10 @@ mod tests {
 
     #[test]
     fn part1_final() {
-        assert_eq!(part1_v1(&parse(include_str!("../input/2024/day5.txt"))), 4924);
+        assert_eq!(
+            part1_v1(&parse(include_str!("../input/2024/day5.txt"))),
+            4924
+        );
     }
 
     #[test]
@@ -152,7 +155,10 @@ mod tests {
 
     #[test]
     fn part2_final() {
-        assert_eq!(part2_v1(&parse(include_str!("../input/2024/day5.txt"))), 6085);
+        assert_eq!(
+            part2_v1(&parse(include_str!("../input/2024/day5.txt"))),
+            6085
+        );
     }
 }
 

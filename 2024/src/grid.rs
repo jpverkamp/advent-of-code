@@ -1,3 +1,5 @@
+use crate::point::Point;
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Grid<T> {
     pub(crate) width: usize,
@@ -56,36 +58,59 @@ where
         s
     }
 
-    pub fn get(&self, x: usize, y: usize) -> Option<&T> {
-        if x < self.width && y < self.height {
-            Some(&self.data[y * self.width + x])
-        } else {
+    fn index(&self, p: &Point) -> usize {
+        (p.y * self.width as i32 + p.x)
+            .try_into()
+            .expect("Index out of bounds")
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = &T> {
+        self.data.iter()
+    }
+
+    pub fn iter_enumerate(&self) -> impl Iterator<Item = (Point, &T)> {
+        self.data
+            .iter()
+            .enumerate()
+            .map(|(i, v)| ((i % self.width, i / self.width).into(), v))
+    }
+
+    pub fn in_bounds(&self, p: impl Into<Point>) -> bool {
+        let p = p.into();
+
+        p.x >= 0 && p.x < (self.width as i32) && p.y >= 0 && p.y < (self.height as i32)
+    }
+
+    pub fn get(&self, p: impl Into<Point>) -> Option<&T> {
+        let p = p.into();
+
+        if !self.in_bounds(p) {
+            return None;
+        }
+
+        Some(&self.data[self.index(&p)])
+    }
+
+    pub fn get_mut(&mut self, p: impl Into<Point>) -> Option<&mut T> {
+        let p = p.into();
+
+        if !self.in_bounds(p) {
             None
+        } else {
+            let index = self.index(&p);
+            Some(&mut self.data[index])
         }
     }
 
-    pub fn iget(&self, x: isize, y: isize) -> Option<&T> {
-        if x >= 0 && y >= 0 {
-            self.get(x as usize, y as usize)
-        } else {
-            None
-        }
-    }
+    pub fn set(&mut self, p: impl Into<Point>, value: T) -> bool {
+        let p = p.into();
 
-    pub fn get_mut(&mut self, x: usize, y: usize) -> Option<&mut T> {
-        if x < self.width && y < self.height {
-            Some(&mut self.data[y * self.width + x])
-        } else {
-            None
+        if !self.in_bounds(p) {
+            return false;
         }
-    }
 
-    pub fn set(&mut self, x: usize, y: usize, value: T) -> bool {
-        if x < self.width && y < self.height {
-            self.data[y * self.width + x] = value;
-            true
-        } else {
-            false
-        }
+        let index = self.index(&p);
+        self.data[index] = value;
+        true
     }
 }
