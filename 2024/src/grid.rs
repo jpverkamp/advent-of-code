@@ -68,11 +68,20 @@ where
         self.data.iter()
     }
 
-    pub fn iter_enumerate(&self) -> impl Iterator<Item = (Point, &T)> {
+    pub fn iter_point(&self) -> impl Iterator<Item = (Point, &T)> {
         self.data
             .iter()
             .enumerate()
             .map(|(i, v)| ((i % self.width, i / self.width).into(), v))
+    }
+
+    pub fn grid_map<U>(&self, f: &dyn Fn(&Grid<T>, &Point, &T) -> U) -> Grid<U> {
+        let data: Vec<U> = self.iter_point().map(|(p, t)| f(self, &p, t)).collect();
+        Grid {
+            width: self.width,
+            height: self.height,
+            data,
+        }
     }
 
     pub fn in_bounds(&self, p: impl Into<Point>) -> bool {

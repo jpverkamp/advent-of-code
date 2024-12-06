@@ -1,5 +1,7 @@
 use crate::{Direction, Grid, Point};
 use aoc_runner_derive::{aoc, aoc_generator};
+use itertools::iproduct;
+use rayon::iter::{ParallelBridge, ParallelIterator};
 
 #[derive(Debug, Copy, Clone, Default)]
 enum Tile {
@@ -47,15 +49,17 @@ fn part1_v1(input: &Map) -> usize {
         mut facing,
         grid,
     } = input;
-    let mut path = Grid::new(grid.width, grid.height);
 
-    path.set(player, true);
+    let mut visited = Grid::new(grid.width, grid.height);
+
+    visited.set(player, true);
 
     while grid.in_bounds(player) {
         match grid.get(player + facing) {
             Some(Tile::Empty) => {
                 player += facing.into();
-                path.set(player, true);
+
+                visited.set(player, true);
             }
             Some(Tile::Wall) => {
                 facing = facing.rotate_cw();
@@ -64,7 +68,7 @@ fn part1_v1(input: &Map) -> usize {
         }
     }
 
-    path.iter().filter(|&&b| b).count()
+    visited.iter().filter(|&v| *v).count()
 }
 
 #[aoc(day6, part2, v1)]
@@ -108,6 +112,49 @@ fn part2_v1(input: &Map) -> usize {
     looping
 }
 
+#[aoc(day6, part2, rayon)]
+fn part2_rayon(input: &Map) -> i32 {
+    iproduct!(
+        0..input.grid.width,
+        0..input.grid.height
+    )
+        .into_iter()
+        .par_bridge()
+        .map(|(x, y)| {
+            let Map {
+                mut player,
+                mut facing,
+                grid,
+            } = input;
+            let mut grid = grid.clone();
+            grid.set((x, y), Tile::Wall);
+
+            let mut seen = hashbrown::HashSet::new();
+            seen.insert((player, facing));
+
+            while grid.in_bounds(player) {
+                match grid.get(player + facing) {
+                    Some(Tile::Empty) => {
+                        player += facing.into();
+                    }
+                    Some(Tile::Wall) => {
+                        facing = facing.rotate_cw();
+                    }
+                    None => break,
+                }
+
+                if seen.contains(&(player, facing)) {
+                    return 1;
+                }
+
+                seen.insert((player, facing));
+            }
+
+            0
+        })
+        .sum::<i32>()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -149,6 +196,19 @@ mod tests {
             1939
         );
     }
+
+    #[test]
+    fn part2_rayon_example() {
+        assert_eq!(part2_rayon(&parse(EXAMPLE)), 6);
+    }
+
+    #[test]
+    fn part2_rayon_final() {
+        assert_eq!(
+            part2_rayon(&parse(include_str!("../input/2024/day6.txt"))),
+            1939
+        );
+    }
 }
 
 // For codspeed
@@ -157,5 +217,5 @@ pub fn part1(input: &str) -> String {
 }
 
 pub fn part2(input: &str) -> String {
-    part2_v1(&parse(input)).to_string()
+    part2_rayon(&parse(input)).to_string()
 }
