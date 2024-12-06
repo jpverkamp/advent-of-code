@@ -19,7 +19,7 @@ fn part1_original(grid: &Grid<char>) -> i32 {
     for x in 0..grid.width {
         for y in 0..grid.height {
             // Ignore any that don't start with X
-            if grid.get(x, y) != Some(&'X') {
+            if grid.get((x, y)) != Some(&'X') {
                 continue;
             }
 
@@ -39,7 +39,7 @@ fn part1_original(grid: &Grid<char>) -> i32 {
                         xi += dx;
                         yi += dy;
 
-                        if let Some(c) = grid.iget(xi, yi) {
+                        if let Some(c) = grid.get((xi, yi)) {
                             if c != target {
                                 continue 'one_direction;
                             }
@@ -65,7 +65,7 @@ fn part1_inline(grid: &Grid<char>) -> i32 {
     for x in 0..grid.width {
         for y in 0..grid.height {
             // Ignore any that don't start with X
-            if grid.get(x, y) != Some(&'X') {
+            if grid.get((x, y)) != Some(&'X') {
                 continue;
             }
 
@@ -80,9 +80,9 @@ fn part1_inline(grid: &Grid<char>) -> i32 {
                         continue;
                     }
 
-                    if grid.iget(x + dx, y + dy) == Some(&'M')
-                        && grid.iget(x + 2 * dx, y + 2 * dy) == Some(&'A')
-                        && grid.iget(x + 3 * dx, y + 3 * dy) == Some(&'S')
+                    if grid.get((x + dx, y + dy)) == Some(&'M')
+                        && grid.get((x + 2 * dx, y + 2 * dy)) == Some(&'A')
+                        && grid.get((x + 3 * dx, y + 3 * dy)) == Some(&'S')
                     {
                         count += 1;
                     }
@@ -102,7 +102,7 @@ fn part2_inline(grid: &Grid<char>) -> i32 {
     for x in 1..(grid.width - 1) {
         for y in 1..(grid.height - 1) {
             // All grids have an A in the center
-            if grid.get(x, y) != Some(&'A') {
+            if grid.get((x, y)) != Some(&'A') {
                 continue;
             }
 
@@ -115,18 +115,18 @@ fn part2_inline(grid: &Grid<char>) -> i32 {
             #[allow(clippy::if_same_then_else)]
             for delta in [-1, 1] {
                 // Check the 4 corners horizontally
-                if grid.iget(x + delta, y + 1) == Some(&'M')
-                    && grid.iget(x + delta, y - 1) == Some(&'M')
-                    && grid.iget(x - delta, y + 1) == Some(&'S')
-                    && grid.iget(x - delta, y - 1) == Some(&'S')
+                if grid.get((x + delta, y + 1)) == Some(&'M')
+                    && grid.get((x + delta, y - 1)) == Some(&'M')
+                    && grid.get((x - delta, y + 1)) == Some(&'S')
+                    && grid.get((x - delta, y - 1)) == Some(&'S')
                 {
                     count += 1;
                 }
                 // And vertically
-                else if grid.iget(x + 1, y + delta) == Some(&'M')
-                    && grid.iget(x - 1, y + delta) == Some(&'M')
-                    && grid.iget(x + 1, y - delta) == Some(&'S')
-                    && grid.iget(x - 1, y - delta) == Some(&'S')
+                else if grid.get((x + 1, y + delta)) == Some(&'M')
+                    && grid.get((x - 1, y + delta)) == Some(&'M')
+                    && grid.get((x + 1, y - delta)) == Some(&'S')
+                    && grid.get((x - 1, y - delta)) == Some(&'S')
                 {
                     count += 1;
                 }

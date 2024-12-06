@@ -3,9 +3,16 @@ pub mod day2;
 pub mod day3;
 pub mod day4;
 pub mod day5;
+pub mod day6;
 
 mod grid;
 use grid::Grid;
+
+mod direction;
+use direction::Direction;
+
+mod point;
+use point::Point;
 
 extern crate aoc_runner;
 

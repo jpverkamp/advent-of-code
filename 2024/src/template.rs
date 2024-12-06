@@ -27,12 +27,23 @@ world";
 
     #[test]
     fn part1_example() {
-        assert_eq!(part1(&parse(EXAMPLE)), "<RESULT>");
+        assert_eq!(part1_v1(&parse(EXAMPLE)), "<RESULT>");
     }
 
     #[test]
+    fn part1_final() {
+        assert_eq!(part1_v1(&parse(include_str!("../input/2024/day6.txt"))), "<RESULT>");
+    }
+    
+
+    #[test]
     fn part2_example() {
-        assert_eq!(part2(&parse(EXAMPLE)), "<RESULT>");
+        assert_eq!(part2_v1(&parse(EXAMPLE)), "<RESULT>");
+    }
+
+    #[test]
+    fn part2_final() {
+        assert_eq!(part2_v1(&parse(include_str!("../input/2024/day6.txt"))), "<RESULT>");
     }
 }
 
