@@ -3,7 +3,7 @@ use aoc_runner_derive::{aoc, aoc_generator};
 use itertools::iproduct;
 use rayon::iter::{IntoParallelIterator, ParallelBridge, ParallelIterator};
 
-#[derive(Debug, Copy, Clone, Default)]
+#[derive(Debug, Copy, Clone, Default, PartialEq, Eq)]
 enum Tile {
     #[default]
     Empty,
@@ -12,7 +12,7 @@ enum Tile {
 
 #[derive(Debug, Clone)]
 struct Map {
-    player: Point,
+    guard: Point,
     facing: Direction,
     grid: Grid<Tile>,
 }
@@ -26,41 +26,45 @@ fn parse(input: &str) -> Map {
         _ => panic!("Invalid character: {}", c),
     });
 
-    let player_index = input.find('^').unwrap();
+    let guard_index = input.find('^').unwrap();
 
     let per_row = grid.width + 1;
-    let player = Point::new(
-        (player_index % per_row) as i32,
-        (player_index / per_row) as i32,
+    let guard = Point::new(
+        (guard_index % per_row) as i32,
+        (guard_index / per_row) as i32,
     );
     let facing = Direction::Up;
 
     Map {
-        player,
+        guard,
         facing,
         grid,
     }
 }
 
 impl Map {
-    fn visited(&self, check_loops: bool) -> Option<Grid<bool>> {
+    fn walk(&self, check_loops: bool) -> Option<Grid<bool>> {
         let Map {
-            mut player,
+            mut guard,
             mut facing,
             grid,
         } = self;
 
         let mut visited = Grid::new(grid.width, grid.height);
-        visited.set(player, true);
+        visited.set(guard, true);
 
-        let mut duplicates = hashbrown::HashSet::new();
-        duplicates.insert((player, facing));
+        let mut duplicates_up = Grid::new(grid.width, grid.height);
+        duplicates_up.set(guard, true);
 
-        while grid.in_bounds(player) {
-            match grid.get(player + facing) {
+        let mut duplicates_left = Grid::new(grid.width, grid.height);
+        let mut duplicates_right = Grid::new(grid.width, grid.height);
+        let mut duplicates_down = Grid::new(grid.width, grid.height);
+
+        while grid.in_bounds(guard) {
+            match grid.get(guard + facing) {
                 Some(Tile::Empty) => {
-                    player += facing.into();
-                    visited.set(player, true);
+                    guard += facing.into();
+                    visited.set(guard, true);
                 }
                 Some(Tile::Wall) => {
                     facing = facing.rotate_cw();
@@ -69,10 +73,17 @@ impl Map {
             }
 
             if check_loops {
-                if duplicates.contains(&(player, facing)) {
+                let duplicates = &mut match facing {
+                    Direction::Up => &mut duplicates_up,
+                    Direction::Left => &mut duplicates_left,
+                    Direction::Right => &mut duplicates_right,
+                    Direction::Down => &mut duplicates_down,
+                };
+
+                if duplicates.get(guard) == Some(&true) {
                     return None;
                 }
-                duplicates.insert((player, facing));
+                duplicates.set(guard, true);
             }
         }
 
@@ -82,7 +93,7 @@ impl Map {
 
 #[aoc(day6, part1, v1)]
 fn part1_v1(input: &Map) -> usize {
-    input.visited(false).unwrap().iter().filter(|&v| *v).count()
+    input.walk(false).unwrap().iter().filter(|&v| *v).count()
 }
 
 // For each point on the grid, check if adding a wall there would create a loop
@@ -90,28 +101,51 @@ fn part1_v1(input: &Map) -> usize {
 fn part2_v1(input: &Map) -> usize {
     iproduct!(0..input.grid.width, 0..input.grid.height,)
         .filter(|&(x, y)| {
+            // The 'visited' function returns None on loops (no path found)
             let mut input = input.clone();
             input.grid.set((x, y), Tile::Wall);
-
-            input.visited(true).is_none()
+            input.walk(true).is_none()
         })
         .count()
 }
 
-// Only check walls on or adjacent to an originally visited path
+// Only check adding walls to the original path
+// We don't have to check adjacent since you have to 'run into' a wall to turn
 #[aoc(day6, part2, limited)]
 fn part2_limited(input: &Map) -> usize {
-    let visited = input.visited(false).unwrap();
+    let visited = input.walk(false).unwrap();
     iproduct!(0..input.grid.width, 0..input.grid.height)
         .filter(|&(x, y)| {
             let p = Point::from((x, y));
-            visited.get(p) == Some(&true)
-                || p.neighbors().iter().any(|&p| visited.get(p) == Some(&true))
+            if visited.get(p) == Some(&true) {
+                let mut input = input.clone();
+                input.grid.set(p, Tile::Wall);
+                input.walk(true).is_none()
+            } else {
+                false
+            }
         })
+        .count()
+}
+
+// Try without cloning the input (more than once)
+#[aoc(day6, part2, no_clone)]
+fn part2_limited_no_clone(input: &Map) -> usize {
+    let mut input = input.clone();
+
+    let visited = input.walk(false).unwrap();
+    iproduct!(0..input.grid.width, 0..input.grid.height)
+        // Any points not on or adjacent to original path cannot introduce a loop
         .filter(|&(x, y)| {
-            let mut input = input.clone();
-            input.grid.set((x, y), Tile::Wall);
-            input.visited(true).is_none()
+            let p = Point::from((x, y));
+            if visited.get(p) == Some(&true) {
+                input.grid.set((x, y), Tile::Wall);
+                let result = input.walk(true).is_none();
+                input.grid.set((x, y), Tile::Empty);
+                result
+            } else {
+                false
+            }
         })
         .count()
 }
@@ -119,24 +153,21 @@ fn part2_limited(input: &Map) -> usize {
 // Add rayon parallelization
 #[aoc(day6, part2, limited_rayon)]
 fn part2_limited_rayon(input: &Map) -> usize {
-    let visited = input.visited(false).unwrap();
+    let visited = input.walk(false).unwrap();
     iproduct!(0..input.grid.width, 0..input.grid.height)
-        .into_iter()
         .par_bridge()
         .into_par_iter()
         .map(|(x, y)| {
             let p = Point::from((x, y));
 
-            if !(visited.get(p) == Some(&true)
-                || p.neighbors().iter().any(|&p| visited.get(p) == Some(&true))) {
-                    return 0;
+            if visited.get(p) == Some(&true) {
+                let mut input = input.clone();
+                input.grid.set(p, Tile::Wall);
+                if input.walk(true).is_none() {
+                    1
+                } else {
+                    0
                 }
-        
-            let mut input = input.clone();
-            input.grid.set((x, y), Tile::Wall);
-            
-            if input.visited(true).is_none() {
-                1
             } else {
                 0
             }
@@ -198,7 +229,6 @@ mod tests {
             1939
         );
     }
-
 
     #[test]
     fn part2_limited_rayon_example() {
