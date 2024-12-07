@@ -155,7 +155,6 @@ fn part2_limited_no_clone(input: &Map) -> usize {
 fn part2_limited_rayon(input: &Map) -> usize {
     let visited = input.walk(false).unwrap();
     iproduct!(0..input.grid.width, 0..input.grid.height)
-        .into_iter()
         .par_bridge()
         .into_par_iter()
         .map(|(x, y)| {
@@ -230,7 +229,6 @@ mod tests {
             1939
         );
     }
-
 
     #[test]
     fn part2_limited_rayon_example() {
