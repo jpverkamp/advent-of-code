@@ -43,7 +43,7 @@ fn parse(input: &str) -> Map {
 }
 
 impl Map {
-    fn walk(&self, check_loops: bool) -> Option<Grid<bool>> {
+    fn walk(&self) -> Option<Grid<bool>> {
         let Map {
             mut guard,
             mut facing,
@@ -52,13 +52,6 @@ impl Map {
 
         let mut visited = Grid::new(grid.width, grid.height);
         visited.set(guard, true);
-
-        let mut duplicates_up = Grid::new(grid.width, grid.height);
-        duplicates_up.set(guard, true);
-
-        let mut duplicates_left = Grid::new(grid.width, grid.height);
-        let mut duplicates_right = Grid::new(grid.width, grid.height);
-        let mut duplicates_down = Grid::new(grid.width, grid.height);
 
         while grid.in_bounds(guard) {
             match grid.get(guard + facing) {
@@ -71,29 +64,56 @@ impl Map {
                 }
                 None => break,
             }
-
-            if check_loops {
-                let duplicates = &mut match facing {
-                    Direction::Up => &mut duplicates_up,
-                    Direction::Left => &mut duplicates_left,
-                    Direction::Right => &mut duplicates_right,
-                    Direction::Down => &mut duplicates_down,
-                };
-
-                if duplicates.get(guard) == Some(&true) {
-                    return None;
-                }
-                duplicates.set(guard, true);
-            }
         }
 
         Some(visited)
+    }
+
+    fn loops(&self) -> bool {
+        let Map {
+            mut guard,
+            mut facing,
+            grid,
+        } = self;
+
+        let mut duplicates_up = Grid::new(grid.width, grid.height);
+        duplicates_up.set(guard, true);
+
+        let mut duplicates_left = Grid::new(grid.width, grid.height);
+        let mut duplicates_right = Grid::new(grid.width, grid.height);
+        let mut duplicates_down = Grid::new(grid.width, grid.height);
+
+        while grid.in_bounds(guard) {
+            match grid.get(guard + facing) {
+                Some(Tile::Empty) => {
+                    guard += facing.into();
+                }
+                Some(Tile::Wall) => {
+                    facing = facing.rotate_cw();
+                }
+                None => break,
+            }
+
+            let duplicates = &mut match facing {
+                Direction::Up => &mut duplicates_up,
+                Direction::Left => &mut duplicates_left,
+                Direction::Right => &mut duplicates_right,
+                Direction::Down => &mut duplicates_down,
+            };
+
+            if duplicates.get(guard) == Some(&true) {
+                return false;
+            }
+            duplicates.set(guard, true);
+        }
+
+        true
     }
 }
 
 #[aoc(day6, part1, v1)]
 fn part1_v1(input: &Map) -> usize {
-    input.walk(false).unwrap().iter().filter(|&v| *v).count()
+    input.walk().unwrap().iter().filter(|&v| *v).count()
 }
 
 // For each point on the grid, check if adding a wall there would create a loop
@@ -104,7 +124,7 @@ fn part2_v1(input: &Map) -> usize {
             // The 'visited' function returns None on loops (no path found)
             let mut input = input.clone();
             input.grid.set((x, y), Tile::Wall);
-            input.walk(true).is_none()
+            !input.loops()
         })
         .count()
 }
@@ -113,14 +133,14 @@ fn part2_v1(input: &Map) -> usize {
 // We don't have to check adjacent since you have to 'run into' a wall to turn
 #[aoc(day6, part2, limited)]
 fn part2_limited(input: &Map) -> usize {
-    let visited = input.walk(false).unwrap();
+    let visited = input.walk().unwrap();
     iproduct!(0..input.grid.width, 0..input.grid.height)
         .filter(|&(x, y)| {
             let p = Point::from((x, y));
             if visited.get(p) == Some(&true) {
                 let mut input = input.clone();
                 input.grid.set(p, Tile::Wall);
-                input.walk(true).is_none()
+                !input.loops()
             } else {
                 false
             }
@@ -133,14 +153,14 @@ fn part2_limited(input: &Map) -> usize {
 fn part2_limited_no_clone(input: &Map) -> usize {
     let mut input = input.clone();
 
-    let visited = input.walk(false).unwrap();
+    let visited = input.walk().unwrap();
     iproduct!(0..input.grid.width, 0..input.grid.height)
         // Any points not on or adjacent to original path cannot introduce a loop
         .filter(|&(x, y)| {
             let p = Point::from((x, y));
             if visited.get(p) == Some(&true) {
                 input.grid.set((x, y), Tile::Wall);
-                let result = input.walk(true).is_none();
+                let result = !input.loops();
                 input.grid.set((x, y), Tile::Empty);
                 result
             } else {
@@ -153,7 +173,7 @@ fn part2_limited_no_clone(input: &Map) -> usize {
 // Add rayon parallelization
 #[aoc(day6, part2, limited_rayon)]
 fn part2_limited_rayon(input: &Map) -> usize {
-    let visited = input.walk(false).unwrap();
+    let visited = input.walk().unwrap();
     iproduct!(0..input.grid.width, 0..input.grid.height)
         .par_bridge()
         .into_par_iter()
@@ -163,13 +183,53 @@ fn part2_limited_rayon(input: &Map) -> usize {
             if visited.get(p) == Some(&true) {
                 let mut input = input.clone();
                 input.grid.set(p, Tile::Wall);
-                if input.walk(true).is_none() {
-                    1
-                } else {
+                if input.loops() {
                     0
+                } else {
+                    1
                 }
             } else {
                 0
+            }
+        })
+        .sum::<usize>()
+}
+
+// All new walls must be x or y ±1 from an existing wall
+#[aoc(day6, part2, more_limited)]
+fn part2_more_limited(input: &Map) -> usize {
+    let walls = input
+        .grid
+        .iter_enumerate()
+        .filter(|(_, &tile)| tile == Tile::Wall)
+        .map(|(p, _)| p)
+        .collect::<Vec<_>>();
+
+    let visited = input.walk().unwrap();
+
+    iproduct!(0..input.grid.width, 0..input.grid.height)
+        .par_bridge()
+        .into_par_iter()
+        .map(|(x, y)| {
+            let p = Point::from((x, y));
+
+            if visited.get(p) != Some(&true) {
+                return 0;
+            }
+
+            if walls
+                .iter()
+                .all(|&w| (w.x - x as i32).abs() > 1 && (w.y - y as i32).abs() > 1)
+            {
+                return 0;
+            }
+
+            let mut input = input.clone();
+            input.grid.set(p, Tile::Wall);
+            if input.loops() {
+                0
+            } else {
+                1
             }
         })
         .sum::<usize>()
