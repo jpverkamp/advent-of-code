@@ -195,46 +195,6 @@ fn part2_limited_rayon(input: &Map) -> usize {
         .sum::<usize>()
 }
 
-// All new walls must be x or y ±1 from an existing wall
-#[aoc(day6, part2, more_limited)]
-fn part2_more_limited(input: &Map) -> usize {
-    let walls = input
-        .grid
-        .iter_enumerate()
-        .filter(|(_, &tile)| tile == Tile::Wall)
-        .map(|(p, _)| p)
-        .collect::<Vec<_>>();
-
-    let visited = input.walk().unwrap();
-
-    iproduct!(0..input.grid.width, 0..input.grid.height)
-        .par_bridge()
-        .into_par_iter()
-        .map(|(x, y)| {
-            let p = Point::from((x, y));
-
-            if visited.get(p) != Some(&true) {
-                return 0;
-            }
-
-            if walls
-                .iter()
-                .all(|&w| (w.x - x as i32).abs() > 1 && (w.y - y as i32).abs() > 1)
-            {
-                return 0;
-            }
-
-            let mut input = input.clone();
-            input.grid.set(p, Tile::Wall);
-            if input.loops() {
-                0
-            } else {
-                1
-            }
-        })
-        .sum::<usize>()
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -253,7 +213,7 @@ mod tests {
 ......#...";
 
     make_test!([part1_v1] => "day6.txt", 41, 5551);
-    make_test!([part2_v1, part2_limited, part2_limited_rayon, part2_more_limited, part2_limited_no_clone] => "day6.txt", 6, 1939);
+    make_test!([part2_v1, part2_limited, part2_limited_rayon, part2_limited_no_clone] => "day6.txt", 6, 1939);
 }
 
 // For codspeed
