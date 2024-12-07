@@ -91,6 +91,8 @@ fn part2_v1((ordering, data): &(Ordering, Vec<Vec<u32>>)) -> u32 {
 
 #[cfg(test)]
 mod tests {
+    use crate::make_test;
+
     use super::*;
 
     const EXAMPLE: &str = "\
@@ -135,31 +137,8 @@ mod tests {
         assert!(!ordering.validates(&data[5]));
     }
 
-    #[test]
-    fn part1_example() {
-        assert_eq!(part1_v1(&parse(EXAMPLE)), 143);
-    }
-
-    #[test]
-    fn part1_final() {
-        assert_eq!(
-            part1_v1(&parse(include_str!("../input/2024/day5.txt"))),
-            4924
-        );
-    }
-
-    #[test]
-    fn part2_example() {
-        assert_eq!(part2_v1(&parse(EXAMPLE)), 123);
-    }
-
-    #[test]
-    fn part2_final() {
-        assert_eq!(
-            part2_v1(&parse(include_str!("../input/2024/day5.txt"))),
-            6085
-        );
-    }
+    make_test!([part1_v1] => "day5.txt", 143, 4924);
+    make_test!([part2_v1] => "day5.txt", 123, 6085);
 }
 
 // For codspeed

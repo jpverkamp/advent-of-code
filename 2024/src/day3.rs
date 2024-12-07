@@ -187,44 +187,17 @@ fn part2_iterator(input: &str) -> u32 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::make_test;
 
-    #[test]
-    fn part1_regex_example() {
-        assert_eq!(
-            part1_regex("xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))"),
-            161
-        );
+    const EXAMPLE: &str =
+        "xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))";
+
+    fn parse(input: &str) -> &str {
+        input
     }
 
-    #[test]
-    fn part1_iterator_example() {
-        assert_eq!(
-            part1_iterator(
-                "xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))"
-            ),
-            161
-        );
-    }
-
-    #[test]
-    fn part2_regex_example() {
-        assert_eq!(
-            part2_regex(
-                "xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))"
-            ),
-            48
-        );
-    }
-
-    #[test]
-    fn part2_example() {
-        assert_eq!(
-            part2_iterator(
-                "xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))"
-            ),
-            48
-        );
-    }
+    make_test!([part1_regex, part1_iterator, part1_nom] => "day3.txt", 161, 174336360);
+    make_test!([part2_regex, part2_iterator] => "day3.txt", 48, 88802350);
 }
 
 // For codspeed

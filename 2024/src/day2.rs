@@ -80,8 +80,9 @@ fn part2_iter(input: &[Vec<i32>]) -> usize {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::make_test;
 
-    const TEST_INPUT: &str = "\
+    const EXAMPLE: &str = "\
 7 6 4 2 1
 1 2 7 8 9
 9 7 6 2 1
@@ -91,7 +92,7 @@ mod tests {
 
     #[test]
     fn parse_example() {
-        let input = parse(TEST_INPUT);
+        let input = parse(EXAMPLE);
         assert_eq!(
             input,
             vec![
@@ -105,25 +106,8 @@ mod tests {
         );
     }
 
-    #[test]
-    fn part1_example_initial() {
-        assert_eq!(part1_initial(&parse(TEST_INPUT)), 2);
-    }
-
-    #[test]
-    fn part2_example_initial() {
-        assert_eq!(part2_initial(&parse(TEST_INPUT)), 4);
-    }
-
-    #[test]
-    fn part1_example() {
-        assert_eq!(part1_iter(&parse(TEST_INPUT)), 2);
-    }
-
-    #[test]
-    fn part2_example() {
-        assert_eq!(part2_iter(&parse(TEST_INPUT)), 4);
-    }
+    make_test!([part1_initial, part1_iter] => "day2.txt", 2, 432);
+    make_test!([part2_initial, part2_iter] => "day2.txt", 4, 488);
 }
 
 // For codspeed

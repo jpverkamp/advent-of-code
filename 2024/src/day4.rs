@@ -140,6 +140,7 @@ fn part2_inline(grid: &Grid<char>) -> i32 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::make_test;
 
     const EXAMPLE: &str = "\
 MMMSXXMASM
@@ -153,20 +154,8 @@ SAXAMASAAA
 MAMMMXMMMM
 MXMXAXMASX";
 
-    #[test]
-    fn part1_original_example() {
-        assert_eq!(part1_original(&parse(EXAMPLE)), 18);
-    }
-
-    #[test]
-    fn part1_inline_example() {
-        assert_eq!(part1_inline(&parse(EXAMPLE)), 18);
-    }
-
-    #[test]
-    fn part2_inline_example() {
-        assert_eq!(part2_inline(&parse(EXAMPLE)), 9);
-    }
+    make_test!([part1_original, part1_inline] => "day4.txt", 18, 2406);
+    make_test!([part2_inline] => "day4.txt", 9, 1807);
 }
 
 // For codspeed

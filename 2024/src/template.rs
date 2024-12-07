@@ -18,6 +18,7 @@ fn part2_v1(input: &str) -> String {
 
 #[cfg(test)]
 mod tests {
+    use crate::make_test;
     use super::*;
 
 
@@ -25,26 +26,8 @@ mod tests {
 hello
 world";
 
-    #[test]
-    fn part1_example() {
-        assert_eq!(part1_v1(&parse(EXAMPLE)), "<RESULT>");
-    }
-
-    #[test]
-    fn part1_final() {
-        assert_eq!(part1_v1(&parse(include_str!("../input/2024/day6.txt"))), "<RESULT>");
-    }
-    
-
-    #[test]
-    fn part2_example() {
-        assert_eq!(part2_v1(&parse(EXAMPLE)), "<RESULT>");
-    }
-
-    #[test]
-    fn part2_final() {
-        assert_eq!(part2_v1(&parse(include_str!("../input/2024/day6.txt"))), "<RESULT>");
-    }
+    make_test!([part1_v1] => "day5.txt", "example output", "final output");
+    make_test!([part2_v1] => "day5.txt", "example output", "final output");
 }
 
 // For codspeed

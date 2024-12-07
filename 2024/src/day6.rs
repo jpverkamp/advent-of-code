@@ -238,6 +238,7 @@ fn part2_more_limited(input: &Map) -> usize {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::make_test;
 
     const EXAMPLE: &str = "\
 ....#.....
@@ -251,57 +252,8 @@ mod tests {
 #.........
 ......#...";
 
-    #[test]
-    fn part1_example() {
-        assert_eq!(part1_v1(&parse(EXAMPLE)), 41);
-    }
-
-    #[test]
-    fn part1_final() {
-        assert_eq!(
-            part1_v1(&parse(include_str!("../input/2024/day6.txt"))),
-            5551
-        );
-    }
-
-    #[test]
-    fn part2_example() {
-        assert_eq!(part2_v1(&parse(EXAMPLE)), 6);
-    }
-
-    #[test]
-    fn part2_final() {
-        assert_eq!(
-            part2_v1(&parse(include_str!("../input/2024/day6.txt"))),
-            1939
-        );
-    }
-
-    #[test]
-    fn part2_limited_example() {
-        assert_eq!(part2_limited(&parse(EXAMPLE)), 6);
-    }
-
-    #[test]
-    fn part2_limited_final() {
-        assert_eq!(
-            part2_limited(&parse(include_str!("../input/2024/day6.txt"))),
-            1939
-        );
-    }
-
-    #[test]
-    fn part2_limited_rayon_example() {
-        assert_eq!(part2_limited_rayon(&parse(EXAMPLE)), 6);
-    }
-
-    #[test]
-    fn part2_limited_rayon_final() {
-        assert_eq!(
-            part2_limited_rayon(&parse(include_str!("../input/2024/day6.txt"))),
-            1939
-        );
-    }
+    make_test!([part1_v1] => "day6.txt", 41, 5551);
+    make_test!([part2_v1, part2_limited, part2_limited_rayon, part2_more_limited, part2_limited_no_clone] => "day6.txt", 6, 1939);
 }
 
 // For codspeed

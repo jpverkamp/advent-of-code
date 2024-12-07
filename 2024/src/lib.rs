@@ -14,6 +14,8 @@ use direction::Direction;
 mod point;
 use point::Point;
 
+mod make_test;
+
 extern crate aoc_runner;
 
 #[macro_use]

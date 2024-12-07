@@ -42,8 +42,9 @@ fn part2_original(input: &(Vec<i32>, Vec<i32>)) -> i32 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::make_test;
 
-    const TEST_INPUT: &str = "\
+    const EXAMPLE: &str = "\
 3   4
 4   3
 2   5
@@ -53,19 +54,12 @@ mod tests {
 
     #[test]
     fn parse_example() {
-        let input = parse(TEST_INPUT);
+        let input = parse(EXAMPLE);
         assert_eq!(input, (vec![3, 4, 2, 1, 3, 3], vec![4, 3, 5, 3, 9, 3]));
     }
 
-    #[test]
-    fn part1_example() {
-        assert_eq!(part1_original(&parse(TEST_INPUT)), 11);
-    }
-
-    #[test]
-    fn part2_example() {
-        assert_eq!(part2_original(&parse(TEST_INPUT)), 31);
-    }
+    make_test!([part1_original] => "day1.txt", 11, 2742123);
+    make_test!([part2_original] => "day1.txt", 31, 21328497);
 }
 
 // For codspeed
