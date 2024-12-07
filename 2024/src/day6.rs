@@ -93,7 +93,7 @@ impl Map {
 
 #[aoc(day6, part1, v1)]
 fn part1_v1(input: &Map) -> usize {
-    input.walk(true).unwrap().iter().filter(|&v| *v).count()
+    input.walk(false).unwrap().iter().filter(|&v| *v).count()
 }
 
 // For each point on the grid, check if adding a wall there would create a loop
