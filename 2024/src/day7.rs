@@ -72,6 +72,40 @@ fn part2_v1(input: &[Equation]) -> u64 {
         .sum::<u64>()
 }
 
+#[aoc(day7, part2, fastercat)]
+fn part2_fastercat(input: &[Equation]) -> u64 {
+    const POWERS_OF_10: [u64; 19] = [
+        0, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000,
+        10000000000, 100000000000, 1000000000000, 10000000000000, 100000000000000,
+        1000000000000000, 10000000000000000, 100000000000000000, 1000000000000000000
+    ];
+
+    fn is_solvable(target: u64, acc: u64, values: &[u64]) -> bool {
+        if values.is_empty() {
+            return target == acc;
+        }
+
+        is_solvable(target, acc + values[0], &values[1..])
+            || is_solvable(target, acc * values[0], &values[1..])
+            || {
+                let mut next_acc = 0;
+                for i in 1..19 {
+                    if values[0] < POWERS_OF_10[i] {
+                        next_acc = acc * POWERS_OF_10[i] + values[0];
+                        break;
+                    }
+                }
+                is_solvable(target, next_acc, &values[1..])
+            }
+    }
+
+    input
+        .iter()
+        .filter(|eq| is_solvable(eq.result, 0, &eq.input))
+        .map(|eq| eq.result)
+        .sum::<u64>()
+}
+
 // Direct version with an explicit queue instead of recursion
 
 #[aoc(day7, part1, queue)]
@@ -209,7 +243,7 @@ mod tests {
 292: 11 6 16 20";
 
     make_test!([part1_v1, part1_opset, part1_queue] => "day7.txt", 3749, "975671981569");
-    make_test!([part2_v1, part2_opset, part2_queue] => "day7.txt", 11387, "223472064194845");
+    make_test!([part2_v1, part2_opset, part2_queue, part2_fastercat] => "day7.txt", 11387, "223472064194845");
     // 975671981569 too low
 }
 
@@ -219,5 +253,5 @@ pub fn part1(input: &str) -> String {
 }
 
 pub fn part2(input: &str) -> String {
-    part2_v1(&parse(input)).to_string()
+    part2_fastercat(&parse(input)).to_string()
 }
