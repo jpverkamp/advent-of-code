@@ -2,23 +2,23 @@ use std::collections::BTreeMap;
 
 use aoc_runner_derive::aoc;
 
-#[derive(Debug, Clone, Copy, Default)]
-enum Block {
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub enum Block {
     #[default]
     Empty,
     File(usize),
 }
 
 #[derive(Debug, Clone, Copy, Default)]
-struct File {
-    start: usize,
-    size: usize,
+pub struct File {
+    pub start: usize,
+    pub size: usize,
 }
 
 #[derive(Debug, Clone)]
-struct Disk {
-    blocks: Vec<Block>,
-    files: Vec<File>,
+pub struct Disk {
+    pub blocks: Vec<Block>,
+    pub files: Vec<File>,
 }
 
 impl From<&str> for Disk {
@@ -133,6 +133,56 @@ fn part2_v1(input: &str) -> usize {
     // We're going to try to move each file from right to left exactly once
     'each_file: for moving_id in (0..disk.files.len()).rev() {
         // TODO: We can probably cache the leftmost empty block to start at
+        let mut left_index = 0;
+        let mut empty_starts_at = None;
+
+        while left_index < disk.files[moving_id].start {
+            match disk.blocks[left_index] {
+                Block::File(_) => {
+                    left_index += 1;
+                    empty_starts_at = None;
+                }
+                Block::Empty => {
+                    if empty_starts_at.is_none() {
+                        empty_starts_at = Some(left_index);
+                    }
+
+                    // Found a large enough space
+                    if empty_starts_at.is_some_and(|empty_starts_at| {
+                        left_index - empty_starts_at + 1 >= disk.files[moving_id].size
+                    }) {
+                        for i in 0..disk.files[moving_id].size {
+                            disk.blocks.swap(
+                                disk.files[moving_id].start + i,
+                                empty_starts_at.unwrap() + i,
+                            );
+                        }
+                        disk.files[moving_id].start = empty_starts_at.unwrap();
+                        continue 'each_file;
+                    } else {
+                        left_index += 1;
+                    }
+                }
+            }
+        }
+    }
+
+    disk.checksum()
+}
+
+#[aoc(day9, part2, leftmost_empty)]
+fn part2_leftmost_empty(input: &str) -> usize {
+    let mut disk = Disk::from(input);
+    let mut leftmost_empty = 0;
+
+    // We're going to try to move each file from right to left exactly once
+    'each_file: for moving_id in (0..disk.files.len()).rev() {
+        // Advance the leftmost empty block
+        // This will be cached so we ignore already filled parts of the drive
+        while leftmost_empty < disk.blocks.len() && disk.blocks[leftmost_empty] != Block::Empty {
+            leftmost_empty += 1;
+        }
+
         let mut left_index = 0;
         let mut empty_starts_at = None;
 
@@ -400,7 +450,7 @@ mod tests {
     const EXAMPLE: &str = "2333133121414131402";
 
     make_test!([part1_v1] => "day9.txt", 1928, "6201130364722");
-    make_test!([part2_v1, part2_btree] => "day9.txt", 2858, "6221662795602");
+    make_test!([part2_v1, part2_btree, part2_leftmost_empty] => "day9.txt", 2858, "6221662795602");
 }
 
 // For codspeed
@@ -413,5 +463,5 @@ pub fn part1(input: &str) -> String {
 }
 
 pub fn part2(input: &str) -> String {
-    part2_v1(parse(input)).to_string()
+    part2_leftmost_empty(parse(input)).to_string()
 }
