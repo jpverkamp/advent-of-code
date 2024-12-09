@@ -33,8 +33,9 @@ fn part1_v1(input: &Grid<Tile>) -> usize {
         for p1 in points {
             for p2 in points {
                 if p1 != p2 {
-                    antinodes.set(*p2 + *p2 - *p1, true);
-                    antinodes.set(*p1 + *p1 - *p2, true);
+                    let d = *p2 - *p1;
+                    antinodes.set(*p1 - d, true);
+                    antinodes.set(*p2 + d, true);
                 }
             }
         }
