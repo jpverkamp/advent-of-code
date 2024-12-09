@@ -9,13 +9,13 @@ pub mod day8;
 pub mod day9;
 
 mod grid;
-use grid::Grid;
+pub use grid::Grid;
 
 mod direction;
-use direction::Direction;
+pub use direction::Direction;
 
 mod point;
-use point::Point;
+pub use point::Point;
 
 mod make_test;
 

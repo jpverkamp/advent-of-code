@@ -2,8 +2,8 @@ use crate::point::Point;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Grid<T> {
-    pub(crate) width: usize,
-    pub(crate) height: usize,
+    pub width: usize,
+    pub height: usize,
     data: Vec<T>,
 }
 

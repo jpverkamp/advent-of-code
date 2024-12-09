@@ -3,7 +3,7 @@ use aoc_runner_derive::{aoc, aoc_generator};
 use crate::Grid;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-enum Tile {
+pub enum Tile {
     #[default]
     Empty,
     Tower(char),
