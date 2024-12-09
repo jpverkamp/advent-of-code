@@ -1,4 +1,6 @@
 debug/
 target/
+output/
 
 **/*.rs.bk
+**/*.mp4
