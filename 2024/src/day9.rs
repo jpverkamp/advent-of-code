@@ -7,10 +7,16 @@ enum Block {
     File(usize),
 }
 
+#[derive(Debug, Clone, Copy, Default)]
+struct File {
+    start: usize,
+    size: usize,
+}
+
 #[derive(Debug, Clone)]
 struct Disk {
     blocks: Vec<Block>,
-    files: Vec<usize>,
+    files: Vec<File>,
 }
 
 impl From<&str> for Disk {
@@ -28,7 +34,10 @@ impl From<&str> for Disk {
 
             let v = c.to_digit(10).unwrap() as usize;
             if next_is_file {
-                files.push(v);
+                files.push(File {
+                    start: blocks.len(),
+                    size: v,
+                });
                 for _ in 0..v {
                     blocks.push(Block::File(next_index));
                 }
@@ -95,7 +104,7 @@ fn part1_v1(input: &Disk) -> usize {
                 right_index -= 1;
                 continue;
             }
-            Block::File(_) => {}
+            Block::File { .. } => {}
         }
 
         // If left index is empty, swap the right index into it
@@ -107,7 +116,7 @@ fn part1_v1(input: &Disk) -> usize {
                 right_index -= 1;
             }
             Block::File(id) => {
-                left_index += disk.files[id];
+                left_index += disk.files[id].size;
             }
         }
     }
@@ -121,21 +130,11 @@ fn part2_v1(input: &Disk) -> usize {
 
     // We're going to try to move each file from right to left exactly once
     'each_file: for moving_id in (0..disk.files.len()).rev() {
-        // Find The start of this file
-        // TODO: We can probably afford to store this
-        let mut file_index = 0;
-        while file_index < disk.blocks.len() {
-            match disk.blocks[file_index] {
-                Block::File(id) if id == moving_id => break,
-                _ => file_index += 1,
-            }
-        }
-
         // TODO: We can probably cache the leftmost empty block to start at
         let mut left_index = 0;
         let mut empty_starts_at = None;
 
-        while left_index < file_index {
+        while left_index < disk.files[moving_id].start {
             match disk.blocks[left_index] {
                 Block::File(_) => {
                     left_index += 1;
@@ -148,12 +147,15 @@ fn part2_v1(input: &Disk) -> usize {
 
                     // Found a large enough space
                     if empty_starts_at.is_some_and(|empty_starts_at| {
-                        left_index - empty_starts_at + 1 >= disk.files[moving_id]
+                        left_index - empty_starts_at + 1 >= disk.files[moving_id].size
                     }) {
-                        for i in 0..disk.files[moving_id] {
-                            disk.blocks
-                                .swap(file_index + i, empty_starts_at.unwrap() + i);
+                        for i in 0..disk.files[moving_id].size {
+                            disk.blocks.swap(
+                                disk.files[moving_id].start + i,
+                                empty_starts_at.unwrap() + i,
+                            );
                         }
+                        disk.files[moving_id].start = empty_starts_at.unwrap();
                         continue 'each_file;
                     } else {
                         left_index += 1;
@@ -178,7 +180,7 @@ fn part2_wrong(input: &Disk) -> usize {
         match disk.blocks[left_index] {
             // Already have a file, do nothing
             Block::File(id) => {
-                left_index += disk.files[id];
+                left_index += disk.files[id].size;
             }
             // Empty space, try to move the rightmost fitting file
             Block::Empty => {
@@ -201,7 +203,7 @@ fn part2_wrong(input: &Disk) -> usize {
                             right_index -= 1;
                         }
                         Block::File(id) => {
-                            let size = disk.files[id];
+                            let size = disk.files[id].size;
                             if size <= space_available {
                                 for i in 0..size {
                                     disk.blocks.swap(right_index - i, left_index + i);
