@@ -11,7 +11,7 @@ fn render(disk: &Disk, path: &str, left_index: usize, right_index: usize) {
 
     let block_count = disk.blocks.len();
     let row_count = block_count / blocks_per_row + 1;
-    
+
     let mut image = ImageBuffer::new(
         (blocks_per_row * grid_size) as u32,
         (row_count * grid_size) as u32,
@@ -44,10 +44,26 @@ fn render(disk: &Disk, path: &str, left_index: usize, right_index: usize) {
     let right_y = (right_index / blocks_per_row) * grid_size;
 
     for delta in 0..grid_size {
-        image.put_pixel(left_x as u32 + delta as u32, left_y as u32, image::Rgb([255, 255, 255]));
-        image.put_pixel(left_x as u32 + delta as u32, left_y as u32 + grid_size as u32 - 1, image::Rgb([255, 255, 255]));
-        image.put_pixel(right_x as u32 + delta as u32, right_y as u32, image::Rgb([255, 255, 255]));
-        image.put_pixel(right_x as u32 + delta as u32, right_y as u32 + grid_size as u32 - 1, image::Rgb([255, 255, 255]));
+        image.put_pixel(
+            left_x as u32 + delta as u32,
+            left_y as u32,
+            image::Rgb([255, 255, 255]),
+        );
+        image.put_pixel(
+            left_x as u32 + delta as u32,
+            left_y as u32 + grid_size as u32 - 1,
+            image::Rgb([255, 255, 255]),
+        );
+        image.put_pixel(
+            right_x as u32 + delta as u32,
+            right_y as u32,
+            image::Rgb([255, 255, 255]),
+        );
+        image.put_pixel(
+            right_x as u32 + delta as u32,
+            right_y as u32 + grid_size as u32 - 1,
+            image::Rgb([255, 255, 255]),
+        );
     }
 
     image.save(path).unwrap();
@@ -66,9 +82,14 @@ fn main() {
     while left_index < right_index {
         frame += 1;
         if frame % 100 == 0 {
-            render(&disk, &format!("output/{:0>8}.png", frame), left_index, right_index);
+            render(
+                &disk,
+                &format!("output/{:0>8}.png", frame),
+                left_index,
+                right_index,
+            );
         }
-        
+
         // Right index should always point at a file node
         match disk.blocks[right_index] {
             Block::Empty => {
@@ -92,7 +113,12 @@ fn main() {
         }
     }
 
-    render(&disk, &format!("output/{:0>8}.png", frame+1), left_index, right_index);
+    render(
+        &disk,
+        &format!("output/{:0>8}.png", frame + 1),
+        left_index,
+        right_index,
+    );
 
     // Render to mp4
     println!("Rendering video...");
@@ -106,14 +132,14 @@ fn main() {
         day9-part1.mp4";
 
     match std::process::Command::new("sh").arg("-c").arg(cmd).status() {
-        Ok(_) => {},
+        Ok(_) => {}
         Err(err) => {
             eprintln!("Failed to run ffmpeg: {:?}", err);
             std::process::exit(1);
-        },
+        }
     }
 
-    // Clean up 
+    // Clean up
     println!("Cleaning up...");
     std::fs::remove_dir_all("output").unwrap();
 }

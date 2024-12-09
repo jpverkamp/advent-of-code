@@ -463,5 +463,5 @@ pub fn part1(input: &str) -> String {
 }
 
 pub fn part2(input: &str) -> String {
-    part2_leftmost_empty(parse(input)).to_string()
+    part2_v1(parse(input)).to_string()
 }

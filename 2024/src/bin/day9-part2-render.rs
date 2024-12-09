@@ -11,7 +11,7 @@ fn render(disk: &Disk, path: &str, left_index: usize) {
 
     let block_count = disk.blocks.len();
     let row_count = block_count / blocks_per_row + 1;
-    
+
     let mut image = ImageBuffer::new(
         (blocks_per_row * grid_size) as u32,
         (row_count * grid_size) as u32,
@@ -42,8 +42,16 @@ fn render(disk: &Disk, path: &str, left_index: usize) {
     let left_y = (left_index / blocks_per_row) * grid_size;
 
     for delta in 0..grid_size {
-        image.put_pixel(left_x as u32 + delta as u32, left_y as u32, image::Rgb([255, 255, 255]));
-        image.put_pixel(left_x as u32 + delta as u32, left_y as u32 + grid_size as u32 - 1, image::Rgb([255, 255, 255]));
+        image.put_pixel(
+            left_x as u32 + delta as u32,
+            left_y as u32,
+            image::Rgb([255, 255, 255]),
+        );
+        image.put_pixel(
+            left_x as u32 + delta as u32,
+            left_y as u32 + grid_size as u32 - 1,
+            image::Rgb([255, 255, 255]),
+        );
     }
 
     image.save(path).unwrap();
@@ -54,6 +62,8 @@ fn main() {
     let mut disk = Disk::from(input);
 
     std::fs::create_dir_all("output").unwrap();
+    render(&disk, &format!("output/{:0>8}.png", 0), 0);
+
     let mut frame = 0;
     let mut rendered_frame = 0;
 
@@ -75,7 +85,11 @@ fn main() {
             frame += 1;
             if frame % 100000 == 0 {
                 rendered_frame += 1;
-                render(&disk, &format!("output/{:0>8}.png", rendered_frame), left_index);
+                render(
+                    &disk,
+                    &format!("output/{:0>8}.png", rendered_frame),
+                    left_index,
+                );
             }
 
             match disk.blocks[left_index] {
@@ -108,7 +122,7 @@ fn main() {
         }
     }
 
-    render(&disk, &format!("output/{:0>8}.png", frame+1), 0);
+    render(&disk, &format!("output/{:0>8}.png", frame + 1), 0);
 
     // Render to mp4
     println!("Rendering video...");
@@ -117,19 +131,20 @@ fn main() {
         -pattern_type glob \
         -i 'output/*.png' \
         -c:v libx264 \
+        -crf 24 \
         -vf format=yuv420p \
         -movflags +faststart \
         day9-part2.mp4";
 
     match std::process::Command::new("sh").arg("-c").arg(cmd).status() {
-        Ok(_) => {},
+        Ok(_) => {}
         Err(err) => {
             eprintln!("Failed to run ffmpeg: {:?}", err);
             std::process::exit(1);
-        },
+        }
     }
 
-    // Clean up 
+    // Clean up
     println!("Cleaning up...");
     std::fs::remove_dir_all("output").unwrap();
 }
