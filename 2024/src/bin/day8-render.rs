@@ -1,5 +1,3 @@
-use core::ascii;
-
 use aoc2024::{day8::Tile, Grid};
 
 use hsv::hsv_to_rgb;

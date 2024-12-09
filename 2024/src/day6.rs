@@ -4,21 +4,21 @@ use itertools::iproduct;
 use rayon::iter::{IntoParallelIterator, ParallelBridge, ParallelIterator};
 
 #[derive(Debug, Copy, Clone, Default, PartialEq, Eq)]
-enum Tile {
+pub enum Tile {
     #[default]
     Empty,
     Wall,
 }
 
 #[derive(Debug, Clone)]
-struct Map {
-    guard: Point,
-    facing: Direction,
-    grid: Grid<Tile>,
+pub struct Map {
+    pub guard: Point,
+    pub facing: Direction,
+    pub grid: Grid<Tile>,
 }
 
 #[aoc_generator(day6)]
-fn parse(input: &str) -> Map {
+pub fn parse(input: &str) -> Map {
     let grid = Grid::read(input, &|c| match c {
         '.' => Tile::Empty,
         '#' => Tile::Wall,
