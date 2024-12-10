@@ -31,6 +31,12 @@ fn render(grid: &Grid<Tile>, guard: &Point, visited: &[Point], path: String) {
 
     image.put_pixel(guard.x as u32, guard.y as u32, GUARD);
 
+    let image = image::imageops::resize(
+        &image,
+        grid.width as u32 * 2,
+        grid.height as u32 * 2,
+        image::imageops::Nearest,
+    );
     image.save(path).unwrap();
 }
 
@@ -70,25 +76,17 @@ fn main() {
         }
     }
 
-    let scale = 2;
-    let output_width = grid.width * scale;
-    let output_height = grid.height * scale;
-
     // Render to mp4
     println!("Rendering video...");
-    let cmd = format!(
-        "ffmpeg -y \
+    let cmd = "ffmpeg -y \
         -framerate 24 \
         -pattern_type glob \
         -i 'output/*.png' \
-        -s {output_width}:{output_height} \
-        -sws_flags neighbor \
         -c:v libx264 \
         -crf 24 \
         -vf format=yuv420p \
         -movflags +faststart \
-        day8-part1.mp4"
-    );
+        day6-part1.mp4";
 
     match std::process::Command::new("sh").arg("-c").arg(cmd).status() {
         Ok(_) => {}

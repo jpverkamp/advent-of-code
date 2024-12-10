@@ -1,7 +1,7 @@
 use aoc2024::{day8::Tile, Grid};
 
 use hsv::hsv_to_rgb;
-use image::ImageBuffer;
+use image::{imageops, ImageBuffer};
 
 fn render(grid: &Grid<Tile>, antinodes: &Grid<bool>, chars: &[char], path: String) {
     println!("Rendering frame: {path}...");
@@ -28,6 +28,12 @@ fn render(grid: &Grid<Tile>, antinodes: &Grid<bool>, chars: &[char], path: Strin
         }
     }
 
+    let image = imageops::resize(
+        &image,
+        grid.width as u32 * 10,
+        grid.height as u32 * 10,
+        image::imageops::Nearest,
+    );
     image.save(path).unwrap();
 }
 
@@ -90,25 +96,17 @@ fn main() {
         }
     }
 
-    let scale = 10;
-    let output_width = grid.width * scale;
-    let output_height = grid.height * scale;
-
     // Render to mp4
     println!("Rendering video...");
-    let cmd = format!(
-        "ffmpeg -y \
+    let cmd = "ffmpeg -y \
         -framerate 24 \
         -pattern_type glob \
         -i 'output/*.png' \
-        -s {output_width}:{output_height} \
-        -sws_flags neighbor \
         -c:v libx264 \
         -crf 24 \
         -vf format=yuv420p \
         -movflags +faststart \
-        day8-part2.mp4"
-    );
+        day8-part2.mp4";
 
     match std::process::Command::new("sh").arg("-c").arg(cmd).status() {
         Ok(_) => {}
