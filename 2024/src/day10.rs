@@ -142,6 +142,45 @@ fn part1_dynamic_tupled(input: &Grid<u8>) -> usize {
         .sum::<usize>()
 }
 
+#[aoc(day10, part1, dynamic_smart)]
+fn part1_dynamic_smart(input: &Grid<u8>) -> usize {
+    let mut trail_counts: Grid<u128> = Grid::new(input.width, input.height);
+
+    // Flag each 9 with a unique bit
+    // The bits only have to be unique within 10 tiles of each other
+    // So within a 10x10 area, assign to that bit
+    input.iter_enumerate().for_each(|(p, &v)| {
+        if v == 9 {
+            let mask = 1u128 << ((p.x % 10) + (p.y % 10) * 10);
+            trail_counts.set(p, mask);
+        }
+    });
+
+    // For each height, we're going to OR the bits of reachable 9s together
+    for height in (0..=8).rev() {
+        input.iter_enumerate().for_each(|(p, &v)| {
+            if v == height {
+                trail_counts.set(
+                    p,
+                    p.neighbors()
+                        .iter()
+                        .filter(|&p2| input.get(*p2).is_some_and(|&v| v == height + 1))
+                        .map(|&p2| *trail_counts.get(p2).unwrap())
+                        .reduce(|a, b| a | b)
+                        .unwrap_or(0),
+                );
+            }
+        });
+    }
+
+    // Sum the ratings of the 9s
+    input
+        .iter_enumerate()
+        .filter(|(_, &v)| v == 0)
+        .map(|(p, _)| trail_counts.get(p).unwrap().count_ones() as usize)
+        .sum::<usize>()
+}
+
 #[aoc(day10, part2, dynamic)]
 fn part2_dynamic(input: &Grid<u8>) -> u32 {
     let mut ratings = Grid::new(input.width, input.height);
@@ -192,13 +231,13 @@ mod tests {
 01329801
 10456732";
 
-    make_test!([part1_search, part1_dynamic, part1_dynamic_tupled] => "day10.txt", 36, 659);
+    make_test!([part1_search, part1_dynamic, part1_dynamic_tupled, part1_dynamic_smart] => "day10.txt", 36, 659);
     make_test!([part2_dynamic] => "day10.txt", 81, 1463);
 }
 
 // For codspeed
 pub fn part1(input: &str) -> String {
-    part1_search(&parse(input)).to_string()
+    part1_dynamic_smart(&parse(input)).to_string()
 }
 
 pub fn part2(input: &str) -> String {
