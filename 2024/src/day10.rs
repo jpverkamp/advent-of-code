@@ -48,7 +48,7 @@ fn part1_search(input: &Grid<u8>) -> u32 {
 fn part1_dynamic(input: &Grid<u8>) -> usize {
     let mut trail_counts: Grid<BitVec> = Grid::new(input.width, input.height);
 
-    // How many 9s are there? 
+    // How many 9s are there?
     let nines = input.iter().filter(|&&v| v == 9).count();
 
     // Flag each 9 with a unique bit
@@ -75,7 +75,7 @@ fn part1_dynamic(input: &Grid<u8>) -> usize {
                         .filter(|&p2| input.get(*p2).is_some_and(|&v| v == height + 1))
                         .map(|&p2| trail_counts.get(p2).unwrap().clone())
                         .reduce(|a, b| a | b)
-                        .unwrap_or_else(|| bitvec![0; nines])
+                        .unwrap_or_else(|| bitvec![0; nines]),
                 );
             }
         });
@@ -97,11 +97,14 @@ fn part1_dynamic_tupled(input: &Grid<u8>) -> usize {
     let mut index = 0;
     input.iter_enumerate().for_each(|(p, &v)| {
         if v == 9 {
-            trail_counts.set(p, if index < 128 {
-                (1 << index, 0)
-            } else {
-                (0, 1 << (index - 128))
-            });
+            trail_counts.set(
+                p,
+                if index < 128 {
+                    (1 << index, 0)
+                } else {
+                    (0, 1 << (index - 128))
+                },
+            );
             index += 1;
         }
     });
@@ -120,9 +123,9 @@ fn part1_dynamic_tupled(input: &Grid<u8>) -> usize {
                     p.neighbors()
                         .iter()
                         .filter(|&p2| input.get(*p2).is_some_and(|&v| v == height + 1))
-                        .map(|&p2| trail_counts.get(p2).unwrap().clone())
+                        .map(|&p2| *trail_counts.get(p2).unwrap())
                         .reduce(|(a1, a2), (b1, b2)| (a1 | b1, a2 | b2))
-                        .unwrap_or_else(|| (0, 0))
+                        .unwrap_or((0, 0)),
                 );
             }
         });
