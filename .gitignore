@@ -8,3 +8,9 @@ __pycache__
 # Racket
 compiled
 *~
+
+# Rust
+debug/
+target/
+output/
+**/*.rs.bk
