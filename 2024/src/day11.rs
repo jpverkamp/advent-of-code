@@ -213,6 +213,49 @@ fn part2_recursive_memo_btree(input: &[u64]) -> usize {
     blink_recur_memo_btree(input, 75)
 }
 
+// Cut memoization off early
+
+fn blink_rm_early(input: &[u64], count: usize) -> usize {
+    fn recur(cache: &mut HashMap<(u64, usize), usize>, value: u64, depth: usize) -> usize {
+        if let Some(&v) = cache.get(&(value, depth)) {
+            return v;
+        }
+
+        let result = if depth < 10 {
+            blink_recur(&[value], depth)
+        } else if value == 0 {
+            recur(cache, 1, depth - 1)
+        } else {
+            let digit_count = value.ilog10() + 1;
+            if digit_count % 2 == 0 {
+                let divisor = 10u64.pow(digit_count / 2);
+                recur(cache, value / divisor, depth - 1) + recur(cache, value % divisor, depth - 1)
+            } else {
+                recur(cache, value * 2024, depth - 1)
+            }
+        };
+
+        cache.insert((value, depth), result);
+        result
+    }
+
+    let mut cache = HashMap::new();
+    input
+        .iter()
+        .map(|&v| recur(&mut cache, v, count))
+        .sum::<usize>()
+}
+
+#[aoc(day11, part1, rm_early)]
+fn part1_rm_early(input: &[u64]) -> usize {
+    blink_rm_early(input, 25)
+}
+
+#[aoc(day11, part2, rm_early)]
+fn part2_rm_early(input: &[u64]) -> usize {
+    blink_rm_early(input, 75)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -220,15 +263,15 @@ mod tests {
 
     const EXAMPLE: &str = "125 17";
 
-    make_test!([part1_v1, part1_recursive, part1_recursive_memo, part1_recursive_memo_assoc, part1_recursive_memo_btree] => "day11.txt", 55312, 194482);
-    make_test!([part2_recursive_memo] => "day11.txt", "65601038650482", "232454623677743");
+    make_test!([part1_v1, part1_recursive, part1_recursive_memo, part1_recursive_memo_assoc, part1_recursive_memo_btree, part1_rm_early] => "day11.txt", 55312, 194482);
+    make_test!([part2_recursive_memo, part2_rm_early] => "day11.txt", "65601038650482", "232454623677743");
 }
 
 // For codspeed
 pub fn part1(input: &str) -> String {
-    part1_recursive_memo(&parse(input)).to_string()
+    part2_rm_early(&parse(input)).to_string()
 }
 
 pub fn part2(input: &str) -> String {
-    part2_recursive_memo(&parse(input)).to_string()
+    part2_rm_early(&parse(input)).to_string()
 }
