@@ -215,7 +215,7 @@ fn part2_recursive_memo_btree(input: &[u64]) -> usize {
 
 // Try keeping a list of counts
 
-fn blink_countlist(input: &[u64], count: usize) -> usize {
+fn blink_count_hash(input: &[u64], count: usize) -> usize {
     let mut list1 = HashMap::new();
     let mut list2 = HashMap::new();
 
@@ -240,10 +240,7 @@ fn blink_countlist(input: &[u64], count: usize) -> usize {
                         .and_modify(|c2| *c2 += c)
                         .or_insert(c);
                 } else {
-                    list2
-                        .entry(v * 2024)
-                        .and_modify(|c2| *c2 += c)
-                        .or_insert(c);
+                    list2.entry(v * 2024).and_modify(|c2| *c2 += c).or_insert(c);
                 }
             }
         }
@@ -255,14 +252,78 @@ fn blink_countlist(input: &[u64], count: usize) -> usize {
     list1.values().sum()
 }
 
-#[aoc(day11, part1, countlist)]
-fn part1_countlist(input: &[u64]) -> usize {
-    blink_countlist(input, 25)
+#[aoc(day11, part1, count_hash)]
+fn part1_count_hash(input: &[u64]) -> usize {
+    blink_count_hash(input, 25)
 }
 
-#[aoc(day11, part2, countlist)]
-fn part2_countlist(input: &[u64]) -> usize {
-    blink_countlist(input, 75)
+#[aoc(day11, part2, count_hash)]
+fn part2_count_hash(input: &[u64]) -> usize {
+    blink_count_hash(input, 75)
+}
+
+// Try keeping a list of counts
+
+fn blink_count_alist(input: &[u64], count: usize) -> usize {
+    let mut list1 = vec![];
+    let mut list2 = vec![];
+
+    fn assoc_add(list: &mut Vec<(u64, usize)>, k: u64, v: usize) {
+        if let Some(i) = list.iter().position(|(k2, _)| *k2 == k) {
+            list[i].1 += v;
+        } else {
+            list.push((k, v));
+        }
+    }
+
+    fn value_sort(list: &mut [(u64, usize)]) {
+        list.sort_unstable_by_key(|(_, v)| -(*v as isize));
+    }
+
+    fn value_clear(list: &mut [(u64, usize)]) {
+        for (_, v) in list.iter_mut() {
+            *v = 0;
+        }
+    }
+
+    for v in input {
+        assoc_add(&mut list1, *v, 1);
+    }
+    value_sort(&mut list1);
+
+    for _ in 0..count {
+        value_clear(&mut list2);
+
+        for (k, v) in list1.iter() {
+            if *k == 0 {
+                assoc_add(&mut list2, 1, *v);
+            } else {
+                let digit_count = k.ilog10() + 1;
+                if digit_count % 2 == 0 {
+                    let divisor = 10u64.pow(digit_count / 2);
+                    assoc_add(&mut list2, k / divisor, *v);
+                    assoc_add(&mut list2, k % divisor, *v);
+                } else {
+                    assoc_add(&mut list2, k * 2024, *v);
+                }
+            }
+        }
+
+        value_sort(&mut list2);
+        std::mem::swap(&mut list1, &mut list2);
+    }
+
+    list1.iter().map(|(_, v)| v).sum()
+}
+
+#[aoc(day11, part1, count_alist)]
+fn part1_count_alist(input: &[u64]) -> usize {
+    blink_count_alist(input, 25)
+}
+
+#[aoc(day11, part2, count_alist)]
+fn part2_count_alist(input: &[u64]) -> usize {
+    blink_count_alist(input, 75)
 }
 
 #[cfg(test)]
@@ -272,15 +333,15 @@ mod tests {
 
     const EXAMPLE: &str = "125 17";
 
-    make_test!([part1_v1, part1_recursive, part1_recursive_memo, part1_recursive_memo_assoc, part1_recursive_memo_btree, part1_countlist] => "day11.txt", 55312, 194482);
+    make_test!([part1_v1, part1_recursive, part1_recursive_memo, part1_recursive_memo_assoc, part1_recursive_memo_btree, part1_count_hash, part1_count_alist] => "day11.txt", 55312, 194482);
     make_test!([part2_recursive_memo] => "day11.txt", "65601038650482", "232454623677743");
 }
 
 // For codspeed
 pub fn part1(input: &str) -> String {
-    part1_countlist(&parse(input)).to_string()
+    part1_count_hash(&parse(input)).to_string()
 }
 
 pub fn part2(input: &str) -> String {
-    part2_countlist(&parse(input)).to_string()
+    part2_count_hash(&parse(input)).to_string()
 }
