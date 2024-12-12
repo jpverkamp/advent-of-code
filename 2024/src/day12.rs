@@ -7,7 +7,7 @@ fn parse(input: &str) -> Grid<char> {
     Grid::read(input, &|c| c)
 }
 
-fn get_regions<T>(input: &Grid<T>) -> Vec<(&T, Vec<Point>)>
+pub fn get_regions<T>(input: &Grid<T>) -> Vec<(&T, Vec<Point>)>
 where
     T: Clone + Default + PartialEq,
 {

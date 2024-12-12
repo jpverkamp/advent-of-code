@@ -113,6 +113,17 @@ where
         self.data[index] = value;
         true
     }
+
+    pub fn render(&self, f: &dyn Fn(&T) -> [u8; 3]) -> image::RgbImage {
+        let mut image = image::RgbImage::new(self.width as u32, self.height as u32);
+
+        for (p, v) in self.iter_enumerate() {
+            let color = f(v);
+            image.put_pixel(p.x as u32, p.y as u32, image::Rgb(color));
+        }
+
+        image
+    }
 }
 
 impl<T> Grid<T>
