@@ -63,6 +63,8 @@ fn main() {
                 [0, 0, 0]
             }
         });
+
+        let image = imageops::resize(&image, grid.width as u32 * 4, grid.height as u32 * 4, image::imageops::Nearest);
         image.save(format!("day12-edges-{:?}.png", d)).unwrap();
     });
 }

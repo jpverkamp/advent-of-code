@@ -86,15 +86,6 @@ fn part2_v1(input: &Grid<char>) -> usize {
                     .map(|&direction| {
                         // Run edge detection in each direction once per region
                         // This will create a new grid that is true for edges in that direction
-
-                        // By doing up/down separately we avoid the case:
-                        // ......
-                        // ...XX.
-                        // ...XX.
-                        // .XX...
-                        // .XX...
-                        // ......
-                        // The center is two edges, not one (one is an up, one is a down)
                         let mut edges = Grid::new(input.width, input.height);
                         region.iter().for_each(|p| {
                             if input.get(*p + direction).is_none_or(|&v| v != c) {
