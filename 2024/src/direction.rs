@@ -33,4 +33,13 @@ impl Direction {
     pub fn rotate_left(&self) -> Direction {
         self.rotate_ccw()
     }
+
+    pub fn all() -> [Direction; 4] {
+        [
+            Direction::Up,
+            Direction::Down,
+            Direction::Left,
+            Direction::Right,
+        ]
+    }
 }

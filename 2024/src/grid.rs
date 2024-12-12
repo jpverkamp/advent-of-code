@@ -114,3 +114,49 @@ where
         true
     }
 }
+
+impl<T> Grid<T>
+where
+    T: PartialEq + Clone + Default,
+{
+    pub fn flood_fill(&self, p: impl Into<Point>) -> Vec<Point> {
+        let p = p.into();
+
+        if !self.in_bounds(p) {
+            return Vec::new();
+        }
+
+        let target = self.data[self.index(&p)].clone();
+
+        let mut stack = vec![p];
+        let mut visited = vec![false; self.data.len()];
+        let mut result = Vec::new();
+
+        while let Some(p) = stack.pop() {
+            if !self.in_bounds(p) {
+                continue;
+            }
+
+            if self.get(p) != Some(&target) {
+                continue;
+            }
+
+            let index = self.index(&p);
+
+            if visited[index] {
+                continue;
+            }
+
+            visited[index] = true;
+
+            result.push(p);
+
+            stack.push(p + Point::new(1, 0));
+            stack.push(p + Point::new(-1, 0));
+            stack.push(p + Point::new(0, 1));
+            stack.push(p + Point::new(0, -1));
+        }
+
+        result
+    }
+}
