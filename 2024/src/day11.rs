@@ -213,6 +213,58 @@ fn part2_recursive_memo_btree(input: &[u64]) -> usize {
     blink_recur_memo_btree(input, 75)
 }
 
+// Try keeping a list of counts
+
+fn blink_countlist(input: &[u64], count: usize) -> usize {
+    let mut list1 = HashMap::new();
+    let mut list2 = HashMap::new();
+
+    for v in input {
+        list1.entry(*v).and_modify(|c| *c += 1).or_insert(1);
+    }
+
+    for _ in 0..count {
+        for (v, c) in list1.drain() {
+            if v == 0 {
+                list2.entry(1).and_modify(|c2| *c2 += c).or_insert(c);
+            } else {
+                let digit_count = v.ilog10() + 1;
+                if digit_count % 2 == 0 {
+                    let divisor = 10u64.pow(digit_count / 2);
+                    list2
+                        .entry(v / divisor)
+                        .and_modify(|c2| *c2 += c)
+                        .or_insert(c);
+                    list2
+                        .entry(v % divisor)
+                        .and_modify(|c2| *c2 += c)
+                        .or_insert(c);
+                } else {
+                    list2
+                        .entry(v * 2024)
+                        .and_modify(|c2| *c2 += c)
+                        .or_insert(c);
+                }
+            }
+        }
+
+        std::mem::swap(&mut list1, &mut list2);
+        list2.clear();
+    }
+
+    list1.values().sum()
+}
+
+#[aoc(day11, part1, countlist)]
+fn part1_countlist(input: &[u64]) -> usize {
+    blink_countlist(input, 25)
+}
+
+#[aoc(day11, part2, countlist)]
+fn part2_countlist(input: &[u64]) -> usize {
+    blink_countlist(input, 75)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -220,15 +272,15 @@ mod tests {
 
     const EXAMPLE: &str = "125 17";
 
-    make_test!([part1_v1, part1_recursive, part1_recursive_memo, part1_recursive_memo_assoc, part1_recursive_memo_btree] => "day11.txt", 55312, 194482);
+    make_test!([part1_v1, part1_recursive, part1_recursive_memo, part1_recursive_memo_assoc, part1_recursive_memo_btree, part1_countlist] => "day11.txt", 55312, 194482);
     make_test!([part2_recursive_memo] => "day11.txt", "65601038650482", "232454623677743");
 }
 
 // For codspeed
 pub fn part1(input: &str) -> String {
-    part1_recursive_memo(&parse(input)).to_string()
+    part1_countlist(&parse(input)).to_string()
 }
 
 pub fn part2(input: &str) -> String {
-    part2_recursive_memo(&parse(input)).to_string()
+    part2_countlist(&parse(input)).to_string()
 }
