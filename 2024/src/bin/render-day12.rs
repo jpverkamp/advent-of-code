@@ -64,7 +64,12 @@ fn main() {
             }
         });
 
-        let image = imageops::resize(&image, grid.width as u32 * 4, grid.height as u32 * 4, image::imageops::Nearest);
+        let image = imageops::resize(
+            &image,
+            grid.width as u32 * 4,
+            grid.height as u32 * 4,
+            image::imageops::Nearest,
+        );
         image.save(format!("day12-edges-{:?}.png", d)).unwrap();
     });
 }
