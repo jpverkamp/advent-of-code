@@ -218,18 +218,20 @@ pub fn part1(input: &str) -> String {
     let input = input.as_bytes();
     let mut index = 0;
     while index < input.len() {
-        let ax = fast_parse_u32!(input, index);
-        let ay = fast_parse_u32!(input, index);
-        let bx = fast_parse_u32!(input, index);
-        let by = fast_parse_u32!(input, index);
-        let px = fast_parse_u32!(input, index);
-        let py = fast_parse_u32!(input, index);
+        let ax = fast_parse_u32!(input, index) as i32;
+        let ay = fast_parse_u32!(input, index) as i32;
+        let bx = fast_parse_u32!(input, index) as i32;
+        let by = fast_parse_u32!(input, index) as i32;
+        let px = fast_parse_u32!(input, index) as i32;
+        let py = fast_parse_u32!(input, index) as i32;
 
-        if let Some((a, b)) = cramer_integer_solve(
-            ax as i128, ay as i128, bx as i128, by as i128, px as i128, py as i128,
-        ) {
-            if a >= 0 && b >= 0 {
-                tokens += a as u128 * 3 + b as u128;
+
+        let det = ax * by - ay * bx;
+        let det_sub_a = px * by - py * bx;
+        if det_sub_a % det == 0 {
+            let det_sub_b = ax * py - ay * px;
+            if det_sub_b % det == 0 {
+                tokens += 3 * det_sub_a / det + det_sub_b / det;
             }
         }
 
@@ -245,22 +247,23 @@ pub fn part2(input: &str) -> String {
     let input = input.as_bytes();
     let mut index = 0;
     while index < input.len() {
-        let ax = fast_parse_u32!(input, index);
-        let ay = fast_parse_u32!(input, index);
-        let bx = fast_parse_u32!(input, index);
-        let by = fast_parse_u32!(input, index);
+        let ax = fast_parse_u32!(input, index) as i128;
+        let ay = fast_parse_u32!(input, index) as i128;
+        let bx = fast_parse_u32!(input, index) as i128;
+        let by = fast_parse_u32!(input, index) as i128;
         let px = fast_parse_u32!(input, index) as i128 + 10_000_000_000_000;
         let py = fast_parse_u32!(input, index) as i128 + 10_000_000_000_000;
 
-        if let Some((a, b)) =
-            cramer_integer_solve(ax as i128, ay as i128, bx as i128, by as i128, px, py)
-        {
-            if a >= 0 && b >= 0 {
-                tokens += a as u128 * 3 + b as u128;
+        let det = ax * by - ay * bx;
+        let det_sub_a = px * by - py * bx;
+        if det_sub_a % det == 0 {
+            let det_sub_b = ax * py - ay * px;
+            if det_sub_b % det == 0 {
+                tokens += 3 * det_sub_a / det + det_sub_b / det;
             }
         }
 
-        index += 5
+        index += 5;
     }
 
     tokens.to_string()
