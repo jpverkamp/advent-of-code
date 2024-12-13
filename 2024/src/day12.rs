@@ -70,8 +70,8 @@ fn part1_v1(input: &Grid<char>) -> usize {
         .sum::<usize>()
 }
 
-#[aoc(day12, part2, v1)]
-fn part2_v1(input: &Grid<char>) -> usize {
+#[aoc(day12, part2, edge_detection)]
+fn part2_edge_detection(input: &Grid<char>) -> usize {
     let regions = get_regions(input);
 
     // For each region, find the number of edges, area, and then the score
@@ -102,6 +102,60 @@ fn part2_v1(input: &Grid<char>) -> usize {
         .sum::<usize>()
 }
 
+#[aoc(day12, part2, corners)]
+fn part2_corners(input: &Grid<char>) -> usize {
+    let regions = get_regions(input);
+
+    // For each region, find the number of edges, area, and then the score
+    regions
+        .iter()
+        .map(|(_, region)| {
+            // There are an equal number of edges and corners
+            // Each corner is either:
+            //  *x
+            //  xC where each x is anything not C and * can be C or not
+            // or
+            //  xC
+            //  CC
+
+            region.len()
+                * region
+                    .iter()
+                    .map(|p| {
+                        let me = input.get(*p);
+                        let mut count = 0;
+
+                        for xd in [-1, 1].iter() {
+                            for yd in [-1, 1].iter() {
+                                // *x
+                                // xC case
+
+                                // Along the x and y directions match
+                                let neighbor_xd = input.get(*p + Point::new(*xd, 0));
+                                let neighbor_yd = input.get(*p + Point::new(0, *yd));
+
+                                if me != neighbor_xd && me != neighbor_yd {
+                                    count += 1;
+                                }
+
+                                // xC
+                                // CC case
+
+                                let neighbor_both = input.get(*p + Point::new(*xd, *yd));
+
+                                if me == neighbor_xd && me == neighbor_yd && me != neighbor_both {
+                                    count += 1;
+                                }
+                            }
+                        }
+
+                        count
+                    })
+                    .sum::<usize>()
+        })
+        .sum::<usize>()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -120,7 +174,7 @@ MIIISIJEEE
 MMMISSJEEE";
 
     make_test!([part1_v1] => "day12.txt", 1930, 1450816);
-    make_test!([part2_v1] => "day12.txt", 1206, 865662);
+    make_test!([part2_edge_detection, part2_corners] => "day12.txt", 1206, 865662);
 
     const EXAMPLE_MINI: &str = "\
 AAAA
@@ -154,18 +208,33 @@ AAAAAA";
     }
 
     #[test]
-    fn test_part2_v1_example_mini() {
-        assert_eq!(part2_v1(&parse(EXAMPLE_MINI)), 80);
+    fn test_part2_edge_detection_example_mini() {
+        assert_eq!(part2_edge_detection(&parse(EXAMPLE_MINI)), 80);
     }
 
     #[test]
-    fn test_part2_v1_example_xoxo() {
-        assert_eq!(part2_v1(&parse(EXAMPLE_XOXO)), 436);
+    fn test_part2_edge_detection_example_xoxo() {
+        assert_eq!(part2_edge_detection(&parse(EXAMPLE_XOXO)), 436);
     }
 
     #[test]
-    fn test_part2_v1_example_figure8() {
-        assert_eq!(part2_v1(&parse(EXAMPLE_FIGURE8)), 368);
+    fn test_part2_edge_detection_example_figure8() {
+        assert_eq!(part2_edge_detection(&parse(EXAMPLE_FIGURE8)), 368);
+    }
+
+    #[test]
+    fn test_part2_corners_example_mini() {
+        assert_eq!(part2_corners(&parse(EXAMPLE_MINI)), 80);
+    }
+
+    #[test]
+    fn test_part2_corners_example_xoxo() {
+        assert_eq!(part2_corners(&parse(EXAMPLE_XOXO)), 436);
+    }
+
+    #[test]
+    fn test_part2_corners_example_figure8() {
+        assert_eq!(part2_corners(&parse(EXAMPLE_FIGURE8)), 368);
     }
 }
 
@@ -175,5 +244,5 @@ pub fn part1(input: &str) -> String {
 }
 
 pub fn part2(input: &str) -> String {
-    part2_v1(&parse(input)).to_string()
+    part2_corners(&parse(input)).to_string()
 }
