@@ -124,8 +124,8 @@ fn part2_cramer(input: &[ClawMachine]) -> u128 {
             machine.a.y as i128,
             machine.b.x as i128,
             machine.b.y as i128,
-            machine.p.x as i128 + 10000000000000,
-            machine.p.y as i128 + 10000000000000,
+            machine.p.x as i128 + 10_000_000_000_000,
+            machine.p.y as i128 + 10_000_000_000_000,
         ) {
             if a_presses >= 0 && b_presses >= 0 {
                 tokens += a_presses as u128 * 3 + b_presses as u128;
@@ -160,13 +160,102 @@ Prize: X=18641, Y=10279";
 
     make_test!([part1_bruteforce, part1_cramer] => "day13.txt", 480, 26810);
     make_test!([part2_cramer] => "day13.txt", "875318608908", "108713182988244");
+
+    #[test]
+    fn test_codespeed_part1_example() {
+        assert_eq!(part1(EXAMPLE), "480");
+    }
+
+    #[test]
+    fn test_codespeed_part1_finale() {
+        assert_eq!(part1(include_str!("../input/2024/day13.txt")), "26810");
+    }
+
+    #[test]
+    fn test_codespeed_part2_example() {
+        assert_eq!(part2(EXAMPLE), "875318608908");
+    }
+
+    #[test]
+    fn test_codespeed_part2_finale() {
+        assert_eq!(part2(include_str!("../input/2024/day13.txt")), "108713182988244");
+    }
+}
+
+macro_rules! fast_parse_u32 {
+    ($input:expr, $index:expr) => {{
+        while $index < $input.len() && $input[$index] < b'0' || $input[$index] > b'9' {
+            $index += 1;
+        }
+
+        let mut result = 0;
+
+        while $index < $input.len() {
+            let byte = $input[$index];
+
+            if byte < b'0' || byte > b'9' {
+                break;
+            }
+
+            result = result * 10 + (byte - b'0') as u32;
+            $index += 1;
+        }
+
+        result
+    }};
 }
 
 // For codspeed
 pub fn part1(input: &str) -> String {
-    part1_cramer(&parse(input)).to_string()
+    let mut tokens = 0;
+
+    let input = input.as_bytes();
+    let mut index = 0;
+    while index < input.len() {
+        let ax = fast_parse_u32!(input, index);
+        let ay = fast_parse_u32!(input, index);
+        let bx = fast_parse_u32!(input, index);
+        let by = fast_parse_u32!(input, index);
+        let px = fast_parse_u32!(input, index);
+        let py = fast_parse_u32!(input, index);
+
+        if let Some((a, b)) = cramer_integer_solve(
+            ax as i128, ay as i128, bx as i128, by as i128, px as i128, py as i128,
+        ) {
+            if a >= 0 && b >= 0 {
+                tokens += a as u128 * 3 + b as u128;
+            }
+        }
+
+        index += 5;
+    }
+
+    tokens.to_string()
 }
 
 pub fn part2(input: &str) -> String {
-    part2_cramer(&parse(input)).to_string()
+    let mut tokens = 0;
+
+    let input = input.as_bytes();
+    let mut index = 0;
+    while index < input.len() {
+        let ax = fast_parse_u32!(input, index);
+        let ay = fast_parse_u32!(input, index);
+        let bx = fast_parse_u32!(input, index);
+        let by = fast_parse_u32!(input, index);
+        let px = fast_parse_u32!(input, index) as i128 + 10_000_000_000_000;
+        let py = fast_parse_u32!(input, index) as i128 + 10_000_000_000_000;
+
+        if let Some((a, b)) = cramer_integer_solve(
+            ax as i128, ay as i128, bx as i128, by as i128, px, py,
+        ) {
+            if a >= 0 && b >= 0 {
+                tokens += a as u128 * 3 + b as u128;
+            }
+        }
+
+        index += 5
+    }
+
+    tokens.to_string()
 }
