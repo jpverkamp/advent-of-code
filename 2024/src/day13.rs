@@ -178,7 +178,10 @@ Prize: X=18641, Y=10279";
 
     #[test]
     fn test_codespeed_part2_finale() {
-        assert_eq!(part2(include_str!("../input/2024/day13.txt")), "108713182988244");
+        assert_eq!(
+            part2(include_str!("../input/2024/day13.txt")),
+            "108713182988244"
+        );
     }
 }
 
@@ -193,7 +196,7 @@ macro_rules! fast_parse_u32 {
         while $index < $input.len() {
             let byte = $input[$index];
 
-            if byte < b'0' || byte > b'9' {
+            if !byte.is_ascii_digit() {
                 break;
             }
 
@@ -246,9 +249,9 @@ pub fn part2(input: &str) -> String {
         let px = fast_parse_u32!(input, index) as i128 + 10_000_000_000_000;
         let py = fast_parse_u32!(input, index) as i128 + 10_000_000_000_000;
 
-        if let Some((a, b)) = cramer_integer_solve(
-            ax as i128, ay as i128, bx as i128, by as i128, px, py,
-        ) {
+        if let Some((a, b)) =
+            cramer_integer_solve(ax as i128, ay as i128, bx as i128, by as i128, px, py)
+        {
             if a >= 0 && b >= 0 {
                 tokens += a as u128 * 3 + b as u128;
             }
