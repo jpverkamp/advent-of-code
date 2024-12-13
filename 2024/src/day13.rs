@@ -189,10 +189,8 @@ Prize: X=18641, Y=10279";
 }
 
 macro_rules! fast_parse_u32 {
-    ($input:expr, $index:expr) => {{
-        while $index < $input.len() && $input[$index] < b'0' || $input[$index] > b'9' {
-            $index += 1;
-        }
+    ($input:expr, $index:expr, $skip:expr) => {{
+        $index += $skip;
 
         let mut result = 0;
 
@@ -218,12 +216,12 @@ pub fn part1(input: &str) -> String {
     let input = input.as_bytes();
     let mut index = 0;
     while index < input.len() {
-        let ax = fast_parse_u32!(input, index) as i32;
-        let ay = fast_parse_u32!(input, index) as i32;
-        let bx = fast_parse_u32!(input, index) as i32;
-        let by = fast_parse_u32!(input, index) as i32;
-        let px = fast_parse_u32!(input, index) as i32;
-        let py = fast_parse_u32!(input, index) as i32;
+        let ax = fast_parse_u32!(input, index, 12) as i32;
+        let ay = fast_parse_u32!(input, index, 4) as i32;
+        let bx = fast_parse_u32!(input, index, 13) as i32;
+        let by = fast_parse_u32!(input, index, 4) as i32;
+        let px = fast_parse_u32!(input, index, 10) as i32;
+        let py = fast_parse_u32!(input, index, 4) as i32;
 
 
         let det = ax * by - ay * bx;
@@ -235,7 +233,7 @@ pub fn part1(input: &str) -> String {
             }
         }
 
-        index += 5;
+        index += 2;
     }
 
     tokens.to_string()
@@ -247,12 +245,12 @@ pub fn part2(input: &str) -> String {
     let input = input.as_bytes();
     let mut index = 0;
     while index < input.len() {
-        let ax = fast_parse_u32!(input, index) as i128;
-        let ay = fast_parse_u32!(input, index) as i128;
-        let bx = fast_parse_u32!(input, index) as i128;
-        let by = fast_parse_u32!(input, index) as i128;
-        let px = fast_parse_u32!(input, index) as i128 + 10_000_000_000_000;
-        let py = fast_parse_u32!(input, index) as i128 + 10_000_000_000_000;
+        let ax = fast_parse_u32!(input, index, 12) as i128;
+        let ay = fast_parse_u32!(input, index, 4) as i128;
+        let bx = fast_parse_u32!(input, index, 13) as i128;
+        let by = fast_parse_u32!(input, index, 4) as i128;
+        let px = fast_parse_u32!(input, index, 10) as i128 + 10_000_000_000_000;
+        let py = fast_parse_u32!(input, index, 4) as i128 + 10_000_000_000_000;
 
         let det = ax * by - ay * bx;
         let det_sub_a = px * by - py * bx;
@@ -263,7 +261,7 @@ pub fn part2(input: &str) -> String {
             }
         }
 
-        index += 5;
+        index += 2;
     }
 
     tokens.to_string()
