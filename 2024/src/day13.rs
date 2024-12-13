@@ -80,16 +80,19 @@ fn cramer_integer_solve(
 ) -> Option<(i128, i128)> {
     let det = ax * by - ay * bx;
     let det_sub_a = px * by - py * bx;
-    let det_sub_b = ax * py - ay * px;
-
-    let a = det_sub_a / det;
-    let b = det_sub_b / det;
-
-    if det_sub_a % det == 0 && det_sub_b % det == 0 {
-        Some((a, b))
-    } else {
-        None
+    if det_sub_a % det != 0 {
+        return None;
     }
+
+    let det_sub_b = ax * py - ay * px;
+    if det_sub_b % det != 0 {
+        return None;
+    }
+
+    return Some((
+        det_sub_a / det,
+        det_sub_b / det,
+    ))
 }
 
 #[aoc(day13, part1, cramer)]
