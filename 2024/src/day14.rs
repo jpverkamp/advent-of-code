@@ -166,6 +166,72 @@ fn part2_v1((width, height, input): &(usize, usize, Vec<Robot>)) -> usize {
     }
 }
 
+#[aoc(day14, part2, v2)]
+fn part2_v2((width, height, input): &(usize, usize, Vec<Robot>)) -> usize {
+    if *width != 101 || *height != 103 {
+        return 0; // this doesn't work for the example case
+    }
+
+    let mut robots = input.clone();
+    let mut hline_start = None;
+    let mut vline_start = None;
+
+    // Advance each robot until the image magically appears
+    let mut timer = 0;
+    loop {
+        timer += 1;
+
+        for robot in robots.iter_mut() {
+            robot.position += robot.velocity;
+            robot.position.x = robot.position.x.rem_euclid(*width as i32);
+            robot.position.y = robot.position.y.rem_euclid(*height as i32);
+        }
+
+        // Check for unusually many 'busy' horizontal lines
+        if hline_start.is_none() {
+            let mut hline_counts: Vec<usize> = vec![0; *height];
+            for robot in robots.iter() {
+                hline_counts[robot.position.y as usize] += 1;
+            }
+
+            if hline_counts.iter().filter(|v| **v > 20).count() > 3 {
+                hline_start = Some(timer);
+            }
+        }
+
+        // Check for unusually many 'busy' vertical lines
+        if vline_start.is_none() {
+            let mut vline_counts: Vec<usize> = vec![0; *width];
+            for robot in robots.iter() {
+                vline_counts[robot.position.x as usize] += 1;
+            }
+
+            if vline_counts.iter().filter(|v| **v > 20).count() > 3 {
+                vline_start = Some(timer);
+            }
+        }
+
+        // If we have both, we have an answer
+        // I'm still not sure why the cycles can be off by ±1
+        if hline_start.is_some() && vline_start.is_some() {
+            for h_times in 0..100 {
+                for v_times in (h_times - 1)..=(h_times + 1) {
+                    if hline_start.unwrap() + 103 * h_times == vline_start.unwrap() + 101 * v_times
+                    {
+                        return hline_start.unwrap() + 103 * h_times;
+                    }
+                }
+            }
+            unreachable!();
+        }
+
+        assert!(
+            timer < 10_000,
+            "Did not find symmetric image in 100_000 iterations"
+        );
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -187,7 +253,7 @@ p=2,4 v=2,-3
 p=9,5 v=-3,-3";
 
     make_test!([part1_v1] => "day14.txt", 12, 219150360);
-    make_test!([part2_v1] => "day14.txt", 0, 8053);
+    make_test!([part2_v1, part2_v2] => "day14.txt", 0, 8053);
 }
 
 // For codspeed
@@ -196,5 +262,5 @@ pub fn part1(input: &str) -> String {
 }
 
 pub fn part2(input: &str) -> String {
-    part2_v1(&parse(input)).to_string()
+    part2_v2(&parse(input)).to_string()
 }
