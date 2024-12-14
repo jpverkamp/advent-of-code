@@ -89,10 +89,7 @@ fn cramer_integer_solve(
         return None;
     }
 
-    return Some((
-        det_sub_a / det,
-        det_sub_b / det,
-    ))
+    Some((det_sub_a / det, det_sub_b / det))
 }
 
 #[aoc(day13, part1, cramer)]
@@ -222,7 +219,6 @@ pub fn part1(input: &str) -> String {
         let by = fast_parse_u32!(input, index, 4) as i32;
         let px = fast_parse_u32!(input, index, 10) as i32;
         let py = fast_parse_u32!(input, index, 4) as i32;
-
 
         let det = ax * by - ay * bx;
         if det != 0 {
