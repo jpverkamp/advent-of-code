@@ -61,7 +61,7 @@ fn main() {
         -crf 24 \
         -vf format=yuv420p \
         -movflags +faststart \
-        day14-part2-{max_frames}.mp4"
+        day14-{max_frames}.mp4"
     );
 
     match std::process::Command::new("sh").arg("-c").arg(cmd).status() {

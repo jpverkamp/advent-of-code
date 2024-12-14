@@ -117,7 +117,7 @@ fn part2_v1((width, height, input): &(usize, usize, Vec<Robot>)) -> usize {
             robot.position.y = robot.position.y.rem_euclid(*height as i32);
         }
 
-        // Target image is 30x32 with a 1x border
+        // Target image is 31x33 with a 1x border
         // Let's try just detecting the border
         let mut grid: Grid<bool> = Grid::new(*width, *height);
         for robot in robots.iter() {
@@ -128,7 +128,7 @@ fn part2_v1((width, height, input): &(usize, usize, Vec<Robot>)) -> usize {
 
         'border_patrol: for start_x in 0..*width {
             'next_point: for start_y in 0..*height {
-                for xd in 0..30 {
+                for xd in 0..31 {
                     if grid.get((start_x + xd, start_y)) != Some(&true) {
                         border_found = false;
                         continue 'next_point;
@@ -139,7 +139,7 @@ fn part2_v1((width, height, input): &(usize, usize, Vec<Robot>)) -> usize {
                     }
                 }
 
-                for yd in 0..32 {
+                for yd in 0..33 {
                     if grid.get((start_x, start_y + yd)) != Some(&true) {
                         border_found = false;
                         continue 'next_point;
