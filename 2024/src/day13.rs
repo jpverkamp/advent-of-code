@@ -225,11 +225,13 @@ pub fn part1(input: &str) -> String {
 
 
         let det = ax * by - ay * bx;
-        let det_sub_a = px * by - py * bx;
-        if det_sub_a % det == 0 {
-            let det_sub_b = ax * py - ay * px;
-            if det_sub_b % det == 0 {
-                tokens += 3 * det_sub_a / det + det_sub_b / det;
+        if det != 0 {
+            let det_sub_a = px * by - py * bx;
+            if det_sub_a % det == 0 {
+                let det_sub_b = ax * py - ay * px;
+                if det_sub_b % det == 0 {
+                    tokens += 3 * det_sub_a / det + det_sub_b / det;
+                }
             }
         }
 
@@ -253,11 +255,13 @@ pub fn part2(input: &str) -> String {
         let py = fast_parse_u32!(input, index, 4) as i128 + 10_000_000_000_000;
 
         let det = ax * by - ay * bx;
-        let det_sub_a = px * by - py * bx;
-        if det_sub_a % det == 0 {
-            let det_sub_b = ax * py - ay * px;
-            if det_sub_b % det == 0 {
-                tokens += 3 * det_sub_a / det + det_sub_b / det;
+        if det != 0 {
+            let det_sub_a = px * by - py * bx;
+            if det_sub_a % det == 0 {
+                let det_sub_b = ax * py - ay * px;
+                if det_sub_b % det == 0 {
+                    tokens += 3 * det_sub_a / det + det_sub_b / det;
+                }
             }
         }
 
