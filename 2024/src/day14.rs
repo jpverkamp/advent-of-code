@@ -214,15 +214,24 @@ fn part2_v2((width, height, input): &(usize, usize, Vec<Robot>)) -> usize {
         // If we have both, we have an answer
         // I'm still not sure why the cycles can be off by ±1
         if hline_start.is_some() && vline_start.is_some() {
-            for h_times in 0..100 {
-                for v_times in (h_times - 1)..=(h_times + 1) {
-                    if hline_start.unwrap() + 103 * h_times == vline_start.unwrap() + 101 * v_times
-                    {
-                        return hline_start.unwrap() + 103 * h_times;
-                    }
+            // Solve using the Chinese remainder theorem
+            let h_offset = hline_start.unwrap() % *height;
+            let v_offset = vline_start.unwrap() % *width;
+
+            let mut h_timer = h_offset;
+            let mut v_timer = v_offset;
+
+            loop {
+                if h_timer == v_timer {
+                    return h_timer;
+                }
+
+                if h_timer < v_timer {
+                    h_timer += *height;
+                } else {
+                    v_timer += *width;
                 }
             }
-            unreachable!();
         }
 
         assert!(
@@ -253,6 +262,7 @@ p=2,4 v=2,-3
 p=9,5 v=-3,-3";
 
     make_test!([part1_v1] => "day14.txt", 12, 219150360);
+    
     make_test!([part2_v1, part2_v2] => "day14.txt", 0, 8053);
 }
 
