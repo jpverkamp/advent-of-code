@@ -3,7 +3,7 @@ use aoc_runner_derive::{aoc, aoc_generator};
 use crate::{Direction, Grid, Point};
 
 #[derive(Default, Debug, Clone, Copy, PartialEq, Eq)]
-enum Tile {
+pub enum Tile {
     #[default]
     Empty,
     Wall,
@@ -14,14 +14,14 @@ enum Tile {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct State {
-    tiles: Grid<Tile>,
-    position: Point,
-    instructions: Vec<Direction>,
-    index: usize,
+    pub tiles: Grid<Tile>,
+    pub position: Point,
+    pub instructions: Vec<Direction>,
+    pub index: usize,
 }
 
 impl State {
-    fn clone_but_wider(&self) -> State {
+    pub fn clone_but_wider(&self) -> State {
         let mut new_tiles = Grid::new(self.tiles.width * 2, self.tiles.height);
 
         for y in 0..self.tiles.height {
@@ -181,7 +181,7 @@ impl std::fmt::Display for State {
 }
 
 #[aoc_generator(day15)]
-fn parse(input: &str) -> State {
+pub fn parse(input: &str) -> State {
     let (tile_data, instruction_data) = input.split_once("\n\n").unwrap();
 
     let tiles = Grid::read(tile_data, &|c| match c {
