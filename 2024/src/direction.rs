@@ -34,6 +34,15 @@ impl Direction {
         self.rotate_ccw()
     }
 
+    pub fn flip(&self) -> Direction {
+        match self {
+            Direction::Up => Direction::Down,
+            Direction::Down => Direction::Up,
+            Direction::Left => Direction::Right,
+            Direction::Right => Direction::Left,
+        }
+    }
+
     pub fn is_vertical(&self) -> bool {
         matches!(self, Direction::Up | Direction::Down)
     }

@@ -262,7 +262,7 @@ p=2,4 v=2,-3
 p=9,5 v=-3,-3";
 
     make_test!([part1_v1] => "day14.txt", 12, 219150360);
-    
+
     make_test!([part2_v1, part2_v2] => "day14.txt", 0, 8053);
 }
 
