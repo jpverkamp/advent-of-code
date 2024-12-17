@@ -7,10 +7,10 @@ use priority_queue::PriorityQueue;
 use crate::{Direction, Grid, Point};
 
 #[derive(Debug, Clone)]
-struct Puzzle {
-    start: Point,
-    end: Point,
-    walls: Grid<bool>,
+pub struct Puzzle {
+    pub start: Point,
+    pub end: Point,
+    pub walls: Grid<bool>,
 }
 
 impl Puzzle {
@@ -77,7 +77,7 @@ impl Puzzle {
 }
 
 #[aoc_generator(day16)]
-fn parse(input: &str) -> Puzzle {
+pub fn parse(input: &str) -> Puzzle {
     let walls = Grid::read(input, &|c| c == '#');
 
     let newline_width = walls.width + 1;
@@ -166,54 +166,6 @@ fn part1_astar(input: &Puzzle) -> i32 {
         Some((_, cost)) => cost,
         _ => panic!("unsolvable maze"),
     }
-}
-
-// #[aoc(day16, part2, pq)]
-fn part2_pq(input: &Puzzle) -> usize {
-    let mut pq = PriorityQueue::new();
-    pq.push((input.start, Direction::Right, vec![input.start]), 0_isize);
-
-    let mut best_cost = None;
-    let mut all_best_points = HashSet::new();
-
-    while let Some(((point, direction, path), cost)) = pq.pop() {
-        if point == input.end {
-            if best_cost.is_none() {
-                best_cost = Some(-cost);
-            }
-
-            all_best_points.extend(path.iter().copied());
-        }
-
-        if best_cost.is_some_and(|bc| -cost > bc) {
-            break;
-        }
-
-        // Walk straight
-        let new_point = point + direction;
-        if input.walls.get(new_point) != Some(&true) {
-            let mut new_path = path.clone();
-            new_path.push(new_point);
-
-            pq.push((new_point, direction, new_path), cost - 1);
-        }
-
-        // Turn left or right
-        // Optimize slightly by only queueing a turn if there's no wall
-        // TODO: This might fail on the starting condition?
-
-        let new_d = direction.rotate_left();
-        if input.walls.get(point + new_d) != Some(&true) {
-            pq.push((point, new_d, path.clone()), cost - 1000);
-        }
-
-        let new_d = direction.rotate_right();
-        if input.walls.get(point + new_d) != Some(&true) {
-            pq.push((point, new_d, path.clone()), cost - 1000);
-        }
-    }
-
-    all_best_points.len()
 }
 
 #[aoc(day16, part2, astar)]
