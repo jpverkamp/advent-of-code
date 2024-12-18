@@ -263,6 +263,72 @@ fn part2_v3_grid(input: &Puzzle) -> String {
     format!("{x},{y}", x = p.x, y = p.y)
 }
 
+#[aoc(day18, part2, v4_on_best_path)]
+fn part2_v4_on_best_path(input: &Puzzle) -> String {
+    let end = (input.width - 1, input.height - 1).into();
+
+    let mut grid = Grid::new(input.width, input.height);
+    for p in input.points.iter().take(input.part1_cutoff) {
+        grid.set(*p, true);
+    }
+
+    let mut previous_best_path = None;
+
+    let p = (input.part1_cutoff..input.points.len())
+        .find_map(|cutoff| {
+            let new_point = input.points[cutoff - 1];
+            grid.set(new_point, true);
+            println!("{}", input.render_ascii(cutoff, &[new_point]));
+
+            // To be a cutoff, the new point must have exactly two open neighbors
+            if new_point
+                .neighbors()
+                .iter()
+                .filter(|&p| grid.get(*p) != Some(&false))
+                .count()
+                != 2
+            {
+                return None;
+            }
+
+            // And it must have been on the previous best path (if there was one)
+            if previous_best_path
+                .as_ref()
+                .map_or(false, |path: &Vec<Point>| !path.contains(&new_point))
+            {
+                return None;
+            }
+
+            // Verify if the new point *actually* cut us off
+            match pathfinding::prelude::astar(
+                &Point::ZERO,
+                |&point| {
+                    Direction::all()
+                        .iter()
+                        .filter_map(|d| {
+                            if grid.get(point + *d) == Some(&false) {
+                                Some((point + *d, 1))
+                            } else {
+                                None
+                            }
+                        })
+                        .collect::<Vec<_>>()
+                },
+                |point| point.manhattan_distance(&end),
+                |point| *point == end,
+            ) {
+                Some((path, _)) => {
+                    previous_best_path = Some(path);
+                    None
+                }
+                _ => Some(input.points[cutoff - 1]),
+            }
+        })
+        .unwrap();
+
+    format!("{x},{y}", x = p.x, y = p.y)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -297,7 +363,7 @@ mod tests {
 2,0";
 
     make_test!([part1_v1] => "day18.txt", 22, 354);
-    make_test!([part2_v1, part2_v2] => "day18.txt", "6,1", "36,17");
+    make_test!([part2_v1, part2_v2_two_neighbors, part2_v3_grid, part2_v4_on_best_path] => "day18.txt", "6,1", "36,17");
 }
 
 // For codspeed
@@ -306,5 +372,5 @@ pub fn part1(input: &str) -> String {
 }
 
 pub fn part2(input: &str) -> String {
-    part2_v3(&parse(input)).to_string()
+    part2_v4_on_best_path(&parse(input)).to_string()
 }
