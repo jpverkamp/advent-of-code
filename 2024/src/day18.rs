@@ -278,8 +278,7 @@ fn part2_v4_on_best_path(input: &Puzzle) -> String {
         .find_map(|cutoff| {
             let new_point = input.points[cutoff - 1];
             grid.set(new_point, true);
-            println!("{}", input.render_ascii(cutoff, &[new_point]));
-
+            
             // To be a cutoff, the new point must have exactly two open neighbors
             if new_point
                 .neighbors()
