@@ -116,6 +116,38 @@ fn part1_v1(input: &Puzzle) -> i32 {
     }
 }
 
+#[aoc(day18, part1, v2_grid)]
+fn part1_v2_grid(input: &Puzzle) -> i32 {
+    let end = (input.width - 1, input.height - 1).into();
+    
+    let mut grid = Grid::new(input.width, input.height);
+    for point in input.points.iter().take(input.part1_cutoff) {
+        grid.set(*point, true);
+    }
+
+    match pathfinding::prelude::astar(
+        &Point::ZERO,
+        |&point| {
+            Direction::all()
+                .iter()
+                .filter_map(|d| {
+                    let new_p = point + *d;
+                    if grid.get(new_p) != Some(&false) {
+                        None
+                    } else {
+                        Some((new_p, 1))
+                    }
+                })
+                .collect::<Vec<_>>()
+        },
+        |point| point.manhattan_distance(&end),
+        |point| *point == end,
+    ) {
+        Some((_, cost)) => cost,
+        _ => panic!("unsolvable maze"),
+    }
+}
+
 #[aoc(day18, part2, v1)]
 fn part2_v1(input: &Puzzle) -> String {
     let end = (input.width - 1, input.height - 1).into();
@@ -328,6 +360,59 @@ fn part2_v4_on_best_path(input: &Puzzle) -> String {
     format!("{x},{y}", x = p.x, y = p.y)
 }
 
+#[aoc(day18, part2, v5_binary)]
+fn part2_v5_binary(input: &Puzzle) -> String {
+    let end = (input.width - 1, input.height - 1).into();
+
+    let mut lower_bound = input.part1_cutoff;
+    let mut upper_bound = input.points.len();
+
+    let mut guess = (lower_bound + upper_bound) / 2;
+
+    loop {
+        let mut grid = Grid::new(input.width, input.height);
+        for p in input.points.iter().take(guess) {
+            grid.set(*p, true);
+        }
+
+        match pathfinding::prelude::astar(
+            &Point::ZERO,
+            |&point| {
+                Direction::all()
+                    .iter()
+                    .filter_map(|d| {
+                        if grid.get(point + *d) == Some(&false) {
+                            Some((point + *d, 1))
+                        } else {
+                            None
+                        }
+                    })
+                    .collect::<Vec<_>>()
+            },
+            |point| point.manhattan_distance(&end),
+            |point| *point == end,
+        ) {
+            Some((_, _)) => {
+                if upper_bound - lower_bound <= 1 {
+                    break;
+                }
+                lower_bound = guess;
+                guess = (upper_bound + guess) / 2;
+            }
+            None => {
+                if upper_bound - lower_bound <= 1 {
+                    break;
+                }
+                upper_bound = guess;
+                guess = (lower_bound + guess) / 2;
+            }
+        }
+    }
+
+    let point = input.points[guess - 1];
+    format!("{x},{y}", x = point.x, y = point.y)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -367,9 +452,9 @@ mod tests {
 
 // For codspeed
 pub fn part1(input: &str) -> String {
-    part1_v1(&parse(input)).to_string()
+    part1_v2_grid(&parse(input)).to_string()
 }
 
 pub fn part2(input: &str) -> String {
-    part2_v4_on_best_path(&parse(input)).to_string()
+    part2_v5_binary(&parse(input)).to_string()
 }
