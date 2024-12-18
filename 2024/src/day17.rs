@@ -144,8 +144,6 @@ impl Machine {
             Operand::from(self.ram[self.ip + 1])
         };
 
-        // println!("[ip={:>4?} a={:>10} b={:>10} c={:>10}] {} {}", self.ip, self.a, self.b, self.c, instruction, operand);
-
         match instruction {
             // Division (actually a right shift)
             Instruction::Adv => {
@@ -245,8 +243,6 @@ pub fn parse(input: &str) -> Machine {
 fn part1_v1(input: &Machine) -> String {
     let mut machine = input.clone();
 
-    // println!("{}", machine.decompile());
-
     machine.run();
 
     machine
@@ -280,8 +276,6 @@ fn part2_backtrack(input: &Machine) -> u128 {
             let next_a = (a << 3) | tribble;
             machine.a = next_a;
             machine.run();
-
-            // println!("{a} {next_a} {tribble} {} {}", machine.output[0], machine.ram[index]);
 
             if machine.output[0] == machine.ram[index] {
                 if index == 0 {
