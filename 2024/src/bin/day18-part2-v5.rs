@@ -6,15 +6,15 @@ use image::imageops;
 
 const SCALE: usize = 4;
 const FRAME_SKIP: usize = 1;
-const FRAME_DUP: usize = 4;
+const FRAME_DUP: usize = 10;
 static mut FRAME_COUNT: usize = 0;
 
 #[allow(clippy::modulo_one)]
 fn render(
     puzzle: &Puzzle,
     cutoff: usize,
-    added: &[Point],
     removed: &[Point],
+    added: &[Point],
     points: &[Point],
     force: bool,
 ) {
