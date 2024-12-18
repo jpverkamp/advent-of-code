@@ -10,7 +10,14 @@ const FRAME_DUP: usize = 4;
 static mut FRAME_COUNT: usize = 0;
 
 #[allow(clippy::modulo_one)]
-fn render(puzzle: &Puzzle, cutoff: usize, added: &[Point], removed: &[Point], points: &[Point], force: bool) {
+fn render(
+    puzzle: &Puzzle,
+    cutoff: usize,
+    added: &[Point],
+    removed: &[Point],
+    points: &[Point],
+    force: bool,
+) {
     let path = unsafe {
         FRAME_COUNT += 1;
         &format!("output/{:0>8}.png", FRAME_COUNT / FRAME_SKIP)
@@ -80,13 +87,27 @@ fn main() {
             Some((path, _)) => {
                 for _ in 0..FRAME_DUP {
                     if guess < previous_guess {
-                        render(&input, guess, &[], &input.points[guess..previous_guess], &[], false);
+                        render(
+                            &input,
+                            guess,
+                            &[],
+                            &input.points[guess..previous_guess],
+                            &[],
+                            false,
+                        );
                     } else {
-                        render(&input, guess, &input.points[previous_guess..guess], &[], &[], false);
+                        render(
+                            &input,
+                            guess,
+                            &input.points[previous_guess..guess],
+                            &[],
+                            &[],
+                            false,
+                        );
                     }
                 }
                 previous_guess = guess;
-                
+
                 if upper_bound - lower_bound <= 1 {
                     render(&input, guess, &[], &[], &path, false);
                     break;
@@ -97,9 +118,23 @@ fn main() {
             None => {
                 for _ in 0..FRAME_DUP {
                     if guess < previous_guess {
-                        render(&input, guess, &[], &input.points[guess..previous_guess], &[], false);
+                        render(
+                            &input,
+                            guess,
+                            &[],
+                            &input.points[guess..previous_guess],
+                            &[],
+                            false,
+                        );
                     } else {
-                        render(&input, guess, &input.points[previous_guess..guess], &[], &[], false);
+                        render(
+                            &input,
+                            guess,
+                            &input.points[previous_guess..guess],
+                            &[],
+                            &[],
+                            false,
+                        );
                     }
                 }
                 previous_guess = guess;

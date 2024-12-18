@@ -119,7 +119,7 @@ fn part1_v1(input: &Puzzle) -> i32 {
 #[aoc(day18, part1, v2_grid)]
 fn part1_v2_grid(input: &Puzzle) -> i32 {
     let end = (input.width - 1, input.height - 1).into();
-    
+
     let mut grid = Grid::new(input.width, input.height);
     for point in input.points.iter().take(input.part1_cutoff) {
         grid.set(*point, true);
@@ -310,7 +310,7 @@ fn part2_v4_on_best_path(input: &Puzzle) -> String {
         .find_map(|cutoff| {
             let new_point = input.points[cutoff - 1];
             grid.set(new_point, true);
-            
+
             // To be a cutoff, the new point must have exactly two open neighbors
             if new_point
                 .neighbors()
