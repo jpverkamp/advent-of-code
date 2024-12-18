@@ -38,4 +38,4 @@ macro_rules! benches {
     };
 }
 
-benches!(17); // Add more days here
+benches!(14, 15, 16, 17, 18); // Add more days here

@@ -8,6 +8,8 @@ pub struct Point {
 
 #[allow(dead_code)]
 impl Point {
+    pub const ZERO: Self = Self { x: 0, y: 0 };
+
     pub fn new(x: i32, y: i32) -> Self {
         Self { x, y }
     }
