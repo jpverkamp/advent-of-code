@@ -4,19 +4,18 @@ use image::ImageBuffer;
 use crate::{Direction, Grid, Point};
 
 #[derive(Debug, Clone)]
-struct Puzzle {
-    width: usize,
-    height: usize,
-    part1_cutoff: usize,
-    points: Vec<Point>,
+pub struct Puzzle {
+    pub width: usize,
+    pub height: usize,
+    pub part1_cutoff: usize,
+    pub points: Vec<Point>,
 }
 
 impl Puzzle {
-    #[allow(dead_code)]
-    fn render_ascii(&self, highlight: &[Point]) -> String {
+    pub fn render_ascii(&self, cutoff: usize, highlight: &[Point]) -> String {
         let mut grid = Grid::new(self.width, self.height);
 
-        for point in self.points.iter() {
+        for point in self.points.iter().take(cutoff) {
             grid.set(*point, 1);
         }
 
@@ -35,11 +34,14 @@ impl Puzzle {
         })
     }
 
-    #[allow(dead_code)]
-    fn render_image(&self, highlight: &[Point]) -> ImageBuffer<image::Rgb<u8>, Vec<u8>> {
+    pub fn render_image(
+        &self,
+        cutoff: usize,
+        highlight: &[Point],
+    ) -> ImageBuffer<image::Rgb<u8>, Vec<u8>> {
         let mut image = ImageBuffer::new(self.width as u32, self.height as u32);
 
-        for point in self.points.iter() {
+        for point in self.points.iter().take(cutoff) {
             image.put_pixel(point.x as u32, point.y as u32, image::Rgb([255, 255, 255]));
         }
 
@@ -52,7 +54,7 @@ impl Puzzle {
 }
 
 #[aoc_generator(day18)]
-fn parse(input: &str) -> Puzzle {
+pub fn parse(input: &str) -> Puzzle {
     let mut width = 71;
     let mut height = 71;
     let mut cutoff = 1024;
@@ -152,8 +154,8 @@ fn part2_v1(input: &Puzzle) -> String {
     format!("{x},{y}", x = p.x, y = p.y)
 }
 
-#[aoc(day18, part2, v2)]
-fn part2_v2(input: &Puzzle) -> String {
+#[aoc(day18, part2, v2_two_neighbors)]
+fn part2_v2_two_neighbors(input: &Puzzle) -> String {
     let end = (input.width - 1, input.height - 1).into();
 
     let p = (input.part1_cutoff..)
@@ -209,8 +211,8 @@ fn part2_v2(input: &Puzzle) -> String {
     format!("{x},{y}", x = p.x, y = p.y)
 }
 
-#[aoc(day18, part2, v3)]
-fn part2_v3(input: &Puzzle) -> String {
+#[aoc(day18, part2, v3_grid)]
+fn part2_v3_grid(input: &Puzzle) -> String {
     let end = (input.width - 1, input.height - 1).into();
 
     let mut grid = Grid::new(input.width, input.height);
@@ -227,7 +229,7 @@ fn part2_v3(input: &Puzzle) -> String {
             if new_point
                 .neighbors()
                 .iter()
-                .filter(|&p| grid.get(*p) == Some(&true))
+                .filter(|&p| grid.get(*p) != Some(&false))
                 .count()
                 != 2
             {
