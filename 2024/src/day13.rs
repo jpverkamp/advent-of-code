@@ -138,7 +138,6 @@ fn part2_cramer(input: &[ClawMachine]) -> u128 {
 
 // Mess around with fast parsing
 
-
 macro_rules! fast_parse_u32 {
     ($input:expr, $index:expr, $skip:expr) => {{
         $index += $skip;
@@ -252,7 +251,10 @@ Prize: X=18641, Y=10279";
 
     #[test]
     fn test_part1_fastparse_finale() {
-        assert_eq!(part1_fastparse(include_str!("../input/2024/day13.txt")), "26810");
+        assert_eq!(
+            part1_fastparse(include_str!("../input/2024/day13.txt")),
+            "26810"
+        );
     }
 
     #[test]

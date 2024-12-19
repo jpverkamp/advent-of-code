@@ -264,4 +264,3 @@ mod tests {
     make_test!([part2_v1, part2_opset, part2_queue, part2_fastercat] => "day7.txt", 11387, "223472064194845");
     // 975671981569 too low
 }
-

@@ -6,15 +6,20 @@ use aoc_runner_derive::aoc_main;
 aoc_main! { lib = aoc2024 }
 
 // fn main() {
-//         const EXAMPLE: &str = "\
-// #######
-// ##...##
-// #S.#.E#
-// ##...##
-// #######";
+//     // Enable tracing without timestamps
+//     tracing_subscriber::fmt().without_time().init();
 
-//     use aoc2024::day16;
-//     let input = EXAMPLE;
-//     let result = day16::part2(input);
-//     println!("Result: {}", result);
+//     const INPUT: &str = "\
+// r, wr, b, g, bwu, rb, gb, br
+
+// brwrr
+// bggr
+// gbbr
+// rrbgbr
+// ubwu
+// bwurrg
+// brgr
+// bbrgwb";
+
+//     assert_eq!(aoc2024::day19::part2_split_memo(INPUT), 16);
 // }

@@ -215,4 +215,3 @@ mod tests {
     make_test!([part1_v1] => "day6.txt", 41, 5551);
     make_test!([part2_v1, part2_limited, part2_limited_rayon, part2_limited_no_clone] => "day6.txt", 6, 1939);
 }
-

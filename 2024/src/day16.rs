@@ -243,4 +243,3 @@ mod tests {
     make_test!([part1_pq, part1_astar] => "day16.txt", 7036, 65436);
     make_test!([/*part1_pq, */part2_astar] => "day16.txt", 45, 489);
 }
-

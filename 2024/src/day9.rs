@@ -454,4 +454,3 @@ mod tests {
     make_test!([part1_v1] => "day9.txt", 1928, "6201130364722");
     make_test!([part2_v1, part2_btree, part2_leftmost_empty] => "day9.txt", 2858, "6221662795602");
 }
-

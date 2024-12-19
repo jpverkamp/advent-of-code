@@ -140,4 +140,3 @@ mod tests {
     make_test!([part1_v1] => "day5.txt", 143, 4924);
     make_test!([part2_v1] => "day5.txt", 123, 6085);
 }
-

@@ -265,4 +265,3 @@ p=9,5 v=-3,-3";
 
     make_test!([part2_v1, part2_v2] => "day14.txt", 0, 8053);
 }
-

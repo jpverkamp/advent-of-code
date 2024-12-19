@@ -336,4 +336,3 @@ mod tests {
     make_test!([part1_v1, part1_recursive, part1_recursive_memo, part1_recursive_memo_assoc, part1_recursive_memo_btree, part1_count_hash, part1_count_alist] => "day11.txt", 55312, 194482);
     make_test!([part2_recursive_memo] => "day11.txt", "65601038650482", "232454623677743");
 }
-

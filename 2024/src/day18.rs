@@ -449,4 +449,3 @@ mod tests {
     make_test!([part1_v1] => "day18.txt", 22, 354);
     make_test!([part2_v1, part2_v2_two_neighbors, part2_v3_grid, part2_v4_on_best_path] => "day18.txt", "6,1", "36,17");
 }
-

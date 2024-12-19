@@ -315,4 +315,3 @@ v^^>>><<^^<>>^v^<v^vv<>v^<<>^<^v^v><^<<<><<^<v><v<>vv>>v><v^<vv<>v^<<^";
         assert_eq!(part2_v1(&input).to_string(), "618");
     }
 }
-

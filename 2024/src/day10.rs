@@ -234,4 +234,3 @@ mod tests {
     make_test!([part1_search, part1_dynamic, part1_dynamic_tupled, part1_dynamic_smart] => "day10.txt", 36, 659);
     make_test!([part2_dynamic] => "day10.txt", 81, 1463);
 }
-

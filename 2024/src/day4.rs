@@ -157,4 +157,3 @@ MXMXAXMASX";
     make_test!([part1_original, part1_inline] => "day4.txt", 18, 2406);
     make_test!([part2_inline] => "day4.txt", 9, 1807);
 }
-

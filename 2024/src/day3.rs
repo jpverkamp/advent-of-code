@@ -199,4 +199,3 @@ mod tests {
     make_test!([part1_regex, part1_iterator, part1_nom] => "day3.txt", 161, 174336360);
     make_test!([part2_regex, part2_iterator] => "day3.txt", 48, 88802350);
 }
-

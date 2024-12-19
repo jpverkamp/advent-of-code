@@ -394,4 +394,3 @@ Program: 0,3,5,4,3,0";
         assert_eq!(machine.b, 44354);
     }
 }
-

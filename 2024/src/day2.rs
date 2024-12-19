@@ -109,4 +109,3 @@ mod tests {
     make_test!([part1_initial, part1_iter] => "day2.txt", 2, 432);
     make_test!([part2_initial, part2_iter] => "day2.txt", 4, 488);
 }
-

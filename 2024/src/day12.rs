@@ -237,4 +237,3 @@ AAAAAA";
         assert_eq!(part2_corners(&parse(EXAMPLE_FIGURE8)), 368);
     }
 }
-
