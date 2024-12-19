@@ -2,9 +2,9 @@ use aoc_runner_derive::aoc;
 use hashbrown::HashMap;
 use regex::Regex;
 
-struct Puzzle<'input> {
-    towels: Vec<&'input str>,
-    targets: Vec<&'input str>,
+pub struct Puzzle<'input> {
+    pub towels: Vec<&'input str>,
+    pub targets: Vec<&'input str>,
 }
 
 impl<'input> From<&'input str> for Puzzle<'input> {
