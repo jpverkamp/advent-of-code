@@ -19,10 +19,4 @@ rayon = "1.10.0"
 regex = "1.11.1"
 
 [dev-dependencies]
-criterion = { version = "2.7.2", package = "codspeed-criterion-compat", default-features = false }
-indoc = "2.0.5"
 paste = "1.0.15"
-
-[[bench]]
-name = "bench_codspeed"
-harness = false

@@ -200,11 +200,3 @@ mod tests {
     make_test!([part2_regex, part2_iterator] => "day3.txt", 48, 88802350);
 }
 
-// For codspeed
-pub fn part1(input: &str) -> String {
-    part1_iterator(input).to_string()
-}
-
-pub fn part2(input: &str) -> String {
-    part2_iterator(input).to_string()
-}

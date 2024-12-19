@@ -158,11 +158,3 @@ MXMXAXMASX";
     make_test!([part2_inline] => "day4.txt", 9, 1807);
 }
 
-// For codspeed
-pub fn part1(input: &str) -> String {
-    part1_inline(&parse(input)).to_string()
-}
-
-pub fn part2(input: &str) -> String {
-    part2_inline(&parse(input)).to_string()
-}

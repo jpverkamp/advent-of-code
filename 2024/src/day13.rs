@@ -136,54 +136,8 @@ fn part2_cramer(input: &[ClawMachine]) -> u128 {
     tokens
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::make_test;
+// Mess around with fast parsing
 
-    const EXAMPLE: &str = "\
-Button A: X+94, Y+34
-Button B: X+22, Y+67
-Prize: X=8400, Y=5400
-
-Button A: X+26, Y+66
-Button B: X+67, Y+21
-Prize: X=12748, Y=12176
-
-Button A: X+17, Y+86
-Button B: X+84, Y+37
-Prize: X=7870, Y=6450
-
-Button A: X+69, Y+23
-Button B: X+27, Y+71
-Prize: X=18641, Y=10279";
-
-    make_test!([part1_bruteforce, part1_cramer] => "day13.txt", 480, 26810);
-    make_test!([part2_cramer] => "day13.txt", "875318608908", "108713182988244");
-
-    #[test]
-    fn test_codespeed_part1_example() {
-        assert_eq!(part1(EXAMPLE), "480");
-    }
-
-    #[test]
-    fn test_codespeed_part1_finale() {
-        assert_eq!(part1(include_str!("../input/2024/day13.txt")), "26810");
-    }
-
-    #[test]
-    fn test_codespeed_part2_example() {
-        assert_eq!(part2(EXAMPLE), "875318608908");
-    }
-
-    #[test]
-    fn test_codespeed_part2_finale() {
-        assert_eq!(
-            part2(include_str!("../input/2024/day13.txt")),
-            "108713182988244"
-        );
-    }
-}
 
 macro_rules! fast_parse_u32 {
     ($input:expr, $index:expr, $skip:expr) => {{
@@ -206,8 +160,7 @@ macro_rules! fast_parse_u32 {
     }};
 }
 
-// For codspeed
-pub fn part1(input: &str) -> String {
+pub fn part1_fastparse(input: &str) -> String {
     let mut tokens = 0;
 
     let input = input.as_bytes();
@@ -237,7 +190,7 @@ pub fn part1(input: &str) -> String {
     tokens.to_string()
 }
 
-pub fn part2(input: &str) -> String {
+pub fn part2_fastparse(input: &str) -> String {
     let mut tokens = 0;
 
     let input = input.as_bytes();
@@ -265,4 +218,53 @@ pub fn part2(input: &str) -> String {
     }
 
     tokens.to_string()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::make_test;
+
+    const EXAMPLE: &str = "\
+Button A: X+94, Y+34
+Button B: X+22, Y+67
+Prize: X=8400, Y=5400
+
+Button A: X+26, Y+66
+Button B: X+67, Y+21
+Prize: X=12748, Y=12176
+
+Button A: X+17, Y+86
+Button B: X+84, Y+37
+Prize: X=7870, Y=6450
+
+Button A: X+69, Y+23
+Button B: X+27, Y+71
+Prize: X=18641, Y=10279";
+
+    make_test!([part1_bruteforce, part1_cramer] => "day13.txt", 480, 26810);
+    make_test!([part2_cramer] => "day13.txt", "875318608908", "108713182988244");
+
+    #[test]
+    fn test_part1_fastparse_example() {
+        assert_eq!(part1_fastparse(EXAMPLE), "480");
+    }
+
+    #[test]
+    fn test_part1_fastparse_finale() {
+        assert_eq!(part1_fastparse(include_str!("../input/2024/day13.txt")), "26810");
+    }
+
+    #[test]
+    fn test_part2_fastparse_example() {
+        assert_eq!(part2_fastparse(EXAMPLE), "875318608908");
+    }
+
+    #[test]
+    fn test_part2_fastparse_finale() {
+        assert_eq!(
+            part2_fastparse(include_str!("../input/2024/day13.txt")),
+            "108713182988244"
+        );
+    }
 }

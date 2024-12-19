@@ -88,10 +88,12 @@ impl Disk {
     }
 }
 
-// #[aoc_generator(day9)]
-// fn parse(input: &str) -> Disk {
-//     Disk::from(input)
-// }
+// Don't parse here since we need different types
+// This technically needs to be here for make_test and I don't want to fix it atm
+#[allow(dead_code)]
+fn parse(input: &str) -> &str {
+    input
+}
 
 #[aoc(day9, part1, v1)]
 fn part1_v1(input: &str) -> usize {
@@ -453,15 +455,3 @@ mod tests {
     make_test!([part2_v1, part2_btree, part2_leftmost_empty] => "day9.txt", 2858, "6221662795602");
 }
 
-// For codspeed
-fn parse(input: &str) -> &str {
-    input
-}
-
-pub fn part1(input: &str) -> String {
-    part1_v1(parse(input)).to_string()
-}
-
-pub fn part2(input: &str) -> String {
-    part2_v1(parse(input)).to_string()
-}

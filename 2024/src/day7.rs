@@ -265,11 +265,3 @@ mod tests {
     // 975671981569 too low
 }
 
-// For codspeed
-pub fn part1(input: &str) -> String {
-    part1_v1(&parse(input)).to_string()
-}
-
-pub fn part2(input: &str) -> String {
-    part2_fastercat(&parse(input)).to_string()
-}

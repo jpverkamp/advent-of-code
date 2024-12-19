@@ -337,11 +337,3 @@ mod tests {
     make_test!([part2_recursive_memo] => "day11.txt", "65601038650482", "232454623677743");
 }
 
-// For codspeed
-pub fn part1(input: &str) -> String {
-    part1_count_hash(&parse(input)).to_string()
-}
-
-pub fn part2(input: &str) -> String {
-    part2_count_hash(&parse(input)).to_string()
-}

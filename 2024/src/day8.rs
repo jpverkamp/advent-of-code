@@ -102,11 +102,3 @@ mod tests {
     make_test!([part2_v1] => "day8.txt", 8, 1032);
 }
 
-// For codspeed
-pub fn part1(input: &str) -> String {
-    part1_v1(&parse(input)).to_string()
-}
-
-pub fn part2(input: &str) -> String {
-    part2_v1(&parse(input)).to_string()
-}

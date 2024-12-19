@@ -238,11 +238,3 @@ AAAAAA";
     }
 }
 
-// For codspeed
-pub fn part1(input: &str) -> String {
-    part1_v1(&parse(input)).to_string()
-}
-
-pub fn part2(input: &str) -> String {
-    part2_corners(&parse(input)).to_string()
-}

@@ -29,12 +29,3 @@ world";
     make_test!([part1_v1] => "day5.txt", "example output", "final output");
     make_test!([part2_v1] => "day5.txt", "example output", "final output");
 }
-
-// For codspeed
-pub fn part1(input: &str) -> String {
-    part1_v1(&parse(input)).to_string()
-}
-
-pub fn part2(input: &str) -> String {
-    part2_v1(&parse(input)).to_string()
-}

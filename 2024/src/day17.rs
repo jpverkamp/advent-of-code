@@ -395,11 +395,3 @@ Program: 0,3,5,4,3,0";
     }
 }
 
-// For codspeed
-pub fn part1(input: &str) -> String {
-    part1_v1(&parse(input)).to_string()
-}
-
-pub fn part2(input: &str) -> String {
-    part2_backtrack(&parse(input)).to_string()
-}

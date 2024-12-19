@@ -266,11 +266,3 @@ p=9,5 v=-3,-3";
     make_test!([part2_v1, part2_v2] => "day14.txt", 0, 8053);
 }
 
-// For codspeed
-pub fn part1(input: &str) -> String {
-    part1_v1(&parse(input)).to_string()
-}
-
-pub fn part2(input: &str) -> String {
-    part2_v2(&parse(input)).to_string()
-}

@@ -244,11 +244,3 @@ mod tests {
     make_test!([/*part1_pq, */part2_astar] => "day16.txt", 45, 489);
 }
 
-// For codspeed
-pub fn part1(input: &str) -> String {
-    part1_astar(&parse(input)).to_string()
-}
-
-pub fn part2(input: &str) -> String {
-    part2_astar(&parse(input)).to_string()
-}

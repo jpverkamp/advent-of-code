@@ -450,11 +450,3 @@ mod tests {
     make_test!([part2_v1, part2_v2_two_neighbors, part2_v3_grid, part2_v4_on_best_path] => "day18.txt", "6,1", "36,17");
 }
 
-// For codspeed
-pub fn part1(input: &str) -> String {
-    part1_v2_grid(&parse(input)).to_string()
-}
-
-pub fn part2(input: &str) -> String {
-    part2_v5_binary(&parse(input)).to_string()
-}

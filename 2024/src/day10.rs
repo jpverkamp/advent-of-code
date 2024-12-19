@@ -235,11 +235,3 @@ mod tests {
     make_test!([part2_dynamic] => "day10.txt", 81, 1463);
 }
 
-// For codspeed
-pub fn part1(input: &str) -> String {
-    part1_dynamic_smart(&parse(input)).to_string()
-}
-
-pub fn part2(input: &str) -> String {
-    part2_dynamic(&parse(input)).to_string()
-}

@@ -110,11 +110,3 @@ mod tests {
     make_test!([part2_initial, part2_iter] => "day2.txt", 4, 488);
 }
 
-// For codspeed
-pub fn part1(input: &str) -> String {
-    part1_iter(&parse(input)).to_string()
-}
-
-pub fn part2(input: &str) -> String {
-    part2_iter(&parse(input)).to_string()
-}
