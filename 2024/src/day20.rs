@@ -412,7 +412,6 @@ fn part2_pathscan(input: &Puzzle) -> usize {
     // Now, for each point in that path, see if we can skip to a point further along the path
     // We can skip up to 20, so any point that within manhattan distance 20 is valid
     let mut shortcut_count = 0;
-    let mut used_shortcuts = HashSet::new();
     for (i, p) in path.iter().enumerate() {
         // Are there any walls that we can skip that will lead us back on to the path
         // It has to be straight two steps, otherwise it will end up the same length
@@ -428,19 +427,14 @@ fn part2_pathscan(input: &Puzzle) -> usize {
                 let p2: Point = *p + d;
 
                 // Cannot end on a wall
-                // TODO: This is covered by the distanced map
+                // This is covered by the distanced map, but this lookup is faster
+                // With: 112.44 ms, Without: 189.61 ms
                 if input.walls.get(p2) != Some(&false) {
                     continue;
                 }
 
                 // Cannot get from the target to the end
                 if !distances.contains_key(&p2) {
-                    println!("Cannot get from {p2:?} to the exit");
-                    continue;
-                }
-
-                // Cannot already have been used
-                if used_shortcuts.contains(&(p, p2)) {
                     continue;
                 }
 
@@ -457,7 +451,6 @@ fn part2_pathscan(input: &Puzzle) -> usize {
 
                 // If we've made it this far, we can shortcut!
                 shortcut_count += 1;
-                used_shortcuts.insert((p, p2));
             }
         }
     }
@@ -465,8 +458,8 @@ fn part2_pathscan(input: &Puzzle) -> usize {
     shortcut_count
 }
 
-#[aoc(day20, part2, usedgrid)]
-fn part2_usedgrid(input: &Puzzle) -> usize {
+#[aoc(day20, part2, griddist)]
+fn part2_griddist(input: &Puzzle) -> usize {
     let skiplength = 20_i32;
     let cutoff = if input.example { 50 } else { 100 };
 
@@ -490,7 +483,7 @@ fn part2_usedgrid(input: &Puzzle) -> usize {
     // Find the distance from the exit to every point
     // This will be used to verify 'better' paths
     // We need this because it's possible to take a shortcut to a previous dead end
-    let mut distances = dijkstra_all(&input.end, |point| {
+    let dijkstra_distances = dijkstra_all(&input.end, |point| {
         Direction::all()
             .iter()
             .map(|&dir| *point + dir)
@@ -499,16 +492,17 @@ fn part2_usedgrid(input: &Puzzle) -> usize {
             .collect::<Vec<_>>()
     });
 
-    // Add the exit :)
-    distances.insert(input.end, (input.end, 0));
+    // Store distances as a grid
+    let mut distances = Grid::new(input.walls.width, input.walls.height);
+    for (p, (_, d)) in dijkstra_distances.iter() {
+        distances.set(*p, *d);
+    }
+    distances.set(input.end, 0);
 
     // Now, for each point in that path, see if we can skip to a point further along the path
     // We can skip up to 20, so any point that within manhattan distance 20 is valid
     let mut shortcut_count = 0;
-
     for (i, p) in path.iter().enumerate() {
-        let mut used_shortcuts = Grid::new(input.walls.width, input.walls.height);
-
         // Are there any walls that we can skip that will lead us back on to the path
         // It has to be straight two steps, otherwise it will end up the same length
         // (We'd be cutting off a corner)
@@ -522,27 +516,17 @@ fn part2_usedgrid(input: &Puzzle) -> usize {
                 let d: Point = (xd, yd).into();
                 let p2: Point = *p + d;
 
-                // Cannot end on a wall
-                // TODO: This is covered by the distanced map
-                if input.walls.get(p2) != Some(&false) {
-                    continue;
-                }
-
                 // Cannot get from the target to the end
-                if !distances.contains_key(&p2) {
-                    println!("Cannot get from {p2:?} to the exit");
+                let distance_to_exit = distances.get(p2);
+                if distance_to_exit.is_none() {
                     continue;
                 }
-
-                // Cannot already have been used
-                if used_shortcuts.get(p2) == Some(&true) {
-                    continue;
-                }
+                let distance_to_exit = distance_to_exit.unwrap();
 
                 // The distance using the shortcut
                 let new_distance = i // To start
                     + d.manhattan_distance(&Point::ZERO) as usize // Shortcut
-                    + distances.get(&p2).unwrap().1 as usize // To end
+                    + *distance_to_exit as usize // To end
                     + 1;
 
                 // Doesn't cut off enough
@@ -552,7 +536,6 @@ fn part2_usedgrid(input: &Puzzle) -> usize {
 
                 // If we've made it this far, we can shortcut!
                 shortcut_count += 1;
-                used_shortcuts.set(p2, true);
             }
         }
     }
@@ -584,5 +567,5 @@ example
 ###############";
 
     make_test!([part1_pathscan, part1_grid, part1_dijkstra] => "day20.txt", 44, 1399);
-    make_test!([part2_pathscan] => "day20.txt", 285, 994807);
+    make_test!([part2_pathscan, part2_griddist] => "day20.txt", 285, 994807);
 }
