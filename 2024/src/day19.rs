@@ -100,7 +100,11 @@ fn part1_bt_memo(input: &str) -> usize {
     let puzzle: Puzzle = input.into();
     let mut cache = HashSet::new();
 
-    fn recur<'input>(cache: &mut HashSet<&'input str>, towels: &[&str], target: &'input str) -> bool {
+    fn recur<'input>(
+        cache: &mut HashSet<&'input str>,
+        towels: &[&str],
+        target: &'input str,
+    ) -> bool {
         if target.is_empty() {
             return true;
         }

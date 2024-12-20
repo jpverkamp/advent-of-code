@@ -58,6 +58,19 @@ where
         s
     }
 
+    pub fn to_string_char(&self, f: &dyn Fn(&T) -> char) -> String {
+        let mut s = String::new();
+
+        for y in 0..self.height {
+            for x in 0..self.width {
+                s.push(f(&self.data[y * self.width + x]));
+            }
+            s.push('\n');
+        }
+
+        s
+    }
+
     fn index(&self, p: &Point) -> usize {
         (p.y * self.width as i32 + p.x)
             .try_into()
