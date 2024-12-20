@@ -1,5 +1,5 @@
 use aoc_runner_derive::aoc;
-use hashbrown::HashMap;
+use hashbrown::{HashMap, HashSet};
 use regex::Regex;
 
 pub struct Puzzle<'input> {
@@ -92,6 +92,39 @@ fn part1_bt_simplified(input: &str) -> usize {
         .targets
         .iter()
         .filter(|target| recur(&towels, target))
+        .count()
+}
+
+#[aoc(day19, part1, bt_memo)]
+fn part1_bt_memo(input: &str) -> usize {
+    let puzzle: Puzzle = input.into();
+    let mut cache = HashSet::new();
+
+    fn recur<'input>(cache: &mut HashSet<&'input str>, towels: &[&str], target: &'input str) -> bool {
+        if target.is_empty() {
+            return true;
+        }
+
+        if cache.contains(target) {
+            return false;
+        }
+
+        for towel in towels {
+            if let Some(rest) = target.strip_prefix(towel) {
+                if recur(cache, towels, rest) {
+                    return true;
+                }
+            }
+        }
+
+        cache.insert(target);
+        false
+    }
+
+    puzzle
+        .targets
+        .iter()
+        .filter(|target| recur(&mut cache, &puzzle.towels, target))
         .count()
 }
 
