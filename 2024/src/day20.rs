@@ -374,11 +374,8 @@ fn part1_dijkstra(input: &Puzzle) -> usize {
 
 #[aoc(day20, part2, pathscan)]
 fn part2_pathscan(input: &Puzzle) -> usize {
-    let (cutoff, skiplength) = if input.example {
-        (50, 20_i32)
-    } else {
-        (100, 20_i32)
-    };
+    let skiplength = 20_i32;
+    let cutoff = if input.example { 50 } else { 100 };
 
     // First, find the one true path
     let path = astar(
@@ -446,7 +443,6 @@ fn part2_pathscan(input: &Puzzle) -> usize {
                 if used_shortcuts.contains(&(p, p2)) {
                     continue;
                 }
-                used_shortcuts.insert((p, p2));
 
                 // The distance using the shortcut
                 let new_distance = i // To start
@@ -462,6 +458,101 @@ fn part2_pathscan(input: &Puzzle) -> usize {
                 // If we've made it this far, we can shortcut!
                 shortcut_count += 1;
                 used_shortcuts.insert((p, p2));
+            }
+        }
+    }
+
+    shortcut_count
+}
+
+#[aoc(day20, part2, usedgrid)]
+fn part2_usedgrid(input: &Puzzle) -> usize {
+    let skiplength = 20_i32;
+    let cutoff = if input.example { 50 } else { 100 };
+
+    // First, find the one true path
+    let path = astar(
+        &input.start,
+        |point| {
+            Direction::all()
+                .iter()
+                .map(|&dir| *point + dir)
+                .filter(|&new_point| input.walls.get(new_point) == Some(&false))
+                .map(|new_point| (new_point, 1))
+                .collect::<Vec<_>>()
+        },
+        |point| point.manhattan_distance(&input.end),
+        |point| *point == input.end,
+    )
+    .expect("No path found")
+    .0;
+
+    // Find the distance from the exit to every point
+    // This will be used to verify 'better' paths
+    // We need this because it's possible to take a shortcut to a previous dead end
+    let mut distances = dijkstra_all(&input.end, |point| {
+        Direction::all()
+            .iter()
+            .map(|&dir| *point + dir)
+            .filter(|&new_point| input.walls.get(new_point) == Some(&false))
+            .map(|new_point| (new_point, 1))
+            .collect::<Vec<_>>()
+    });
+
+    // Add the exit :)
+    distances.insert(input.end, (input.end, 0));
+
+    // Now, for each point in that path, see if we can skip to a point further along the path
+    // We can skip up to 20, so any point that within manhattan distance 20 is valid
+    let mut shortcut_count = 0;
+
+    for (i, p) in path.iter().enumerate() {
+        let mut used_shortcuts = Grid::new(input.walls.width, input.walls.height);
+
+        // Are there any walls that we can skip that will lead us back on to the path
+        // It has to be straight two steps, otherwise it will end up the same length
+        // (We'd be cutting off a corner)
+        for xd in -skiplength..=skiplength {
+            for yd in -skiplength..=skiplength {
+                // Ignore skipping to yourself or skipping too far
+                if xd == 0 && yd == 0 || xd.abs() + yd.abs() > skiplength {
+                    continue;
+                }
+
+                let d: Point = (xd, yd).into();
+                let p2: Point = *p + d;
+
+                // Cannot end on a wall
+                // TODO: This is covered by the distanced map
+                if input.walls.get(p2) != Some(&false) {
+                    continue;
+                }
+
+                // Cannot get from the target to the end
+                if !distances.contains_key(&p2) {
+                    println!("Cannot get from {p2:?} to the exit");
+                    continue;
+                }
+
+                // Cannot already have been used
+                if used_shortcuts.get(p2) == Some(&true) {
+                    continue;
+                }
+
+                // The distance using the shortcut
+                let new_distance = i // To start
+                    + d.manhattan_distance(&Point::ZERO) as usize // Shortcut
+                    + distances.get(&p2).unwrap().1 as usize // To end
+                    + 1;
+
+                // Doesn't cut off enough
+                if new_distance > path.len() - cutoff {
+                    continue;
+                }
+
+                // If we've made it this far, we can shortcut!
+                shortcut_count += 1;
+                used_shortcuts.set(p2, true);
             }
         }
     }
