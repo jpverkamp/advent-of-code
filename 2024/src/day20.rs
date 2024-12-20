@@ -7,15 +7,15 @@ use crate::{Direction, Grid, Point};
 use pathfinding::prelude::{astar, dijkstra_all};
 
 #[derive(Debug, Clone)]
-struct Puzzle {
+pub struct Puzzle {
     example: bool,
-    walls: Grid<bool>,
-    start: Point,
-    end: Point,
+    pub walls: Grid<bool>,
+    pub start: Point,
+    pub end: Point,
 }
 
 #[aoc_generator(day20)]
-fn parse(input: &str) -> Puzzle {
+pub fn parse(input: &str) -> Puzzle {
     // Override for cutoff, for the example we don't, but for *reasons*
     // > How many cheats would save you at least 100 picoseconds?
     let (example, input) = if input.contains("example") {
