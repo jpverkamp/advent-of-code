@@ -357,7 +357,7 @@ fn part1_dijkstra(input: &Puzzle) -> usize {
 
                 // For all other cases, calculate up how much we're saving
                 match distances.get(&(p + d + d)) {
-                    Some((_, new_distance)) if *new_distance > current_distance + cutoff + 2 => {
+                    Some((_, new_distance)) if *new_distance > current_distance + cutoff => {
                         shortcut_count += 1;
                     }
                     _ => {}
@@ -374,7 +374,7 @@ fn part1_dijkstra(input: &Puzzle) -> usize {
 
 #[aoc(day20, part2, pathscan)]
 fn part2_pathscan(input: &Puzzle) -> usize {
-    let skiplength = 20_i32;
+    let skip_length = 20_i32;
     let cutoff = if input.example { 50 } else { 100 };
 
     // First, find the one true path
@@ -416,10 +416,10 @@ fn part2_pathscan(input: &Puzzle) -> usize {
         // Are there any walls that we can skip that will lead us back on to the path
         // It has to be straight two steps, otherwise it will end up the same length
         // (We'd be cutting off a corner)
-        for xd in -skiplength..=skiplength {
-            for yd in -skiplength..=skiplength {
+        for xd in -skip_length..=skip_length {
+            for yd in -skip_length..=skip_length {
                 // Ignore skipping to yourself or skipping too far
-                if xd == 0 && yd == 0 || xd.abs() + yd.abs() > skiplength {
+                if xd == 0 && yd == 0 || xd.abs() + yd.abs() > skip_length {
                     continue;
                 }
 
@@ -460,7 +460,7 @@ fn part2_pathscan(input: &Puzzle) -> usize {
 
 #[aoc(day20, part2, griddist)]
 fn part2_griddist(input: &Puzzle) -> usize {
-    let skiplength = 20_i32;
+    let skip_length = 20_i32;
     let cutoff = if input.example { 50 } else { 100 };
 
     // First, find the one true path
@@ -506,27 +506,31 @@ fn part2_griddist(input: &Puzzle) -> usize {
         // Are there any walls that we can skip that will lead us back on to the path
         // It has to be straight two steps, otherwise it will end up the same length
         // (We'd be cutting off a corner)
-        for xd in -skiplength..=skiplength {
-            for yd in -skiplength..=skiplength {
+        for xd in -skip_length..(skip_length + 1) {
+            for yd in -skip_length..(skip_length + 1) {
                 // Ignore skipping to yourself or skipping too far
-                if xd == 0 && yd == 0 || xd.abs() + yd.abs() > skiplength {
+                if xd == 0 && yd == 0 || xd.abs() + yd.abs() > skip_length {
                     continue;
                 }
 
                 let d: Point = (xd, yd).into();
                 let p2: Point = *p + d;
 
-                // Cannot get from the target to the end
-                let distance_to_exit = distances.get(p2);
-                if distance_to_exit.is_none() {
+                // Cannot end on a wall
+                // This is covered by the distanced map, but this lookup is faster
+                if input.walls.get(p2) != Some(&false) {
                     continue;
                 }
-                let distance_to_exit = distance_to_exit.unwrap();
+
+                // Cannot get from the target to the end
+                if distances.get(p2).is_none() {
+                    continue;
+                }
 
                 // The distance using the shortcut
                 let new_distance = i // To start
                     + d.manhattan_distance(&Point::ZERO) as usize // Shortcut
-                    + *distance_to_exit as usize // To end
+                    + *distances.get(p2).unwrap() as usize // To end
                     + 1;
 
                 // Doesn't cut off enough
@@ -535,6 +539,129 @@ fn part2_griddist(input: &Puzzle) -> usize {
                 }
 
                 // If we've made it this far, we can shortcut!
+                shortcut_count += 1;
+            }
+        }
+    }
+
+    shortcut_count
+}
+
+#[aoc(day20, part2, listiter)]
+fn part2_listiter(input: &Puzzle) -> usize {
+    let skip_length = 20;
+    let cutoff = if input.example { 50 } else { 100 };
+
+    // First, find the one true path
+    let path = astar(
+        &input.start,
+        |point| {
+            Direction::all()
+                .iter()
+                .map(|&dir| *point + dir)
+                .filter(|&new_point| input.walls.get(new_point) == Some(&false))
+                .map(|new_point| (new_point, 1))
+                .collect::<Vec<_>>()
+        },
+        |point| point.manhattan_distance(&input.end),
+        |point| *point == input.end,
+    )
+    .expect("No path found")
+    .0;
+
+    // Find the distance from the exit to every point
+    // This will be used to verify 'better' paths
+    // We need this because it's possible to take a shortcut to a previous dead end
+    let dijkstra_distances = dijkstra_all(&input.end, |point| {
+        Direction::all()
+            .iter()
+            .map(|&dir| *point + dir)
+            .filter(|&new_point| input.walls.get(new_point) == Some(&false))
+            .map(|new_point| (new_point, 1))
+            .collect::<Vec<_>>()
+    });
+
+    // Store distances as a grid
+    let mut distances = Grid::new(input.walls.width, input.walls.height);
+    for (p, (_, d)) in dijkstra_distances.iter() {
+        distances.set(*p, *d);
+    }
+    distances.set(input.end, 0);
+
+    // For any point on the path, for any point at least cutoff further along the path
+    // If those two points are within skip_length, there is a shortcut between them
+    path.iter()
+        .enumerate()
+        .map(|(start, p1)| {
+            path.iter()
+                .skip(start + cutoff)
+                .filter(|p2| {
+                    // The skip is short enough + the distance saved is big enough
+                    p1.manhattan_distance(p2) <= skip_length
+                        && distances.get(*p1).unwrap()
+                            - distances.get(**p2).unwrap()
+                            - p1.manhattan_distance(p2)
+                            >= cutoff as i32
+                })
+                .count()
+        })
+        .sum::<usize>()
+}
+
+#[aoc(day20, part2, listfor)]
+fn part2_listfor(input: &Puzzle) -> usize {
+    let skip_length = 20;
+    let cutoff = if input.example { 50 } else { 100 };
+
+    // First, find the one true path
+    let path = astar(
+        &input.start,
+        |point| {
+            Direction::all()
+                .iter()
+                .map(|&dir| *point + dir)
+                .filter(|&new_point| input.walls.get(new_point) == Some(&false))
+                .map(|new_point| (new_point, 1))
+                .collect::<Vec<_>>()
+        },
+        |point| point.manhattan_distance(&input.end),
+        |point| *point == input.end,
+    )
+    .expect("No path found")
+    .0;
+
+    // Find the distance from the exit to every point
+    // This will be used to verify 'better' paths
+    // We need this because it's possible to take a shortcut to a previous dead end
+    let dijkstra_distances = dijkstra_all(&input.end, |point| {
+        Direction::all()
+            .iter()
+            .map(|&dir| *point + dir)
+            .filter(|&new_point| input.walls.get(new_point) == Some(&false))
+            .map(|new_point| (new_point, 1))
+            .collect::<Vec<_>>()
+    });
+
+    // Store distances as a grid
+    let mut distances = Grid::new(input.walls.width, input.walls.height);
+    for (p, (_, d)) in dijkstra_distances.iter() {
+        distances.set(*p, *d);
+    }
+    distances.set(input.end, 0);
+
+    // For any point on the path, for any point at least cutoff further along the path
+    // If those two points are within skip_length, there is a shortcut between them
+    let mut shortcut_count = 0;
+
+    for (start, p1) in path.iter().enumerate() {
+        for p2 in path.iter().skip(start + cutoff) {
+            // The skip is short enough + the distance saved is big enough
+            if p1.manhattan_distance(p2) <= skip_length
+                && distances.get(*p1).unwrap()
+                    - distances.get(*p2).unwrap()
+                    - p1.manhattan_distance(p2)
+                    >= cutoff as i32
+            {
                 shortcut_count += 1;
             }
         }
@@ -567,5 +694,5 @@ example
 ###############";
 
     make_test!([part1_pathscan, part1_grid, part1_dijkstra] => "day20.txt", 44, 1399);
-    make_test!([part2_pathscan, part2_griddist] => "day20.txt", 285, 994807);
+    make_test!([part2_pathscan, part2_griddist, part2_listiter, part2_listfor] => "day20.txt", 285, 994807);
 }

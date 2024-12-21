@@ -69,9 +69,10 @@ fn render(
     }
 
     // Highlight all found skips
-    let max_skips = skips.values().max().unwrap_or(&0).max(&10);
+    let max_skips = 360.0;
     for (point, count) in skips.iter() {
-        let hue = 360.0 * (*count as f64 / *max_skips as f64);
+        let fraction = *count as f64 / max_skips;
+        let hue = 180.0 + 180.0 * fraction.powf(0.3);
         let rgb = hsv::hsv_to_rgb(hue, 1.0, 1.0);
 
         image.put_pixel(
