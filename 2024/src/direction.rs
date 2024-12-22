@@ -6,6 +6,20 @@ pub enum Direction {
     Right,
 }
 
+impl TryFrom<char> for Direction {
+    type Error = ();
+
+    fn try_from(c: char) -> Result<Self, ()> {
+        match c.to_ascii_uppercase() {
+            'N' | 'U' | '^' => Ok(Direction::Up),
+            'S' | 'D' | 'V' => Ok(Direction::Down),
+            'W' | 'L' | '<' => Ok(Direction::Left),
+            'E' | 'R' | '>' => Ok(Direction::Right),
+            _ => Err(()),
+        }
+    }
+}
+
 #[allow(dead_code)]
 impl Direction {
     pub fn rotate_cw(&self) -> Direction {
