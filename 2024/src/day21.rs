@@ -172,7 +172,7 @@ fn part1_sim(input: &str) -> usize {
 
 // region: Recursive solution
 
-// For each numpad key, where is it
+// For each numpad key, where is it?
 #[tracing::instrument(ret)]
 fn keypad_position(key: char) -> (usize, usize) {
     match key {
@@ -217,8 +217,10 @@ fn keypad_paths(src: char, dst: char) -> Vec<String> {
 
     match (x1, y1, x2, y2) {
         // Moving from the bottom to the left
+        // Avoid the missing square by going up first
         (_, 3, 0, _) => vec![format!("{v_string}{h_string}A")],
         // Moving from the left to the bottom
+        // Avoid the missing square by going right first
         (0, _, _, 3) => vec![format!("{h_string}{v_string}A")],
         // Otherwise, try both
         _ => {
@@ -260,8 +262,8 @@ fn arrows_paths(src: char, dst: char) -> Vec<String> {
         ('>', '<') => vec!["<<A"],
         ('>', 'v') => vec!["<A"],
 
+        // I had a heck of a time debugging in here... v =/= V
         (a, b) if a == b => vec!["A"],
-
         (a, b) => panic!("Bad encoding for {a} -> {b}"),
     }
     .iter()
@@ -347,6 +349,8 @@ fn arrows_cost_memo(cache: &mut CacheType, input: &str, arrow_bots: usize) -> us
     }
 
     // Already cached
+    // NOTE: This is expensive, since I'm cloning a ton of strings and hashing
+    //       But when the alternative is branching trillions of times...
     let cache_key = (input.to_owned(), arrow_bots);
     if let Some(&value) = cache.get(&cache_key) {
         return value;
