@@ -48,7 +48,7 @@ fn part1_v1(input: &[u64]) -> u64 {
         .sum()
 }
 
-// #[aoc(day22, part2, bruteforce)]
+#[aoc(day22, part2, bruteforce)]
 #[allow(dead_code)]
 fn part2_bruteforce(input: &[u64]) -> usize {
     fn banana_score(input: &[u64], seq: &[i8]) -> usize {
@@ -93,6 +93,11 @@ fn part2_bruteforce(input: &[u64]) -> usize {
 
     repeat_n(-9..=9, 4)
         .multi_cartesian_product()
+        .filter(|seq| {
+            !seq.iter()
+                .tuple_windows()
+                .any(|(a, b)| a + b < -9 || a + b > 9)
+        })
         .map(|seq| banana_score(input, seq.as_slice()))
         .max()
         .unwrap()
