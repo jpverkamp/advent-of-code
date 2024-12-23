@@ -13,6 +13,7 @@ pub mod day2;
 pub mod day20;
 pub mod day21;
 pub mod day22;
+pub mod day23;
 pub mod day3;
 pub mod day4;
 pub mod day5;
@@ -29,6 +30,9 @@ pub use direction::Direction;
 
 mod point;
 pub use point::Point;
+
+mod strgraph;
+pub use strgraph::StrGraph;
 
 mod make_test;
 

@@ -17,7 +17,7 @@ priority-queue = "2.1.1"
 rand = "0.8.5"
 rayon = "1.10.0"
 regex = "1.11.1"
-tracing = { version = "0.1.41", features = ["log", "log-always", "max_level_debug", "release_max_level_error"] }
+tracing = { version = "0.1.41", features = ["log", "log-always", "release_max_level_off"] }
 tracing-subscriber = "0.3.19"
 
 [dev-dependencies]
