@@ -188,6 +188,184 @@ fn part2_most_connected(input: &str) -> String {
         .unwrap()
 }
 
+#[aoc(day23, part2, nested_loops)]
+fn part2_nested_loops(input: &str) -> String {
+    let graph = StrGraph::from(input);
+
+    let nodes = graph.nodes().sorted().collect::<Vec<_>>();
+
+    for (i0, n0) in nodes.iter().enumerate() {
+        for (i1, n1) in nodes.iter().enumerate().skip(i0 + 1) {
+            if [n0].iter().any(|&n| !graph.has_edge(n, n1)) {
+                continue;
+            }
+
+            for (i2, n2) in nodes.iter().enumerate().skip(i1 + 1) {
+                if [n0, n1].iter().any(|&n| !graph.has_edge(n, n2)) {
+                    continue;
+                }
+
+                for (i3, n3) in nodes.iter().enumerate().skip(i2 + 1) {
+                    if [n0, n1, n2].iter().any(|&n| !graph.has_edge(n, n3)) {
+                        continue;
+                    }
+
+                    for (i4, n4) in nodes.iter().enumerate().skip(i3 + 1) {
+                        if [n0, n1, n2, n3].iter().any(|&n| !graph.has_edge(n, n4)) {
+                            continue;
+                        }
+
+                        for (i5, n5) in nodes.iter().enumerate().skip(i4 + 1) {
+                            if [n0, n1, n2, n3, n4].iter().any(|&n| !graph.has_edge(n, n5)) {
+                                continue;
+                            }
+
+                            for (i6, n6) in nodes.iter().enumerate().skip(i5 + 1) {
+                                if [n0, n1, n2, n3, n4, n5]
+                                    .iter()
+                                    .any(|&n| !graph.has_edge(n, n6))
+                                {
+                                    continue;
+                                }
+
+                                for (i7, n7) in nodes.iter().enumerate().skip(i6 + 1) {
+                                    if [n0, n1, n2, n3, n4, n5, n6]
+                                        .iter()
+                                        .any(|&n| !graph.has_edge(n, n7))
+                                    {
+                                        continue;
+                                    }
+
+                                    for (i8, n8) in nodes.iter().enumerate().skip(i7 + 1) {
+                                        if [n0, n1, n2, n3, n4, n5, n6, n7]
+                                            .iter()
+                                            .any(|&n| !graph.has_edge(n, n8))
+                                        {
+                                            continue;
+                                        }
+
+                                        for (i9, n9) in nodes.iter().enumerate().skip(i8 + 1) {
+                                            if [n0, n1, n2, n3, n4, n5, n6, n7, n8]
+                                                .iter()
+                                                .any(|&n| !graph.has_edge(n, n9))
+                                            {
+                                                continue;
+                                            }
+
+                                            for (i10, n10) in nodes.iter().enumerate().skip(i9 + 1)
+                                            {
+                                                if [n0, n1, n2, n3, n4, n5, n6, n7, n8, n9]
+                                                    .iter()
+                                                    .any(|&n| !graph.has_edge(n, n10))
+                                                {
+                                                    continue;
+                                                }
+
+                                                for (i11, n11) in
+                                                    nodes.iter().enumerate().skip(i10 + 1)
+                                                {
+                                                    if [n0, n1, n2, n3, n4, n5, n6, n7, n8, n9, n10]
+                                                        .iter()
+                                                        .any(|&n| !graph.has_edge(n, n11))
+                                                    {
+                                                        continue;
+                                                    }
+
+                                                    for (_, n12) in
+                                                        nodes.iter().enumerate().skip(i11 + 1)
+                                                    {
+                                                        if [
+                                                            n0, n1, n2, n3, n4, n5, n6, n7, n8, n9,
+                                                            n10, n11,
+                                                        ]
+                                                        .iter()
+                                                        .any(|&n| !graph.has_edge(n, n12))
+                                                        {
+                                                            continue;
+                                                        }
+
+                                                        return [
+                                                            n0, n1, n2, n3, n4, n5, n6, n7, n8, n9,
+                                                            n10, n11, n12,
+                                                        ]
+                                                        .iter()
+                                                        .sorted()
+                                                        .join(",");
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    unreachable!("No solution");
+}
+
+#[aoc(day23, part2, nested_loops_macro)]
+fn part2_nested_loops_macro(input: &str) -> String {
+    let graph = StrGraph::from(input);
+    let nodes = graph.nodes().sorted().collect::<Vec<_>>();
+
+    macro_rules! wtf {
+        // First case / outermost loop, starts the recursion
+        ($i:ident $n:ident $($rest_i:ident $rest_n:ident)*) => {
+            for ($i, $n) in nodes.iter().enumerate() {
+                wtf!($($rest_i $rest_n)* => $i $n);
+            }
+        };
+
+        // Base case / innermost loop, finally does the return
+        ($last_i:ident $last_n:ident => $prev_i:ident $($prev_n:ident),*) => {
+            for (_, $last_n) in nodes.iter().enumerate().skip($prev_i + 1) {
+                if [$($prev_n),*].iter().any(|&n| !graph.has_edge(n, $last_n)) {
+                    continue;
+                }
+
+                return [$($prev_n),*, $last_n]
+                    .iter()
+                    .sorted()
+                    .join(",");
+            }
+        };
+
+        // Intermediate cases, continues the recursion
+        ($i:ident $n:ident $($rest_i:ident $rest_n:ident)* => $prev_i:ident $($prev_n:ident),*) => {
+            for ($i, $n) in nodes.iter().enumerate().skip($prev_i + 1) {
+                if [ $($prev_n),* ].iter().any(|&n| !graph.has_edge(n, $n)) {
+                    continue;
+                }
+
+                wtf!($($rest_i $rest_n)* => $i $n, $($prev_n),*);
+            }
+        };
+    }
+
+    wtf!(
+        i0 n0
+        i1 n1
+        i2 n2
+        i3 n3
+        i4 n4
+        i5 n5
+        i6 n6
+        i7 n7
+        i8 n8
+        i9 n9
+        i10 n10
+        i11 n11
+        i12 n12
+    );
+
+    unreachable!("No solution");
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
