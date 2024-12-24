@@ -8,7 +8,7 @@ use itertools::Itertools;
 use rand::seq::IteratorRandom;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-enum Operator {
+pub enum Operator {
     And,
     Or,
     Xor,
@@ -26,13 +26,13 @@ impl From<&str> for Operator {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-enum Wire<'input> {
+pub enum Wire<'input> {
     Input(bool),
     Function(Operator, &'input str, &'input str),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-struct Machine<'input> {
+pub struct Machine<'input> {
     wires: HashMap<&'input str, Wire<'input>>,
 }
 
@@ -69,7 +69,11 @@ impl<'input> Machine<'input> {
         self.wires.keys().copied()
     }
 
-    fn wire(&self, key: &str) -> &'input str {
+    pub fn wire(&self, key: &str) -> Option<Wire> {
+        self.wires.iter().find(|(k, _)| **k == key).map(|(_, v)| *v)
+    }
+
+    pub fn wire_name(&self, key: &str) -> &'input str {
         self.wires
             .keys()
             .copied()
@@ -77,8 +81,7 @@ impl<'input> Machine<'input> {
             .unwrap()
     }
 
-    #[allow(dead_code)]
-    fn function_for(&self, wire: &'input str) -> String {
+    pub fn function_for(&self, wire: &'input str) -> String {
         match self.wires[wire] {
             Wire::Input(value) => format!("{wire}={value}"),
             Wire::Function(op, arg0, arg1) => format!(
@@ -89,7 +92,7 @@ impl<'input> Machine<'input> {
         }
     }
 
-    fn value_of_prefixed(&'input self, prefix: char) -> usize {
+    pub fn value_of_prefixed(&'input self, prefix: char) -> usize {
         let mut binary = String::new();
 
         for wire in self.wires().sorted().rev() {
@@ -101,7 +104,7 @@ impl<'input> Machine<'input> {
         usize::from_str_radix(&binary, 2).unwrap()
     }
 
-    fn value_of(&self, wire: &'input str) -> bool {
+    pub fn value_of(&self, wire: &'input str) -> bool {
         match self.wires.get(wire).unwrap() {
             Wire::Input(value) => *value,
             Wire::Function(op, arg0, arg1) => {
@@ -117,7 +120,7 @@ impl<'input> Machine<'input> {
         }
     }
 
-    fn swap(&mut self, a: &'input str, b: &'input str) {
+    pub fn swap(&mut self, a: &'input str, b: &'input str) {
         let old_b = self.wires[b];
         let old_a = self.wires[a];
 
@@ -125,7 +128,7 @@ impl<'input> Machine<'input> {
         self.wires.insert(b, old_a);
     }
 
-    fn depends_on(&self, wire: &'input str) -> Vec<&'input str> {
+    pub fn depends_on(&self, wire: &'input str) -> Vec<&'input str> {
         let mut result = vec![wire];
 
         'searching: loop {
@@ -156,6 +159,74 @@ impl<'input> Machine<'input> {
         }
 
         result
+    }
+
+    fn wire_to_graphviz(&self, wire: &str) -> Vec<String> {
+        match self.wires[wire] {
+            Wire::Input(value) => vec![format!("    {wire} [label=\"{wire}={value}\"];")],
+            Wire::Function(op, arg0, arg1) => vec![
+                format!("    {wire} [label=\"{wire}={op:?}\"];"),
+                format!("    {wire} -> {arg0};"),
+                format!("    {wire} -> {arg1};"),
+            ],
+        }
+    }
+
+    pub fn to_graphviz(&self) -> String {
+        self.to_graphviz_limited(45)
+    }
+
+    pub fn to_graphviz_limited(&self, limit: usize) -> String {
+        let mut dot = String::new();
+
+        dot.push_str("digraph {\n");
+        dot.push_str("  compounded=true;\n");
+        dot.push_str("  rankdir=LR;\n");
+
+        let mut added = HashSet::new();
+        let mut by_output: HashMap<&str, HashSet<&str>> = HashMap::new();
+
+        for output in self
+            .wires()
+            .filter(|w| w.starts_with('z'))
+            .sorted()
+            .take(limit)
+        {
+            let deps = self.depends_on(output);
+
+            for dep in deps {
+                if !added.contains(&dep) {
+                    added.insert(dep);
+                    by_output.entry(output).or_default().insert(dep);
+                }
+            }
+        }
+
+        for (output, deps) in by_output.iter().sorted_by(|a, b| a.0.cmp(b.0)) {
+            dot.push_str(&format!(
+                "  subgraph cluster_{output} {{\n    label=\"{output}\";\n\n",
+                output = output
+            ));
+            for line in self.wire_to_graphviz(output) {
+                dot.push_str(&line);
+                dot.push('\n');
+            }
+
+            for dep in deps.iter().sorted() {
+                for line in self.wire_to_graphviz(dep) {
+                    dot.push_str(&line);
+                    dot.push('\n');
+                }
+                dot.push('\n');
+            }
+            dot.push_str("  }\n");
+        }
+
+        // External edges have any output in one and a wire in the other
+
+        dot.push_str("}\n");
+
+        dot
     }
 }
 
@@ -451,8 +522,8 @@ fn part2_findadder(input: &str) -> String {
 
     for bit in 0..bits {
         // New bits we're adding in
-        let xin = Some(machine.wire(&format!("x{:02}", bit)));
-        let yin = Some(machine.wire(&format!("y{:02}", bit)));
+        let xin = Some(machine.wire_name(&format!("x{:02}", bit)));
+        let yin = Some(machine.wire_name(&format!("y{:02}", bit)));
 
         // The combinations of just those bits
         let mut adder = find_op(&machine, Operator::Xor, xin, yin);
