@@ -104,6 +104,23 @@ impl<'input> Machine<'input> {
         usize::from_str_radix(&binary, 2).unwrap()
     }
 
+    #[allow(clippy::result_unit_err)]
+    pub fn value_of_prefixed_loopcheck(&'input self, prefix: char) -> Result<usize, ()> {
+        let mut binary = String::new();
+
+        for wire in self.wires().sorted().rev() {
+            if wire.starts_with(prefix) {
+                binary.push(if self.value_of_loopcheck(wire)? {
+                    '1'
+                } else {
+                    '0'
+                });
+            }
+        }
+
+        usize::from_str_radix(&binary, 2).map_err(|_e| ())
+    }
+
     pub fn value_of(&self, wire: &'input str) -> bool {
         match self.wires.get(wire).unwrap() {
             Wire::Input(value) => *value,
@@ -118,6 +135,33 @@ impl<'input> Machine<'input> {
                 }
             }
         }
+    }
+
+    #[allow(clippy::result_unit_err)]
+    pub fn value_of_loopcheck(&self, wire: &'input str) -> Result<bool, ()> {
+        fn recur(me: &Machine, wire: &str, checked: Vec<&str>) -> Result<bool, ()> {
+            if checked.contains(&wire) {
+                return Err(());
+            }
+            let mut next_checked = checked.clone();
+            next_checked.push(wire);
+
+            match me.wires.get(wire).unwrap() {
+                Wire::Input(value) => Ok(*value),
+                Wire::Function(op, arg0, arg1) => {
+                    let arg0 = recur(me, arg0, next_checked.clone())?;
+                    let arg1 = recur(me, arg1, next_checked.clone())?;
+
+                    Ok(match op {
+                        Operator::And => arg0 & arg1,
+                        Operator::Or => arg0 | arg1,
+                        Operator::Xor => arg0 ^ arg1,
+                    })
+                }
+            }
+        }
+
+        recur(self, wire, vec![])
     }
 
     pub fn swap(&mut self, a: &'input str, b: &'input str) {
@@ -249,9 +293,7 @@ fn part2_bruteforce(input: &str) -> String {
 
     let x = machine.value_of_prefixed('y');
     let y = machine.value_of_prefixed('x');
-
     let target_z = x + y;
-    let start = std::time::Instant::now();
 
     let mut dependency_cache = HashMap::new();
     for wire in machine.wires() {
@@ -266,33 +308,18 @@ fn part2_bruteforce(input: &str) -> String {
     }
 
     let result = machine
-        .wires()
+        .wires
+        .keys()
+        .filter(|w| !w.starts_with('x') && !w.starts_with('y'))
         .permutations(8)
-        .enumerate()
-        .map(|(i, wires)| {
-            if i % 1_000_000 == 0 {
-                println!("[{i} in {:?}] {:?}", start.elapsed(), wires);
-            }
-
-            if dependency_cache[wires[0]].contains(wires[1])
-                || dependency_cache[wires[1]].contains(wires[0])
-                || dependency_cache[wires[2]].contains(wires[3])
-                || dependency_cache[wires[3]].contains(wires[2])
-                || dependency_cache[wires[4]].contains(wires[5])
-                || dependency_cache[wires[5]].contains(wires[4])
-                || dependency_cache[wires[6]].contains(wires[7])
-                || dependency_cache[wires[7]].contains(wires[6])
-            {
-                return Err(());
-            }
-
+        .map(|wires| {
             let mut machine = machine.clone();
             machine.swap(wires[0], wires[1]);
             machine.swap(wires[2], wires[3]);
             machine.swap(wires[4], wires[5]);
             machine.swap(wires[6], wires[7]);
 
-            if machine.value_of_prefixed('z') == target_z {
+            if machine.value_of_prefixed_loopcheck('z')? == target_z {
                 Ok(wires.iter().sorted().join(","))
             } else {
                 Err(())
