@@ -1,0 +1,7 @@
+run day part="--all": 
+    cargo build --bin day{{day}}
+    ./target/debug/day{{day}} run {{part}} input/2025/day{{day}}.txt
+
+bench day part="--all" iters="100":
+    cargo build --release --bin day{{day}}
+    ./target/release/day{{day}} bench {{part}} input/2025/day{{day}}.txt --warmup 5 --iters {{iters}}

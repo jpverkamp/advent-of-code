@@ -1,0 +1,9 @@
+[package]
+name = "aoc2025"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+aoc = { path = "aoc_macros" }
+ctor = "0.2"
+clap = { version = "4", features = ["derive"] }
