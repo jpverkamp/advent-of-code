@@ -7,3 +7,5 @@ edition = "2024"
 aoc = { path = "aoc_macros" }
 ctor = "0.2"
 clap = { version = "4", features = ["derive"] }
+regex = "1.12.2"
+fancy-regex = "0.16.2"
