@@ -60,7 +60,7 @@ impl From<&str> for Turn {
         };
         let steps: usize = steps_str
             .parse()
-            .expect(&format!("Invalid number of steps in {s}"));
+            .unwrap_or_else(|_| panic!("Invalid number of steps in {s}"));
         Turn { direction, steps }
     }
 }
@@ -84,11 +84,13 @@ fn part2(input: &str) -> impl Into<String> {
         // It would be faster to calculate how many times we pass directly...
         // But that's *really* not necessary at this scale
         .flat_map(|turn| {
-            std::iter::repeat(Turn {
-                direction: turn.direction,
-                steps: 1,
-            })
-            .take(turn.steps)
+            std::iter::repeat_n(
+                Turn {
+                    direction: turn.direction,
+                    steps: 1,
+                },
+                turn.steps,
+            )
         })
         .fold(Dial::new(100, 50), |dial, turn| dial.apply(turn))
         .zeroes
@@ -103,7 +105,7 @@ fn part2_inline(input: &str) -> impl Into<String> {
         .fold(Dial::new(100, 50), |dial, turn| {
             (0..turn.steps).fold(dial, |d, _| {
                 d.apply(Turn {
-                    direction: turn.direction,  
+                    direction: turn.direction,
                     steps: 1,
                 })
             })
