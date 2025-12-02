@@ -103,7 +103,7 @@ fn part2_inline(input: &str) -> impl Into<String> {
         .fold(Dial::new(100, 50), |dial, turn| {
             (0..turn.steps).fold(dial, |d, _| {
                 d.apply(Turn {
-                    direction: turn.direction,
+                    direction: turn.direction,  
                     steps: 1,
                 })
             })
@@ -113,4 +113,17 @@ fn part2_inline(input: &str) -> impl Into<String> {
 }
 
 aoc::main!(day1);
-aoc::test!(day1, "input/2025/day1.txt", [part1] => "1055", [part2, part2_inline] => "6386");
+
+aoc::test!(day1, text = "\
+L68
+L30
+R48
+L5
+R60
+L55
+L1
+L99
+R14
+L82", [part1] => "3", [part2, part2_inline] => "6");
+
+aoc::test!(day1, file = "input/2025/day1.txt", [part1] => "1055", [part2, part2_inline] => "6386");
