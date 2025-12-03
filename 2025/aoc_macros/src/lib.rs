@@ -67,7 +67,6 @@ pub fn main(input: TokenStream) -> TokenStream {
     let day_expr = parse_macro_input!(input as Expr);
     let day_str = expr_to_string(&day_expr);
 
-
     let expanded = quote! {
         #[doc(hidden)]
         mod __aoc {
@@ -91,6 +90,18 @@ pub fn main(input: TokenStream) -> TokenStream {
         }
 
         fn main() {
+            let tracing_enabled = std::env::var("RUST_TRACE").is_ok();
+            if tracing_enabled {
+                tracing_subscriber::fmt()
+                    .pretty()
+                    .without_time()
+                    .with_max_level(tracing::Level::DEBUG)
+                    .init();
+                tracing::info!("Tracing enabled");
+            } else {
+                env_logger::init();
+            }
+
             let day: &str = #day_str;
 
             use clap::{Parser, Subcommand, Args};

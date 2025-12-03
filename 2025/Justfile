@@ -1,3 +1,10 @@
+start day:
+    cargo aoc input --day {{day}}
+    sed 's/dayN/day{{day}}/' src/bin/_template.txt > src/bin/day{{day}}.rs
+
+test day:
+    @cargo test day{{day}}
+
 run day part="--all": 
     @cargo build --bin day{{day}} --quiet
     @./target/debug/day{{day}} run {{part}} input/2025/day{{day}}.txt
@@ -5,3 +12,4 @@ run day part="--all":
 bench day part="--all" iters="100":
     @cargo build --release --bin day{{day}} --quiet
     @./target/release/day{{day}} bench {{part}} input/2025/day{{day}}.txt --warmup 5 --iters {{iters}}
+
