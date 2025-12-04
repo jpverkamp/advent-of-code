@@ -6,6 +6,8 @@ use syn::{
     parse_macro_input, Expr, ItemFn, LitStr, Token,
 };
 
+mod render;
+
 fn expr_to_string(expr: &Expr) -> String {
     match expr {
         Expr::Lit(l) => l
@@ -72,10 +74,13 @@ pub fn main(input: TokenStream) -> TokenStream {
         mod __aoc {
             use std::sync::{Mutex, OnceLock};
             pub struct Entry { pub day: &'static str, pub name: &'static str, pub func: fn(&str) -> String }
+            pub struct RenderEntry { pub day: &'static str, pub name: &'static str, pub func: fn(&str) }
 
             static REGISTRY: OnceLock<Mutex<Vec<&'static Entry>>> = OnceLock::new();
+            static RENDER_REGISTRY: OnceLock<Mutex<Vec<&'static RenderEntry>>> = OnceLock::new();
 
             pub fn register(e: &'static Entry) { let reg = REGISTRY.get_or_init(|| Mutex::new(Vec::new())); reg.lock().unwrap().push(e); }
+            pub fn register_render(e: &'static RenderEntry) { let reg = RENDER_REGISTRY.get_or_init(|| Mutex::new(Vec::new())); reg.lock().unwrap().push(e); }
 
             pub fn entries_for_day(day: &str) -> Vec<&'static Entry> {
                 let reg = REGISTRY.get_or_init(|| Mutex::new(Vec::new()));
@@ -83,8 +88,19 @@ pub fn main(input: TokenStream) -> TokenStream {
                 v.sort_by(|a,b| a.name.cmp(b.name)); v
             }
 
+            pub fn render_entries_for_day(day: &str) -> Vec<&'static RenderEntry> {
+                let reg = RENDER_REGISTRY.get_or_init(|| Mutex::new(Vec::new()));
+                let mut v: Vec<&'static RenderEntry> = reg.lock().unwrap().iter().copied().filter(|e| e.day == day).collect();
+                v.sort_by(|a,b| a.name.cmp(b.name)); v
+            }
+
             pub fn get(day: &str, name: &str) -> Option<&'static Entry> {
                 let reg = REGISTRY.get_or_init(|| Mutex::new(Vec::new()));
+                reg.lock().unwrap().iter().copied().find(|e| e.day == day && e.name == name)
+            }
+
+            pub fn get_render(day: &str, name: &str) -> Option<&'static RenderEntry> {
+                let reg = RENDER_REGISTRY.get_or_init(|| Mutex::new(Vec::new()));
                 reg.lock().unwrap().iter().copied().find(|e| e.day == day && e.name == name)
             }
         }
@@ -113,8 +129,20 @@ pub fn main(input: TokenStream) -> TokenStream {
             #[derive(Subcommand)]
             enum Commands {
                 List,
+                Render(RenderArgs),
                 Run(RunArgs),
                 Bench(BenchArgs),
+            }
+
+            #[derive(Args)]
+            struct RenderArgs {
+                /// Run all registered render solutions for the day
+                #[arg(long)]
+                all: bool,
+                /// Name of the render solution to run (if not using --all)
+                name: Option<String>,
+                /// Input path (use '-' for stdin)
+                input: Option<String>,
             }
 
             #[derive(Args)]
@@ -191,10 +219,47 @@ pub fn main(input: TokenStream) -> TokenStream {
             match cli.command {
                 Commands::List => {
                     let entries = crate::__aoc::entries_for_day(day);
-                    if entries.is_empty() {
+                    let render_entries = crate::__aoc::render_entries_for_day(day);
+                    if entries.is_empty() && render_entries.is_empty() {
                         println!("No solutions registered for {}", day);
                     } else {
-                        for e in entries { println!("{}", e.name); }
+                        if !entries.is_empty() {
+                            println!("Solutions:");
+                            for e in entries { println!("  {}", e.name); }
+                        }
+                        if !render_entries.is_empty() {
+                            println!("\nRender:");
+                            for e in render_entries { println!("  {}", e.name); }
+                        }
+                    }
+                }
+                Commands::Render(args) => {
+                    if args.all {
+                        let input_path = match args.input {
+                            Some(ip) => ip,
+                            None => match args.name {
+                                Some(pos) => pos,
+                                None => {
+                                    eprintln!("Missing input path for --all. Provide an input path (use '-' for stdin) or --input <FILE>");
+                                    std::process::exit(2);
+                                }
+                            },
+                        };
+                        let input = read_input(input_path);
+                        let entries = crate::__aoc::render_entries_for_day(day);
+                        if entries.is_empty() { eprintln!("No render solutions registered for {}", day); std::process::exit(3); }
+                        for e in entries { (e.func)(&input); }
+                    } else {
+                        let name = match args.name {
+                            Some(n) => n,
+                            None => { eprintln!("Missing solution name. Try 'list' to see registered names."); std::process::exit(2); }
+                        };
+                        let input_path = match args.input {
+                            Some(i) => i,
+                            None => { eprintln!("Missing input path. Provide an input path (use '-' for stdin) or --input <FILE>"); std::process::exit(2); }
+                        };
+                        let input = read_input(input_path);
+                        match crate::__aoc::get_render(day, &name) { Some(entry) => { (entry.func)(&input); } None => { eprintln!("No such render solution: {}. Try 'list'.", name); std::process::exit(3); } }
                     }
                 }
                 Commands::Run(args) => {
@@ -394,5 +459,198 @@ pub fn test(input: TokenStream) -> TokenStream {
         #(#test_functions)*
     };
     
+    TokenStream::from(expanded)
+}
+
+// Function-like macro: aoc::render_image!(width, height, filename, |x, y| { /* return (r, g, b) */ })
+#[proc_macro]
+pub fn render_image(input: TokenStream) -> TokenStream {
+    render::render_image_impl(input)
+}
+
+// Function-like macro: aoc::render_frame!(width, height, |x, y| { /* return (r, g, b) */ })
+#[proc_macro]
+pub fn render_frame(input: TokenStream) -> TokenStream {
+    render::render_frame_impl(input)
+}
+
+// Attribute macro: #[aoc::register_render(day, name)] or #[aoc::register_render(day, name, scale=N)]
+// Registers a render function with the CLI and applies render logic with optional scaling
+#[proc_macro_attribute]
+pub fn register_render(attr: TokenStream, item: TokenStream) -> TokenStream {
+    let parser = syn::punctuated::Punctuated::<Expr, Token![,]>::parse_terminated;
+    let args = parser
+        .parse(attr.into())
+        .expect("expected #[aoc::register_render(day0, name)] or #[aoc::register_render(day0, name, scale=N)]");
+    assert!(
+        args.len() >= 2,
+        "expected at least two arguments to #[aoc::register_render(day0, name)]"
+    );
+
+    let day_str = expr_to_string(&args[0]);
+    let name_str = expr_to_string(&args[1]);
+
+    // Parse optional scale parameter
+    let scale_lit = if args.len() > 2 {
+        // Handle both "4" and "scale = 4" syntax
+        match &args[2] {
+            Expr::Lit(syn::ExprLit { lit: syn::Lit::Int(lit_int), .. }) => {
+                // Direct integer: "4"
+                lit_int.clone()
+            }
+            Expr::Assign(syn::ExprAssign { right, .. }) => {
+                // Assignment: "scale = 4"
+                if let Expr::Lit(syn::ExprLit { lit: syn::Lit::Int(lit_int), .. }) = right.as_ref() {
+                    lit_int.clone()
+                } else {
+                    syn::LitInt::new("1", proc_macro2::Span::call_site())
+                }
+            }
+            _ => syn::LitInt::new("1", proc_macro2::Span::call_site())
+        }
+    } else {
+        syn::LitInt::new("1", proc_macro2::Span::call_site())
+    };
+
+    // Parse optional fps parameter
+    let fps_lit = if args.len() > 3 {
+        // Handle both "30" and "fps = 30" syntax
+        match &args[3] {
+            Expr::Lit(syn::ExprLit { lit: syn::Lit::Int(lit_int), .. }) => {
+                // Direct integer: "30"
+                lit_int.clone()
+            }
+            Expr::Assign(syn::ExprAssign { right, .. }) => {
+                // Assignment: "fps = 30"
+                if let Expr::Lit(syn::ExprLit { lit: syn::Lit::Int(lit_int), .. }) = right.as_ref() {
+                    lit_int.clone()
+                } else {
+                    syn::LitInt::new("30", proc_macro2::Span::call_site())
+                }
+            }
+            _ => syn::LitInt::new("30", proc_macro2::Span::call_site())
+        }
+    } else {
+        syn::LitInt::new("30", proc_macro2::Span::call_site())
+    };
+
+    let fn_item = parse_macro_input!(item as ItemFn);
+    let fn_name = fn_item.sig.ident.clone();
+    let fn_vis = &fn_item.vis;
+    let fn_sig = &fn_item.sig;
+    let fn_body = &fn_item.block;
+
+    let shim_ident: Ident = format_ident!("__aoc_render_shim_{}", fn_name);
+    let entry_ident: Ident = format_ident!("__AOC_RENDER_ENTRY_{}", fn_name.to_string().to_uppercase());
+    let reg_ident: Ident = format_ident!("__aoc_register_render_{}", fn_name);
+
+    let day_lit = day_str;
+    let name_lit = name_str;
+
+    let expanded = quote! {
+        thread_local! {
+            static __AOC_RENDER_FRAMES: std::cell::RefCell<Vec<::image::RgbImage>> = std::cell::RefCell::new(Vec::new());
+        }
+
+        #[allow(non_snake_case)]
+        fn __aoc_render_frames_push(frame: ::image::RgbImage) {
+            __AOC_RENDER_FRAMES.with(|frames| {
+                frames.borrow_mut().push(frame);
+            });
+        }
+
+        #[allow(non_snake_case)]
+        fn __aoc_render_frames_take() -> Vec<::image::RgbImage> {
+            __AOC_RENDER_FRAMES.with(|frames| {
+                frames.borrow_mut().drain(..).collect()
+            })
+        }
+
+        #fn_vis #fn_sig {
+            // Execute the original function to collect frames
+            #fn_body
+
+            // Finalize video encoding using ffmpeg via subprocess
+            let frames_vec = __aoc_render_frames_take();
+            
+            if !frames_vec.is_empty() {
+                let first_frame = &frames_vec[0];
+                let orig_width = first_frame.width() as usize;
+                let orig_height = first_frame.height() as usize;
+                let scale = #scale_lit as usize;
+
+                let scaled_width = orig_width * scale;
+                let scaled_height = orig_height * scale;
+
+                let temp_dir = std::path::PathBuf::from("/tmp/aoc_render");
+                std::fs::create_dir_all(&temp_dir).expect("failed to create temp dir");
+
+                for (idx, frame) in frames_vec.iter().enumerate() {
+                    let mut scaled_frame = ::image::RgbImage::new(
+                        scaled_width as u32,
+                        scaled_height as u32
+                    );
+
+                    for orig_y in 0..orig_height {
+                        for orig_x in 0..orig_width {
+                            let pixel = frame.get_pixel(orig_x as u32, orig_y as u32);
+                            for dy in 0..scale {
+                                for dx in 0..scale {
+                                    let new_x = orig_x * scale + dx;
+                                    let new_y = orig_y * scale + dy;
+                                    scaled_frame.put_pixel(new_x as u32, new_y as u32, *pixel);
+                                }
+                            }
+                        }
+                    }
+
+                    let frame_path = temp_dir.join(format!("frame_{:04}.png", idx));
+                    scaled_frame.save(&frame_path).expect("failed to save frame");
+                }
+
+                // Use ffmpeg to create video from frames
+                let output_path = format!("{}.mp4", stringify!(#fn_name));
+                let frame_pattern = temp_dir.join("frame_%04d.png").to_string_lossy().to_string();
+                let fps_str = format!("{}", #fps_lit);
+
+                let output = std::process::Command::new("ffmpeg")
+                    .arg("-framerate").arg(&fps_str)
+                    .arg("-i").arg(&frame_pattern)
+                    .arg("-c:v").arg("libx264")
+                    .arg("-pix_fmt").arg("yuv420p")
+                    .arg("-y")
+                    .arg(&output_path)
+                    .output()
+                    .expect("failed to run ffmpeg");
+
+                if !output.status.success() {
+                    eprintln!("ffmpeg error: {}", String::from_utf8_lossy(&output.stderr));
+                } else {
+                    eprintln!("ffmpeg succeeded");
+                }
+
+                // Clean up temp frames
+                for entry in std::fs::read_dir(&temp_dir).expect("failed to read temp dir") {
+                    if let Ok(entry) = entry {
+                        let path = entry.path();
+                        if path.extension().map_or(false, |ext| ext == "png") {
+                            let _ = std::fs::remove_file(&path);
+                        }
+                    }
+                }
+            }
+        }
+
+        #[doc(hidden)]
+        fn #shim_ident(input: &str) { #fn_name(input); }
+
+        #[doc(hidden)]
+        static #entry_ident: crate::__aoc::RenderEntry = crate::__aoc::RenderEntry { day: #day_lit, name: #name_lit, func: #shim_ident };
+
+        #[doc(hidden)]
+        #[::ctor::ctor]
+        fn #reg_ident() { crate::__aoc::register_render(&#entry_ident); }
+    };
+
     TokenStream::from(expanded)
 }
