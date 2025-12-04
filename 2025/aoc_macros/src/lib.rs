@@ -543,30 +543,37 @@ pub fn register_render(attr: TokenStream, item: TokenStream) -> TokenStream {
     let shim_ident: Ident = format_ident!("__aoc_render_shim_{}", fn_name);
     let entry_ident: Ident = format_ident!("__AOC_RENDER_ENTRY_{}", fn_name.to_string().to_uppercase());
     let reg_ident: Ident = format_ident!("__aoc_register_render_{}", fn_name);
+    let module_ident: Ident = format_ident!("__aoc_render_module_{}", fn_name);
 
     let day_lit = day_str;
     let name_lit = name_str;
 
     let expanded = quote! {
-        thread_local! {
-            static __AOC_RENDER_FRAMES: std::cell::RefCell<Vec<::image::RgbImage>> = std::cell::RefCell::new(Vec::new());
-        }
+        mod #module_ident {
+            use super::*;
 
-        #[allow(non_snake_case)]
-        fn __aoc_render_frames_push(frame: ::image::RgbImage) {
-            __AOC_RENDER_FRAMES.with(|frames| {
-                frames.borrow_mut().push(frame);
-            });
-        }
+            thread_local! {
+                static __AOC_RENDER_FRAMES: std::cell::RefCell<Vec<::image::RgbImage>> = std::cell::RefCell::new(Vec::new());
+            }
 
-        #[allow(non_snake_case)]
-        fn __aoc_render_frames_take() -> Vec<::image::RgbImage> {
-            __AOC_RENDER_FRAMES.with(|frames| {
-                frames.borrow_mut().drain(..).collect()
-            })
+            #[allow(non_snake_case)]
+            pub fn __aoc_render_frames_push(frame: ::image::RgbImage) {
+                __AOC_RENDER_FRAMES.with(|frames| {
+                    frames.borrow_mut().push(frame);
+                });
+            }
+
+            #[allow(non_snake_case)]
+            pub fn __aoc_render_frames_take() -> Vec<::image::RgbImage> {
+                __AOC_RENDER_FRAMES.with(|frames| {
+                    frames.borrow_mut().drain(..).collect()
+                })
+            }
         }
 
         #fn_vis #fn_sig {
+            use #module_ident::*;
+            
             // Execute the original function to collect frames
             #fn_body
 
@@ -575,53 +582,40 @@ pub fn register_render(attr: TokenStream, item: TokenStream) -> TokenStream {
             
             if !frames_vec.is_empty() {
                 let first_frame = &frames_vec[0];
-                let orig_width = first_frame.width() as usize;
-                let orig_height = first_frame.height() as usize;
-                let scale = #scale_lit as usize;
-
-                let scaled_width = orig_width * scale;
-                let scaled_height = orig_height * scale;
+                let orig_width = first_frame.width();
+                let orig_height = first_frame.height();
+                let scale = #scale_lit;
 
                 let temp_dir = std::path::PathBuf::from("/tmp/aoc_render");
                 std::fs::create_dir_all(&temp_dir).expect("failed to create temp dir");
 
+                // Save frames without scaling - let ffmpeg handle it
                 for (idx, frame) in frames_vec.iter().enumerate() {
-                    let mut scaled_frame = ::image::RgbImage::new(
-                        scaled_width as u32,
-                        scaled_height as u32
-                    );
-
-                    for orig_y in 0..orig_height {
-                        for orig_x in 0..orig_width {
-                            let pixel = frame.get_pixel(orig_x as u32, orig_y as u32);
-                            for dy in 0..scale {
-                                for dx in 0..scale {
-                                    let new_x = orig_x * scale + dx;
-                                    let new_y = orig_y * scale + dy;
-                                    scaled_frame.put_pixel(new_x as u32, new_y as u32, *pixel);
-                                }
-                            }
-                        }
-                    }
-
                     let frame_path = temp_dir.join(format!("frame_{:04}.png", idx));
-                    scaled_frame.save(&frame_path).expect("failed to save frame");
+                    frame.save(&frame_path).expect("failed to save frame");
                 }
 
-                // Use ffmpeg to create video from frames
+                // Use ffmpeg to create video from frames with scaling
                 let output_path = format!("{}.mp4", stringify!(#fn_name));
                 let frame_pattern = temp_dir.join("frame_%04d.png").to_string_lossy().to_string();
                 let fps_str = format!("{}", #fps_lit);
+                let scale_filter = format!("scale={}:{}", orig_width * scale, orig_height * scale);
 
-                let output = std::process::Command::new("ffmpeg")
-                    .arg("-framerate").arg(&fps_str)
-                    .arg("-i").arg(&frame_pattern)
-                    .arg("-c:v").arg("libx264")
+                let mut cmd = std::process::Command::new("ffmpeg");
+                cmd.arg("-framerate").arg(&fps_str)
+                    .arg("-i").arg(&frame_pattern);
+                
+                // Add scaling filter if scale != 1
+                if scale != 1 {
+                    cmd.arg("-vf").arg(format!("{}:flags=neighbor", scale_filter));
+                }
+                
+                cmd.arg("-c:v").arg("libx264")
                     .arg("-pix_fmt").arg("yuv420p")
                     .arg("-y")
-                    .arg(&output_path)
-                    .output()
-                    .expect("failed to run ffmpeg");
+                    .arg(&output_path);
+
+                let output = cmd.output().expect("failed to run ffmpeg");
 
                 if !output.status.success() {
                     eprintln!("ffmpeg error: {}", String::from_utf8_lossy(&output.stderr));
