@@ -1,9 +1,10 @@
 use proc_macro::TokenStream;
 use proc_macro2::Ident;
-use quote::{format_ident, quote, ToTokens};
+use quote::{ToTokens, format_ident, quote};
 use syn::{
+    Expr, ItemFn, LitStr, Token,
     parse::{Parse, ParseStream, Parser},
-    parse_macro_input, Expr, ItemFn, LitStr, Token,
+    parse_macro_input,
 };
 
 mod render;
@@ -337,7 +338,7 @@ pub fn test(input: TokenStream) -> TokenStream {
         solutions: Vec<Expr>,
         expected: LitStr,
     }
-    
+
     enum InputSpec {
         File(LitStr),
         Text(LitStr),
@@ -348,7 +349,7 @@ pub fn test(input: TokenStream) -> TokenStream {
         input_spec: InputSpec,
         cases: Vec<TestCase>,
     }
-    
+
     impl Parse for TestInput {
         fn parse(input: ParseStream) -> syn::Result<Self> {
             let day = input.parse()?;
@@ -362,19 +363,24 @@ pub fn test(input: TokenStream) -> TokenStream {
                 match ident.to_string().as_str() {
                     "file" => InputSpec::File(val),
                     "text" => InputSpec::Text(val),
-                    other => return Err(syn::Error::new_spanned(ident, format!("expected `file` or `text`, got `{}`", other))),
+                    other => {
+                        return Err(syn::Error::new_spanned(
+                            ident,
+                            format!("expected `file` or `text`, got `{}`", other),
+                        ));
+                    }
                 }
             } else {
                 // Legacy form: just a string literal which is treated as a file path
                 let val: LitStr = input.parse()?;
                 InputSpec::File(val)
             };
-            
+
             let mut cases = Vec::new();
-            
+
             while !input.is_empty() {
                 input.parse::<Token![,]>()?;
-                
+
                 // Parse [solution1, solution2, ...]
                 let content;
                 syn::bracketed!(content in input);
@@ -382,17 +388,24 @@ pub fn test(input: TokenStream) -> TokenStream {
                     .parse_terminated(Expr::parse, Token![,])?
                     .into_iter()
                     .collect();
-                
+
                 input.parse::<Token![=>]>()?;
                 let expected: LitStr = input.parse()?;
-                
-                cases.push(TestCase { solutions, expected });
+
+                cases.push(TestCase {
+                    solutions,
+                    expected,
+                });
             }
-            
-            Ok(TestInput { day, input_spec, cases })
+
+            Ok(TestInput {
+                day,
+                input_spec,
+                cases,
+            })
         }
     }
-    
+
     let test_input = parse_macro_input!(input as TestInput);
     let day_str = expr_to_string(&test_input.day);
     let input_spec = test_input.input_spec;
@@ -411,7 +424,10 @@ pub fn test(input: TokenStream) -> TokenStream {
             let hash = short_hash(&path);
             // Take last component for readability
             let last = path.rsplit('/').next().unwrap_or(&path);
-            let sanitized: String = last.chars().map(|c| if c.is_ascii_alphanumeric() { c } else { '_' }).collect();
+            let sanitized: String = last
+                .chars()
+                .map(|c| if c.is_ascii_alphanumeric() { c } else { '_' })
+                .collect();
             format!("file_{}_{}", sanitized, hash)
         }
         InputSpec::Text(t) => {
@@ -423,42 +439,57 @@ pub fn test(input: TokenStream) -> TokenStream {
 
     // Precompute the input binding tokens (same for all cases in this macro invocation)
     let input_binding = match &input_spec {
-        InputSpec::File(p) => { let p_lit = p.clone(); quote! { let input = std::fs::read_to_string(#p_lit).unwrap_or_else(|e| panic!("failed to read {}: {}", #p_lit, e)); } }
-        InputSpec::Text(t) => { let t_lit = t.clone(); quote! { let input = #t_lit.to_string(); } }
+        InputSpec::File(p) => {
+            let p_lit = p.clone();
+            quote! { let input = std::fs::read_to_string(#p_lit).unwrap_or_else(|e| panic!("failed to read {}: {}", #p_lit, e)); }
+        }
+        InputSpec::Text(t) => {
+            let t_lit = t.clone();
+            quote! { let input = #t_lit.to_string(); }
+        }
     };
 
     // Generate test functions; include case and solution indices for full uniqueness.
-    let test_functions: Vec<_> = test_input.cases.iter().flat_map(|test_case| {
-        let expected = test_case.expected.value();
-        let day_str = day_str.clone();
-        let source_tag_str = source_tag_str.clone();
-        let input_binding_outer = input_binding.clone();
+    let test_functions: Vec<_> = test_input
+        .cases
+        .iter()
+        .flat_map(|test_case| {
+            let expected = test_case.expected.value();
+            let day_str = day_str.clone();
+            let source_tag_str = source_tag_str.clone();
+            let input_binding_outer = input_binding.clone();
 
-        test_case.solutions.iter().map(move |solution_expr| {
-            let name_str = expr_to_string(solution_expr);
-            let test_name = format_ident!("test_{}_{}_{}", day_str, source_tag_str, name_str);
-            let name_lit = name_str.clone();
-            let expected_lit = expected.clone();
-            let day_lit = day_str.clone();
-            let input_binding_clone = input_binding_outer.clone();
+            test_case
+                .solutions
+                .iter()
+                .map(move |solution_expr| {
+                    let name_str = expr_to_string(solution_expr);
+                    let test_name =
+                        format_ident!("test_{}_{}_{}", day_str, source_tag_str, name_str);
+                    let name_lit = name_str.clone();
+                    let expected_lit = expected.clone();
+                    let day_lit = day_str.clone();
+                    let input_binding_clone = input_binding_outer.clone();
 
-            quote! {
-                #[test]
-                fn #test_name() {
-                    #input_binding_clone
-                    let entry = crate::__aoc::get(#day_lit, #name_lit)
-                        .unwrap_or_else(|| panic!("solution {} not found", #name_lit));
-                    let result = (entry.func)(&input);
-                    assert_eq!(result, #expected_lit, "test failed for {}", #name_lit);
-                }
-            }
-        }).collect::<Vec<_>>()
-    }).collect();
-    
+                    quote! {
+                        #[test]
+                        fn #test_name() {
+                            #input_binding_clone
+                            let entry = crate::__aoc::get(#day_lit, #name_lit)
+                                .unwrap_or_else(|| panic!("solution {} not found", #name_lit));
+                            let result = (entry.func)(&input);
+                            assert_eq!(result, #expected_lit, "test failed for {}", #name_lit);
+                        }
+                    }
+                })
+                .collect::<Vec<_>>()
+        })
+        .collect();
+
     let expanded = quote! {
         #(#test_functions)*
     };
-    
+
     TokenStream::from(expanded)
 }
 
@@ -494,19 +525,26 @@ pub fn register_render(attr: TokenStream, item: TokenStream) -> TokenStream {
     let scale_lit = if args.len() > 2 {
         // Handle both "4" and "scale = 4" syntax
         match &args[2] {
-            Expr::Lit(syn::ExprLit { lit: syn::Lit::Int(lit_int), .. }) => {
+            Expr::Lit(syn::ExprLit {
+                lit: syn::Lit::Int(lit_int),
+                ..
+            }) => {
                 // Direct integer: "4"
                 lit_int.clone()
             }
             Expr::Assign(syn::ExprAssign { right, .. }) => {
                 // Assignment: "scale = 4"
-                if let Expr::Lit(syn::ExprLit { lit: syn::Lit::Int(lit_int), .. }) = right.as_ref() {
+                if let Expr::Lit(syn::ExprLit {
+                    lit: syn::Lit::Int(lit_int),
+                    ..
+                }) = right.as_ref()
+                {
                     lit_int.clone()
                 } else {
                     syn::LitInt::new("1", proc_macro2::Span::call_site())
                 }
             }
-            _ => syn::LitInt::new("1", proc_macro2::Span::call_site())
+            _ => syn::LitInt::new("1", proc_macro2::Span::call_site()),
         }
     } else {
         syn::LitInt::new("1", proc_macro2::Span::call_site())
@@ -516,19 +554,26 @@ pub fn register_render(attr: TokenStream, item: TokenStream) -> TokenStream {
     let fps_lit = if args.len() > 3 {
         // Handle both "30" and "fps = 30" syntax
         match &args[3] {
-            Expr::Lit(syn::ExprLit { lit: syn::Lit::Int(lit_int), .. }) => {
+            Expr::Lit(syn::ExprLit {
+                lit: syn::Lit::Int(lit_int),
+                ..
+            }) => {
                 // Direct integer: "30"
                 lit_int.clone()
             }
             Expr::Assign(syn::ExprAssign { right, .. }) => {
                 // Assignment: "fps = 30"
-                if let Expr::Lit(syn::ExprLit { lit: syn::Lit::Int(lit_int), .. }) = right.as_ref() {
+                if let Expr::Lit(syn::ExprLit {
+                    lit: syn::Lit::Int(lit_int),
+                    ..
+                }) = right.as_ref()
+                {
                     lit_int.clone()
                 } else {
                     syn::LitInt::new("30", proc_macro2::Span::call_site())
                 }
             }
-            _ => syn::LitInt::new("30", proc_macro2::Span::call_site())
+            _ => syn::LitInt::new("30", proc_macro2::Span::call_site()),
         }
     } else {
         syn::LitInt::new("30", proc_macro2::Span::call_site())
@@ -541,7 +586,8 @@ pub fn register_render(attr: TokenStream, item: TokenStream) -> TokenStream {
     let fn_body = &fn_item.block;
 
     let shim_ident: Ident = format_ident!("__aoc_render_shim_{}", fn_name);
-    let entry_ident: Ident = format_ident!("__AOC_RENDER_ENTRY_{}", fn_name.to_string().to_uppercase());
+    let entry_ident: Ident =
+        format_ident!("__AOC_RENDER_ENTRY_{}", fn_name.to_string().to_uppercase());
     let reg_ident: Ident = format_ident!("__aoc_register_render_{}", fn_name);
     let module_ident: Ident = format_ident!("__aoc_render_module_{}", fn_name);
 
@@ -559,6 +605,7 @@ pub fn register_render(attr: TokenStream, item: TokenStream) -> TokenStream {
             #[allow(non_snake_case)]
             pub fn __aoc_render_frames_push(frame: ::image::RgbImage) {
                 __AOC_RENDER_FRAMES.with(|frames| {
+                    log::info!("Rendering frame {}", frames.borrow().len());
                     frames.borrow_mut().push(frame);
                 });
             }
@@ -573,13 +620,13 @@ pub fn register_render(attr: TokenStream, item: TokenStream) -> TokenStream {
 
         #fn_vis #fn_sig {
             use #module_ident::*;
-            
+
             // Execute the original function to collect frames
             #fn_body
 
             // Finalize video encoding using ffmpeg via subprocess
             let frames_vec = __aoc_render_frames_take();
-            
+
             if !frames_vec.is_empty() {
                 let first_frame = &frames_vec[0];
                 let orig_width = first_frame.width();
@@ -596,7 +643,7 @@ pub fn register_render(attr: TokenStream, item: TokenStream) -> TokenStream {
                 }
 
                 // Use ffmpeg to create video from frames with scaling
-                let output_path = format!("{}.mp4", stringify!(#fn_name));
+                let output_path = format!("aoc2025_{}_{}.mp4", #day_lit, stringify!(#fn_name));
                 let frame_pattern = temp_dir.join("frame_%04d.png").to_string_lossy().to_string();
                 let fps_str = format!("{}", #fps_lit);
                 let scale_filter = format!("scale={}:{}", orig_width * scale, orig_height * scale);
@@ -604,12 +651,14 @@ pub fn register_render(attr: TokenStream, item: TokenStream) -> TokenStream {
                 let mut cmd = std::process::Command::new("ffmpeg");
                 cmd.arg("-framerate").arg(&fps_str)
                     .arg("-i").arg(&frame_pattern);
-                
+
                 // Add scaling filter if scale != 1
                 if scale != 1 {
                     cmd.arg("-vf").arg(format!("{}:flags=neighbor", scale_filter));
                 }
-                
+
+                log::info!("Rendering video with ffmpeg");
+
                 cmd.arg("-c:v").arg("libx264")
                     .arg("-pix_fmt").arg("yuv420p")
                     .arg("-y")
@@ -618,9 +667,9 @@ pub fn register_render(attr: TokenStream, item: TokenStream) -> TokenStream {
                 let output = cmd.output().expect("failed to run ffmpeg");
 
                 if !output.status.success() {
-                    eprintln!("ffmpeg error: {}", String::from_utf8_lossy(&output.stderr));
+                    log::error!("ffmpeg error: {}", String::from_utf8_lossy(&output.stderr));
                 } else {
-                    eprintln!("ffmpeg succeeded");
+                    log::info!("ffmpeg succeeded");
                 }
 
                 // Clean up temp frames

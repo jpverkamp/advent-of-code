@@ -1,6 +1,6 @@
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{Expr, ItemFn, Token, parse::Parser, parse_macro_input};
+use syn::{Expr, Token, parse::Parser};
 
 // Function-like macro: aoc::render_image!(width, height, filename, |x, y| { /* return (r, g, b) */ })
 pub fn render_image_impl(input: TokenStream) -> TokenStream {
