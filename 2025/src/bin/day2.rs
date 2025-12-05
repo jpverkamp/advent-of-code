@@ -1,6 +1,8 @@
 use num::Integer;
 
-#[aoc::register(day2, part1)]
+aoc::main!(day2);
+
+#[aoc::register]
 fn part1(input: &str) -> impl Into<String> {
     input
         .trim_end()
@@ -23,7 +25,7 @@ fn part1(input: &str) -> impl Into<String> {
         .to_string()
 }
 
-#[aoc::register(day2, part1_regex)]
+#[aoc::register]
 fn part1_regex(input: &str) -> impl Into<String> {
     let re = fancy_regex::Regex::new(r"^(\d+)\1$").unwrap();
 
@@ -45,7 +47,7 @@ fn part1_regex(input: &str) -> impl Into<String> {
         .to_string()
 }
 
-#[aoc::register(day2, part1_intmatch)]
+#[aoc::register]
 fn part1_intmatch(input: &str) -> impl Into<String> {
     input
         .trim_end()
@@ -68,7 +70,7 @@ fn part1_intmatch(input: &str) -> impl Into<String> {
         .to_string()
 }
 
-#[aoc::register(day2, part1_intmatch_divrem)]
+#[aoc::register]
 fn part1_intmatch_divrem(input: &str) -> impl Into<String> {
     input
         .trim_end()
@@ -92,7 +94,7 @@ fn part1_intmatch_divrem(input: &str) -> impl Into<String> {
         .to_string()
 }
 
-#[aoc::register(day2, part1_chatgpt)]
+#[aoc::register]
 fn part1_chatgpt(input: &str) -> impl Into<String> {
     fn sum_repeated_halves(a: u64, b: u64) -> u128 {
         let mut total_sum: u128 = 0u128;
@@ -142,7 +144,7 @@ fn part1_chatgpt(input: &str) -> impl Into<String> {
         .to_string()
 }
 
-#[aoc::register(day2, part2)]
+#[aoc::register]
 fn part2(input: &str) -> impl Into<String> {
     // Test if s is made up of n repeating chunks
     fn is_repeat(s: &str, n: usize) -> bool {
@@ -182,7 +184,7 @@ fn part2(input: &str) -> impl Into<String> {
         .to_string()
 }
 
-#[aoc::register(day2, part2_intmatch)]
+#[aoc::register]
 fn part2_intmatch(input: &str) -> impl Into<String> {
     // Test if s is made up of n repeating chunks
     fn is_repeat(num: usize, n: usize) -> bool {
@@ -224,11 +226,9 @@ fn part2_intmatch(input: &str) -> impl Into<String> {
         .to_string()
 }
 
-aoc::main!(day2);
-
-aoc::test!(day2, text = "\
+aoc::test!(text = "\
 11-22,95-115,998-1012,1188511880-1188511890,222220-222224,\
 1698522-1698528,446443-446449,38593856-38593862,565653-565659,\
 824824821-824824827,2121212118-2121212124", [part1, part1_regex, part1_intmatch, part1_intmatch_divrem, part1_chatgpt] => "1227775554", [part2, part2_intmatch] => "4174379265");
 
-aoc::test!(day2, file = "input/2025/day2.txt", [part1, part1_intmatch, part1_regex, part1_intmatch_divrem, part1_chatgpt] => "24157613387", [part2, part2_intmatch] => "33832678380");
+aoc::test!(file = "input/2025/day2.txt", [part1, part1_intmatch, part1_regex, part1_intmatch_divrem, part1_chatgpt] => "24157613387", [part2, part2_intmatch] => "33832678380");

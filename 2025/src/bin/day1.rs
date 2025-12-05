@@ -1,3 +1,5 @@
+aoc::main!(day1);
+
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 struct Dial {
     size: usize,
@@ -65,7 +67,7 @@ impl From<&str> for Turn {
     }
 }
 
-#[aoc::register(day1, part1)]
+#[aoc::register]
 fn part1(input: &str) -> impl Into<String> {
     input
         .lines()
@@ -75,7 +77,7 @@ fn part1(input: &str) -> impl Into<String> {
         .to_string()
 }
 
-#[aoc::register(day1, part2)]
+#[aoc::register]
 fn part2(input: &str) -> impl Into<String> {
     input
         .lines()
@@ -97,7 +99,7 @@ fn part2(input: &str) -> impl Into<String> {
         .to_string()
 }
 
-#[aoc::register(day1, part2_inline)]
+#[aoc::register]
 fn part2_inline(input: &str) -> impl Into<String> {
     input
         .lines()
@@ -114,9 +116,7 @@ fn part2_inline(input: &str) -> impl Into<String> {
         .to_string()
 }
 
-aoc::main!(day1);
-
-aoc::test!(day1, text = "\
+aoc::test!(text = "\
 L68
 L30
 R48
@@ -128,4 +128,4 @@ L99
 R14
 L82", [part1] => "3", [part2, part2_inline] => "6");
 
-aoc::test!(day1, file = "input/2025/day1.txt", [part1] => "1055", [part2, part2_inline] => "6386");
+aoc::test!(file = "input/2025/day1.txt", [part1] => "1055", [part2, part2_inline] => "6386");

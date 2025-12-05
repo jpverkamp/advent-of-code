@@ -1,4 +1,6 @@
-#[aoc::register(day3, part1)]
+aoc::main!(day3);
+
+#[aoc::register]
 fn part1(input: &str) -> impl Into<String> {
     input
         .lines()
@@ -59,7 +61,7 @@ fn max_digits(digits: &[u8], count: usize) -> Option<usize> {
     None
 }
 
-#[aoc::register(day3, part1_max_digits)]
+#[aoc::register]
 fn part1_max_digits(input: &str) -> impl Into<String> {
     input
         .lines()
@@ -74,7 +76,7 @@ fn part1_max_digits(input: &str) -> impl Into<String> {
         .to_string()
 }
 
-#[aoc::register(day3, part2)]
+#[aoc::register]
 fn part2(input: &str) -> impl Into<String> {
     input
         .lines()
@@ -89,7 +91,7 @@ fn part2(input: &str) -> impl Into<String> {
 }
 
 #[allow(dead_code)]
-// #[aoc::register(day3, part2_bruteforce)]
+// #[aoc::register]
 fn part2_bruteforce(input: &str) -> impl Into<String> {
     input
         .lines()
@@ -150,10 +152,7 @@ fn part2_bruteforce(input: &str) -> impl Into<String> {
         .to_string()
 }
 
-aoc::main!(day3);
-
 aoc::test!(
-    day3,
     text = "\
 987654321111111
 811111111111119
@@ -164,7 +163,6 @@ aoc::test!(
 );
 
 aoc::test!(
-    day3,
     file = "input/2025/day3.txt",
     [part1, part1_max_digits] => "16927",
     [part2, part2_bruteforce] => "167384358365132"

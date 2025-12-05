@@ -1,5 +1,6 @@
 input
 *.mp4
+*.png
 
 # Mac OSX
 .DS_Store

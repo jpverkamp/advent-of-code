@@ -1,6 +1,8 @@
 use aoc2025::grid::Grid;
 
-#[aoc::register(day4, part1)]
+aoc::main!(day4);
+
+#[aoc::register]
 fn part1(input: &str) -> impl Into<String> {
     let g = Grid::read(input, |c| c == '@');
 
@@ -10,7 +12,7 @@ fn part1(input: &str) -> impl Into<String> {
         .to_string()
 }
 
-#[aoc::register(day4, part2)]
+#[aoc::register]
 fn part2(input: &str) -> impl Into<String> {
     let mut g = Grid::read(input, |c| c == '@');
     let initial_count = g.iter().filter(|(_, _, v)| *v).count();
@@ -31,7 +33,7 @@ fn part2(input: &str) -> impl Into<String> {
     }
 }
 
-#[aoc::register(day4, part2_no_map)]
+#[aoc::register]
 fn part2_no_map(input: &str) -> impl Into<String> {
     let mut g = Grid::read(input, |c| c == '@');
     let mut count = 0;
@@ -59,7 +61,21 @@ fn part2_no_map(input: &str) -> impl Into<String> {
     count.to_string()
 }
 
-#[aoc::register_render(day4, part2_render, scale = 4, fps = 10)]
+// This is mostly here to test the render_image! macro
+#[aoc::register_render]
+fn part2_image(input: &str) {
+    let g = Grid::read(input, |c| c == '@');
+
+    aoc::render_image!(test, g.width() as usize, g.height() as usize, |x, y| {
+        match g.get(x as isize, y as isize) {
+            Some(true) => (0, 0, 0),
+            _ => (255, 255, 255),
+        }
+    });
+}
+
+// Test the render_frame! macro, but also produce a useful animation of the process
+#[aoc::register_render(scale = 4, fps = 10)]
 fn part2_render(input: &str) {
     let mut g = Grid::read(input, |c| c == '@');
 
@@ -94,10 +110,7 @@ fn part2_render(input: &str) {
     }
 }
 
-aoc::main!(day4);
-
 aoc::test!(
-    day4,
     text = "\
 ..@@.@@@@.
 @@@.@.@.@@
@@ -115,7 +128,6 @@ aoc::test!(
 );
 
 aoc::test!(
-    day4,
     file = "input/2025/day4.txt",
     [part1] => "1393",
     [part2, part2_no_map] => "8643"

@@ -1,9 +1,9 @@
-#[aoc::register(dayN, part1)]
+#[aoc::register]
 fn part1(input: &str) -> impl Into<String> {
     input
 }
 
-#[aoc::register(dayN, part2)]
+#[aoc::register]
 fn part2(input: &str) -> impl Into<String> {
     input
 }
