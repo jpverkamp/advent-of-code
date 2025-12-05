@@ -1,17 +1,18 @@
+aoc::main!(dayN);
+
 #[aoc::register]
 fn part1(input: &str) -> impl Into<String> {
-    input
+    let _ = input;
+    "TODO"
 }
 
 #[aoc::register]
 fn part2(input: &str) -> impl Into<String> {
-    input
+    let _ = input;
+    "TODO"
 }
 
-aoc::main!(dayN);
-
 aoc::test!(
-    dayN,
     text = "\
 
 ", 
@@ -20,7 +21,6 @@ aoc::test!(
 );
 
 aoc::test!(
-    dayN,
     file = "input/2025/dayN.txt",
     [part1] => "TODO",
     [part2] => "TODO"
