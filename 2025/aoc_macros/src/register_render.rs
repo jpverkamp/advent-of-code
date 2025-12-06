@@ -132,7 +132,7 @@ pub fn register_render_impl(attr: TokenStream, item: TokenStream) -> TokenStream
                 }
 
                 // Use ffmpeg to create video from frames with scaling
-                let output_path = format!("aoc2025_{}_{}_render.mp4", crate::__aoc::DAY, stringify!(#fn_name));
+                let output_path = format!("aoc2025_{}_{}.mp4", crate::__aoc::DAY, stringify!(#fn_name));
                 let frame_pattern = temp_dir.join("frame_%04d.png").to_string_lossy().to_string();
                 let fps_str = format!("{}", #fps_lit);
                 let scale_filter = format!("scale={}:{}", orig_width * scale, orig_height * scale);
