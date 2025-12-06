@@ -100,18 +100,16 @@ fn part2_bruteforce(input: &str) -> impl Into<String> {
     let start_time = std::time::Instant::now();
 
     (min..=max)
-        .map(|id| {
+        .inspect(|&id| {
             if id % 100_000_000 == 0 {
                 let elapsed = start_time.elapsed().as_secs_f64();
                 let rate = (id - min) as f64 / elapsed;
                 let eta = (max - id) as f64 / rate;
 
                 println!(
-                    "[{id}] Elapsed: {:.2} s, Rate: {:.2} ids/s, ETA: {:.2} s",
-                    elapsed, rate, eta
+                    "[{id}] Elapsed: {elapsed:.2} s, Rate: {rate:.2} ids/s, ETA: {eta:.2} s"
                 );
             }
-            id
         })
         .filter(|id| !puzzle.ranges.iter().any(|(a, b)| id >= a && id <= b))
         .count()
