@@ -17,3 +17,8 @@ bench day part="--all" iters="100":
     @cargo build --release --bin day{{day}} --quiet
     @./target/release/day{{day}} bench {{part}} input/2025/day{{day}}.txt --warmup 5 --iters {{iters}}
 
+run-and-bench day part="--all" iters="100":
+    @cargo build --release --bin day{{day}} --quiet
+    @./target/release/day{{day}} run {{part}} input/2025/day{{day}}.txt
+    @echo
+    @./target/release/day{{day}} bench {{part}} input/2025/day{{day}}.txt --warmup 5 --iters {{iters}}
