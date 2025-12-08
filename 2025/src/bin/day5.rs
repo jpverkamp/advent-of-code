@@ -106,9 +106,7 @@ fn part2_bruteforce(input: &str) -> impl Into<String> {
                 let rate = (id - min) as f64 / elapsed;
                 let eta = (max - id) as f64 / rate;
 
-                println!(
-                    "[{id}] Elapsed: {elapsed:.2} s, Rate: {rate:.2} ids/s, ETA: {eta:.2} s"
-                );
+                println!("[{id}] Elapsed: {elapsed:.2} s, Rate: {rate:.2} ids/s, ETA: {eta:.2} s");
             }
         })
         .filter(|id| !puzzle.ranges.iter().any(|(a, b)| id >= a && id <= b))
