@@ -1,3 +1,5 @@
+use std::collections::BinaryHeap;
+
 use aoc2025::point3d::Point3D;
 
 use itertools::sorted;
@@ -39,6 +41,55 @@ fn part1(input: &str) -> impl Into<String> {
 
         let region_to_keep = regions[*i];
         let region_to_replace = regions[*j];
+        for region in regions.iter_mut() {
+            if *region == region_to_replace {
+                *region = region_to_keep;
+            }
+        }
+    }
+
+    // Calculate the size of each region, the answer is the product of the largest 3
+    sorted((0..points_len).map(|region_id| regions.iter().filter(|r| **r == region_id).count()))
+        .rev()
+        .take(3)
+        .product::<usize>()
+        .to_string()
+}
+
+#[aoc::register]
+fn part1_heap(input: &str) -> impl Into<String> {
+    let mut lines = input.lines().peekable();
+
+    // The test cases is shorter, so if there's a # on the first line, use that
+    let join_count = if lines.peek().unwrap().starts_with('#') {
+        lines.next().unwrap()[1..].trim().parse::<usize>().unwrap()
+    } else {
+        1000
+    };
+
+    // Parse points
+    let points = lines.map(Point3D::from).collect::<Vec<_>>();
+    let points_len = points.len();
+
+    // Initialize each point to be its own region
+    let mut regions = (0..points_len).collect::<Vec<_>>();
+
+    // Pre-calculate and sort all distances
+    // This seems excessive, but I'm not sure you can avoid it...
+    let mut distances = BinaryHeap::new();
+    for i in 0..points_len {
+        for j in i + 1..points.len() {
+            distances.push((-points[i].distance_squared(&points[j]), (i, j)));
+        }
+    }
+
+    
+    // For the first n distances, join them
+    for _i in 0..join_count {
+        let (_, (i, j)) = distances.pop().unwrap();
+
+        let region_to_keep = regions[i];
+        let region_to_replace = regions[j];
         for region in regions.iter_mut() {
             if *region == region_to_replace {
                 *region = region_to_keep;
