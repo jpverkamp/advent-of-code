@@ -116,6 +116,7 @@ dependencies = [
  "env_logger",
  "fancy-regex",
  "image",
+ "itertools",
  "log",
  "num",
  "tracing",
