@@ -41,3 +41,30 @@ pub fn render_image_impl(input: TokenStream) -> TokenStream {
 
     TokenStream::from(expanded)
 }
+
+pub fn render_svg_impl(input: TokenStream) -> TokenStream {
+    let parser = syn::punctuated::Punctuated::<Expr, Token![,]>::parse_terminated;
+    let args = parser
+        .parse(input.into())
+        .expect("expected aoc::render_svg!(name, svg_data)");
+
+    assert!(
+        args.len() == 2,
+        "expected 2 arguments to aoc::render_svg!(name, svg_data)"
+    );
+
+    let name_expr = &args[0];
+    let closure_expr = &args[1];
+
+    let expanded = quote! {
+        {
+            let mut svg_data = #closure_expr.to_string();
+            
+            let filename = format!("aoc2025_{}_{}_render.svg", crate::__aoc::DAY, stringify!(#name_expr));
+            std::fs::write(&filename, svg_data).expect("failed to save SVG image");
+            println!("Rendered {}", filename);
+        }
+    };
+
+    TokenStream::from(expanded)
+}

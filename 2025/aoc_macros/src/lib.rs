@@ -44,8 +44,18 @@ pub fn render_image(input: TokenStream) -> TokenStream {
 }
 
 #[proc_macro]
+pub fn render_svg(input: TokenStream) -> TokenStream {
+    render_image::render_svg_impl(input)
+}
+
+#[proc_macro]
 pub fn render_frame(input: TokenStream) -> TokenStream {
     render_frame::render_frame_impl(input)
+}
+
+#[proc_macro]
+pub fn render_svg_frame(input: TokenStream) -> TokenStream {
+    render_frame::render_svg_frame_impl(input)
 }
 
 // Helper function to convert syn::Expr to String

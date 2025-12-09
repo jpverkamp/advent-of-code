@@ -83,7 +83,6 @@ fn part1_heap(input: &str) -> impl Into<String> {
         }
     }
 
-    
     // For the first n distances, join them
     for _i in 0..join_count {
         let (_, (i, j)) = distances.pop().unwrap();

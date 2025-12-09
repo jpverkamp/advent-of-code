@@ -8,65 +8,36 @@ pub fn register_render_impl(attr: TokenStream, item: TokenStream) -> TokenStream
     let parser = syn::punctuated::Punctuated::<Expr, syn::Token![,]>::parse_terminated;
     let args = parser
         .parse(attr.into())
-        .expect("expected #[aoc::register_render(scale=N, fps=F)] (all parameters optional)");
+        .expect("expected #[aoc::register_render(scale=N, fps=F, sample=S)] (all parameters optional)");
 
-    // Parse optional scale parameter (at index 0 if present)
-    let scale_lit = if args.len() > 0 {
-        // Handle both "4" and "scale = 4" syntax
-        match &args[0] {
-            Expr::Lit(syn::ExprLit {
-                lit: syn::Lit::Int(lit_int),
-                ..
-            }) => {
-                // Direct integer: "4"
-                lit_int.clone()
-            }
-            Expr::Assign(syn::ExprAssign { right, .. }) => {
-                // Assignment: "scale = 4"
-                if let Expr::Lit(syn::ExprLit {
-                    lit: syn::Lit::Int(lit_int),
-                    ..
-                }) = right.as_ref()
-                {
-                    lit_int.clone()
-                } else {
-                    syn::LitInt::new("1", proc_macro2::Span::call_site())
+    // Parse optional parameters by name
+    let mut scale_lit = syn::LitInt::new("1", proc_macro2::Span::call_site());
+    let mut fps_lit = syn::LitInt::new("30", proc_macro2::Span::call_site());
+    let mut sample_lit = syn::LitInt::new("1", proc_macro2::Span::call_site());
+
+    for arg in args.iter() {
+        match arg {
+            Expr::Assign(syn::ExprAssign { left, right, .. }) => {
+                // Named parameter: "scale = 4", "fps = 30", "sample = 100"
+                if let Expr::Path(path) = left.as_ref() {
+                    let param_name = path.path.get_ident().map(|i| i.to_string());
+                    if let Expr::Lit(syn::ExprLit {
+                        lit: syn::Lit::Int(lit_int),
+                        ..
+                    }) = right.as_ref()
+                    {
+                        match param_name.as_deref() {
+                            Some("scale") => scale_lit = lit_int.clone(),
+                            Some("fps") => fps_lit = lit_int.clone(),
+                            Some("sample") => sample_lit = lit_int.clone(),
+                            _ => {}
+                        }
+                    }
                 }
             }
-            _ => syn::LitInt::new("1", proc_macro2::Span::call_site()),
+            _ => {}
         }
-    } else {
-        syn::LitInt::new("1", proc_macro2::Span::call_site())
-    };
-
-    // Parse optional fps parameter (at index 1 if present)
-    let fps_lit = if args.len() > 1 {
-        // Handle both "30" and "fps = 30" syntax
-        match &args[1] {
-            Expr::Lit(syn::ExprLit {
-                lit: syn::Lit::Int(lit_int),
-                ..
-            }) => {
-                // Direct integer: "30"
-                lit_int.clone()
-            }
-            Expr::Assign(syn::ExprAssign { right, .. }) => {
-                // Assignment: "fps = 30"
-                if let Expr::Lit(syn::ExprLit {
-                    lit: syn::Lit::Int(lit_int),
-                    ..
-                }) = right.as_ref()
-                {
-                    lit_int.clone()
-                } else {
-                    syn::LitInt::new("30", proc_macro2::Span::call_site())
-                }
-            }
-            _ => syn::LitInt::new("30", proc_macro2::Span::call_site()),
-        }
-    } else {
-        syn::LitInt::new("30", proc_macro2::Span::call_site())
-    };
+    }
 
     let fn_item = syn::parse_macro_input!(item as syn::ItemFn);
     let fn_name = fn_item.sig.ident.clone();
@@ -83,12 +54,22 @@ pub fn register_render_impl(attr: TokenStream, item: TokenStream) -> TokenStream
 
     let name_lit = name_str;
 
+    
+    let render_sample_code = if sample_lit.base10_parse::<usize>().unwrap() > 1 {
+        quote! { current % __AOC_RENDER_SAMPLE == 0 }
+    } else {
+        quote! { true } 
+    };
+
     let expanded = quote! {
         mod #module_ident {
             use super::*;
 
+            pub const __AOC_RENDER_SAMPLE: usize = #sample_lit;
+
             thread_local! {
                 static __AOC_RENDER_FRAMES: std::cell::RefCell<Vec<::image::RgbImage>> = std::cell::RefCell::new(Vec::new());
+                static __AOC_RENDER_FRAME_COUNTER: std::cell::Cell<usize> = std::cell::Cell::new(0);
             }
 
             #[allow(non_snake_case)]
@@ -103,6 +84,15 @@ pub fn register_render_impl(attr: TokenStream, item: TokenStream) -> TokenStream
             pub fn __aoc_render_frames_take() -> Vec<::image::RgbImage> {
                 __AOC_RENDER_FRAMES.with(|frames| {
                     frames.borrow_mut().drain(..).collect()
+                })
+            }
+
+            #[allow(non_snake_case)]
+            pub fn __aoc_should_render_frame() -> bool {
+                __AOC_RENDER_FRAME_COUNTER.with(|counter| {
+                    let current = counter.get();
+                    counter.set(current + 1);
+                    #render_sample_code
                 })
             }
         }
@@ -122,7 +112,11 @@ pub fn register_render_impl(attr: TokenStream, item: TokenStream) -> TokenStream
                 let orig_height = first_frame.height();
                 let scale = #scale_lit;
 
-                let temp_dir = std::path::PathBuf::from("/tmp/aoc_render");
+                let timestamp = std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .expect("Time went backwards")
+                    .as_secs();
+                let temp_dir = std::path::PathBuf::from(format!("/tmp/aoc_render/{}", timestamp));
                 std::fs::create_dir_all(&temp_dir).expect("failed to create temp dir");
 
                 // Save frames without scaling - let ffmpeg handle it
