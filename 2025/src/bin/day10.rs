@@ -4,6 +4,8 @@ use std::io::Write;
 use std::sync::{Arc, Mutex};
 use tempfile::NamedTempFile;
 
+mod day10eqn;
+
 aoc::main!(day10);
 
 #[derive(Debug)]
@@ -662,6 +664,16 @@ fn part2_branch_and_bound_rayon(input: &str) -> impl Into<String> {
         })
         .sum::<usize>()
         .to_string()
+}
+
+#[aoc::register]
+fn part2_eqn(input: &str) -> impl Into<String> {
+    day10eqn::part2_eqn(input)
+}
+
+#[aoc::register]
+fn part2_eqn_rayon(input: &str) -> impl Into<String> {
+    day10eqn::part2_eqn_rayon(input)
 }
 
 aoc::test!(

@@ -1,5 +1,5 @@
 use std::{
-    collections::{HashMap, HashSet},
+    collections::HashSet,
     sync::{Arc, Mutex},
     usize,
 };
@@ -151,28 +151,6 @@ enum Bound {
     Unknown,
     Bounded(isize, isize),
     Known(isize),
-}
-
-// Add constraints for any remaining equations that have exactly two variables
-// p_x + p_y = C
-// x < y
-#[derive(Copy, Clone)]
-struct Constraint {
-    x_idx: usize,
-    x_coef: isize,
-    y_idx: usize,
-    y_coef: isize,
-    constant: isize,
-}
-
-impl std::fmt::Debug for Constraint {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{} * x{} + {} * x{} = {}",
-            self.x_coef, self.x_idx, self.y_coef, self.y_idx, self.constant
-        )
-    }
 }
 
 impl Machine {
@@ -349,113 +327,18 @@ impl Machine {
             // equations = filtered_equations;
         }
 
-        let mut constraints: Vec<Constraint> = Vec::new();
-        for eq in equations.iter() {
-            let vars: Vec<usize> = eq
-                .coefficients
-                .iter()
-                .enumerate()
-                .filter(|(_, c)| **c != 0)
-                .map(|(i, _)| i)
-                .collect();
-
-            if vars.len() == 2 {
-                // DEBUG: only non-negative constraints
-                let constraint = Constraint {
-                    x_idx: vars[0],
-                    x_coef: eq.coefficients[vars[0]],
-                    y_idx: vars[1],
-                    y_coef: eq.coefficients[vars[1]],
-                    constant: eq.constant,
-                };
-
-                constraints.push(constraint);
-                log::debug!("[{machine_id}] Adding constraint: {constraint:?}");
-            }
-        }
-
         // Now, we have as many bounds as we can get
         // So from here, we want to solve with a recursive memoized approach
         log::info!("[{machine_id}] Final bounds: {bounds:?}");
-        log::info!("[{machine_id}] Final constraints: {constraints:?}");
 
-        // Calculate how many possibilities we have to search
-        // For any constrained pair, the search space is only the smaller one
-        let estimate_possibilites = (0..bounds.len()).fold(1usize, |acc, i| {
-            let bound_size = match bounds[i] {
-                Bound::Known(_) => 1usize,
-                Bound::Bounded(l, u) => (u - l + 1) as usize,
-                Bound::Unknown => {
-                    log::warn!("[{machine_id}] Still have unknown bounds at index {i}, assuming 1000");
-                    1000usize
-                }
-            };
-
-            // Check if this index is constrained with any other index
-            let constrained_sizes: Vec<usize> = constraints
-                .iter()
-                .filter_map(|c| {
-                    if c.x_idx == i {
-                        Some(match bounds[c.y_idx] {
-                            Bound::Known(_) => 1usize,
-                            Bound::Bounded(l, u) => (u - l + 1) as usize,
-                            Bound::Unknown => {
-                                log::warn!(
-                                    "[{machine_id}] Still have unknown bounds at index {}, assuming 1000",
-                                    c.y_idx
-                                );
-                                1000usize
-                            }
-                        })
-                    } else if c.y_idx == i {
-                        Some(match bounds[c.x_idx] {
-                            Bound::Known(_) => 1usize,
-                            Bound::Bounded(l, u) => (u - l + 1) as usize,
-                            Bound::Unknown => {
-                                log::warn!(
-                                    "[{machine_id}] Still have unknown bounds at index {}, assuming 1000",
-                                    c.x_idx
-                                );
-                                1000usize
-                            }
-                        })
-                    } else {
-                        None
-                    }
-                })
-                .collect();
-
-            let effective_size = if !constrained_sizes.is_empty() {
-                *constrained_sizes.iter().min().unwrap()
-            } else {
-                bound_size
-            };
-
-            acc * effective_size
-        });
-        log::info!(
-            "[{machine_id}] Estimated total search space: {}",
-            estimate_possibilites
-        );
-
-        #[tracing::instrument(skip(machine, bounds, memo, stats))]
+        #[tracing::instrument(skip(machine, bounds, equations))]
         fn helper(
             machine: &Machine,
             presses: &Vec<Option<usize>>,
             bounds: &Vec<Bound>,
-            constraints: &Vec<Constraint>,
             equations: &HashSet<Equation>,
-            memo: &mut std::collections::HashMap<Vec<Option<usize>>, Option<usize>>,
-            stats: &mut (usize, usize),
         ) -> Option<usize> {
             let machine_id = machine.id;
-
-            if let Some(cached) = memo.get(presses) {
-                stats.0 += 1;
-                return *cached;
-            } else {
-                stats.1 += 1;
-            };
 
             // If the currently known presses make for an impossible voltage, fail
             // If we went beyond the bounds without finding an answer, fail
@@ -477,7 +360,6 @@ impl Machine {
             if current == machine.joltage {
                 log::debug!("[{machine_id}] Found an answer!: {presses:?}");
                 let press_total = presses.iter().map(|v| v.unwrap_or(0)).sum::<usize>();
-                memo.insert(presses.clone(), Some(press_total));
                 return Some(press_total);
             }
 
@@ -487,91 +369,13 @@ impl Machine {
                 .any(|(c, j)| c > j)
             {
                 log::debug!("[{machine_id}] OVER JOLTAGE");
-                memo.insert(presses.clone(), None);
                 return None;
             }
 
             // If we made it this far and all presses are set, this solution is under joltage
             if presses.iter().all(|f| f.is_some()) {
                 log::debug!("[{machine_id}] under joltage :(");
-                memo.insert(presses.clone(), None);
                 return None;
-            }
-
-            // If we have a known value that matches half a constraint, set the other half
-            // TODO: Handle bounds violations?
-            for constraint in constraints.iter() {
-                let mut new_presses = presses.clone();
-                let mut do_it = false;
-
-                match (presses[constraint.x_idx], presses[constraint.y_idx]) {
-                    (Some(px), Some(py)) => {
-                        // Both set, verify that they satisfy the constraint
-                        if (px as isize) * constraint.x_coef + (py as isize) * constraint.y_coef
-                            != constraint.constant
-                        {
-                            // Violation!
-                            log::debug!(
-                                "[{machine_id}] Constraint violation on {constraint:?} with {presses:?}"
-                            );
-                            memo.insert(presses.clone(), None);
-                            return None;
-                        }
-                    }
-                    (None, None) => {
-                        // Neither set, can't do anything
-                        continue;
-                    }
-                    // Cx Px + Cy Py = C
-                    // Py = (C - Cx Px) / Cy
-                    (Some(px), None) => {
-                        let required_py = (constraint.constant
-                            - (constraint.x_coef * (px as isize)))
-                            / constraint.y_coef;
-
-                        if required_py < 0 {
-                            log::debug!(
-                                "[{machine_id}] Negative press violation on {constraint:?} with {presses:?}"
-                            );
-                            memo.insert(presses.clone(), None);
-                            return None;
-                        }
-
-                        new_presses[constraint.y_idx] = Some(required_py as usize);
-                        do_it = true;
-                    }
-                    (None, Some(py)) => {
-                        let required_px = (constraint.constant
-                            - (constraint.y_coef * (py as isize)))
-                            / constraint.x_coef;
-
-                        if required_px < 0 {
-                            log::debug!(
-                                "[{machine_id}] Negative press violation on {constraint:?} with {presses:?}"
-                            );
-                            memo.insert(presses.clone(), None);
-                            return None;
-                        }
-
-                        new_presses[constraint.x_idx] = Some(required_px as usize);
-                        do_it = true;
-                    }
-                }
-
-                if do_it {
-                    log::debug!(
-                        "[{machine_id}] Applying constraint {constraint:?}, {presses:?} => {new_presses:?}"
-                    );
-                    return helper(
-                        machine,
-                        &new_presses,
-                        bounds,
-                        constraints,
-                        equations,
-                        memo,
-                        stats,
-                    );
-                }
             }
 
             // If we have any equation where all but 1 variable is known, we can set the last one
@@ -599,7 +403,6 @@ impl Machine {
                         log::debug!(
                             "[{machine_id}] Negative press violation on equation {eq} with {presses:?}"
                         );
-                        memo.insert(presses.clone(), None);
                         return None;
                     }
 
@@ -612,10 +415,7 @@ impl Machine {
                         machine,
                         &new_presses,
                         bounds,
-                        constraints,
                         equations,
-                        memo,
-                        stats,
                     );
                 }
             }
@@ -655,10 +455,7 @@ impl Machine {
                             machine,
                             &next_presses,
                             bounds,
-                            constraints,
                             equations,
-                            memo,
-                            stats,
                         );
 
                         if best.is_none() {
@@ -676,10 +473,7 @@ impl Machine {
                             machine,
                             &next_presses,
                             bounds,
-                            constraints,
                             equations,
-                            memo,
-                            stats,
                         );
 
                         if best.is_none() {
@@ -696,20 +490,13 @@ impl Machine {
                         machine,
                         &next_presses,
                         bounds,
-                        constraints,
                         equations,
-                        memo,
-                        stats,
                     );
                 }
             }
 
-            memo.insert(presses.clone(), best);
             best
         }
-
-        let mut memo: std::collections::HashMap<Vec<Option<usize>>, Option<usize>> = HashMap::new();
-        let mut stats = (0usize, 0usize);
 
         let machine_id = self.id;
 
@@ -718,24 +505,16 @@ impl Machine {
             self,
             &vec![None; self.buttons.len()],
             &bounds,
-            &constraints,
             &equations,
-            &mut memo,
-            &mut stats,
         );
 
         log::info!("[{machine_id}] Found answer: {result:?}");
-        log::info!(
-            "[{machine_id}] Memoization stats: hits={}, misses={}",
-            stats.0,
-            stats.1
-        );
         result.expect("Didn't find an answer?")
     }
 }
 
 #[aoc::register]
-fn part2_eqn(input: &str) -> impl Into<String> {
+pub fn part2_eqn(input: &str) -> impl Into<String> {
     input
         .lines()
         .enumerate()
@@ -746,7 +525,7 @@ fn part2_eqn(input: &str) -> impl Into<String> {
 }
 
 #[aoc::register]
-fn part2_eqn_rayon(input: &str) -> impl Into<String> {
+pub fn part2_eqn_rayon(input: &str) -> impl Into<String> {
     let count = input.lines().count();
     let finished = Arc::new(Mutex::new(0));
     let start = std::time::Instant::now();
@@ -785,6 +564,8 @@ fn part2_eqn_rayon(input: &str) -> impl Into<String> {
             result
         })
         .sum::<usize>();
+
+    log::info!("Total time: {:.2?}", start.elapsed());
 
     log::info!(
         "Slowest machine was {} taking {:.2?}",
