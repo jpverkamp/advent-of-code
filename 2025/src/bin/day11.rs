@@ -31,7 +31,8 @@ fn part1(input: &str) -> impl Into<String> {
     paths(&outputs, "you", "out").to_string()
 }
 
-#[aoc::register]
+#[allow(dead_code)]
+//#[aoc::register]
 fn part2(input: &str) -> impl Into<String> {
     let mut outputs = HashMap::new();
 
@@ -199,6 +200,6 @@ hhh: out
 
 aoc::test!(
     file = "input/2025/day11.txt",
-    [part1] => "TODO",
-    [part2] => "TODO"
+    [part1] => "796",
+    [part2_memo] => "294053029111296"
 );
