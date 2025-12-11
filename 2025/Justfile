@@ -5,9 +5,13 @@ start day:
 test day:
     @cargo test day{{day}}
 
-run day part="--all": 
+debug day part="--all": 
     @cargo build --bin day{{day}} --quiet
     @./target/debug/day{{day}} run {{part}} input/2025/day{{day}}.txt
+
+run day part="--all": 
+    @cargo build --release --bin day{{day}} --quiet
+    @./target/release/day{{day}} run {{part}} input/2025/day{{day}}.txt
 
 render day part="--all":
     @cargo build --bin day{{day}} --quiet

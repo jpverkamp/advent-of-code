@@ -111,21 +111,17 @@ fn part1_vid(input: &str) {
             }
         }
 
-        aoc::render_frame!(
-            splitter_grid.width(),
-            splitter_grid.height(),
-            |x, y| {
-                if splitter_grid.get(x, y) == Some(Tile::Start) {
-                    (255, 0, 0)
-                } else if splitter_grid.get(x, y) == Some(Tile::Split) {
-                    (0, 0, 255)
-                } else if laser_points.contains(&(x, y)) {
-                    (255, 255, 0)
-                } else {
-                    (0, 0, 0)
-                }
+        aoc::render_frame!(splitter_grid.width(), splitter_grid.height(), |x, y| {
+            if splitter_grid.get(x, y) == Some(Tile::Start) {
+                (255, 0, 0)
+            } else if splitter_grid.get(x, y) == Some(Tile::Split) {
+                (0, 0, 255)
+            } else if laser_points.contains(&(x, y)) {
+                (255, 255, 0)
+            } else {
+                (0, 0, 0)
             }
-        );
+        });
 
         std::mem::swap(&mut lasers, &mut buffer);
     }
@@ -233,24 +229,20 @@ fn part2_vid(input: &str) {
             }
         }
 
-        aoc::render_frame!(
-            splitter_grid.width(),
-            splitter_grid.height(),
-            |x, y| {
-                if splitter_grid.get(x, y) == Some(Tile::Start) {
-                    (255, 0, 0)
-                } else if splitter_grid.get(x, y) == Some(Tile::Split) {
-                    (0, 0, 255)
-                } else if let Some(count) = laser_counts.get(&(x, y)) {
-                    let max_value = 6878160441036_usize; // From part 2 answer
-                    let intensity =
-                        ((*count as f64).ln() / (max_value as f64).ln() * 255.0).min(255.0) as u8;
-                    (intensity, intensity, 0)
-                } else {
-                    (0, 0, 0)
-                }
+        aoc::render_frame!(splitter_grid.width(), splitter_grid.height(), |x, y| {
+            if splitter_grid.get(x, y) == Some(Tile::Start) {
+                (255, 0, 0)
+            } else if splitter_grid.get(x, y) == Some(Tile::Split) {
+                (0, 0, 255)
+            } else if let Some(count) = laser_counts.get(&(x, y)) {
+                let max_value = 6878160441036_usize; // From part 2 answer
+                let intensity =
+                    ((*count as f64).ln() / (max_value as f64).ln() * 255.0).min(255.0) as u8;
+                (intensity, intensity, 0)
+            } else {
+                (0, 0, 0)
             }
-        );
+        });
 
         std::mem::swap(&mut lasers, &mut buffer);
     }

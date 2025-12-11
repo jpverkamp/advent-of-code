@@ -226,12 +226,7 @@ fn part2_svg(input: &str) {
     let polygon = Polygon::new(points.clone());
 
     let mut max_area = 0;
-    let mut best_rectangle: Vec<Point2D> = vec![
-        points[0],
-        points[0],
-        points[0],
-        points[0],
-    ];
+    let mut best_rectangle: Vec<Point2D> = vec![points[0], points[0], points[0], points[0]];
 
     for i in 0..points.len() {
         for j in i + 1..points.len() {
@@ -260,9 +255,11 @@ fn part2_svg(input: &str) {
                 aoc::render_svg_frame!(
                     800,
                     800,
-                    svg(&[(points.as_slice(), "lightgray"),
+                    svg(&[
+                        (points.as_slice(), "lightgray"),
                         (&best_rectangle, "lightgreen"),
-                        (&vertices, "red")])
+                        (&vertices, "red")
+                    ])
                 );
                 continue;
             }
@@ -289,9 +286,11 @@ fn part2_svg(input: &str) {
                 aoc::render_svg_frame!(
                     800,
                     800,
-                    svg(&[(points.as_slice(), "lightgray"),
+                    svg(&[
+                        (points.as_slice(), "lightgray"),
                         (&best_rectangle, "lightgreen"),
-                        (&vertices, "red")])
+                        (&vertices, "red")
+                    ])
                 );
                 continue;
             }
@@ -304,9 +303,11 @@ fn part2_svg(input: &str) {
                 aoc::render_svg_frame!(
                     800,
                     800,
-                    svg(&[(points.as_slice(), "lightgray"),
+                    svg(&[
+                        (points.as_slice(), "lightgray"),
                         (&best_rectangle, "lightgreen"),
-                        (&vertices, "green")]),
+                        (&vertices, "green")
+                    ]),
                     force = true
                 );
 
@@ -316,9 +317,11 @@ fn part2_svg(input: &str) {
                 aoc::render_svg_frame!(
                     800,
                     800,
-                    svg(&[(points.as_slice(), "lightgray"),
+                    svg(&[
+                        (points.as_slice(), "lightgray"),
                         (&best_rectangle, "lightgreen"),
-                        (&vertices, "yellow")]),
+                        (&vertices, "yellow")
+                    ]),
                     force = true
                 );
             }
