@@ -411,27 +411,19 @@ impl Machine {
 
             // Record known values
             for eq in single_var_eqs.iter() {
-                let xi = eq
-                    .coefficients
-                    .iter()
-                    .position(|&c| c != 0)
-                    .unwrap();
+                let xi = eq.coefficients.iter().position(|&c| c != 0).unwrap();
 
                 known_values[xi] = Some(eq.constant as usize);
             }
-            println!("Known values so far: {:?}", known_values);
-
+            println!("Known values so far: {known_values:?}");
 
             // Remove all equations that use only known values
-            equations = equations
-                .into_iter()
-                .filter(|eq| {
+            equations.retain(|eq| {
                     eq.coefficients
                         .iter()
                         .enumerate()
                         .any(|(i, &c)| c != 0 && known_values[i].is_none())
-                })
-                .collect();
+                });
 
             // Look for any equations with exactly two values and constant = 0
             let two_var_zero_eqs: Vec<Equation> = equations
