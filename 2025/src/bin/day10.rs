@@ -336,39 +336,6 @@ impl Equation {
             reduced
         }
     }
-
-    // Iterate over all possible values of x1, x2, ... that could solve this equation
-    // Assuming all coefficients and constant are non-negative integers
-    fn iter_values(&self) -> impl Iterator<Item = Vec<usize>> + '_ {
-        let mut result = vec![];
-
-        let mut queue = VecDeque::new();
-        queue.push_back(vec![0; self.coefficients.len()]);
-
-        while let Some(current) = queue.pop_front() {
-            let sum: isize = current
-                .iter()
-                .enumerate()
-                .map(|(i, &val)| val as isize * self.coefficients[i])
-                .sum();
-
-            if sum == self.constant {
-                result.push(current.clone());
-            } else if sum < self.constant {
-                for i in 0..self.coefficients.len() {
-                    if self.coefficients[i] == 0 {
-                        continue;
-                    }
-
-                    let mut next = current.clone();
-                    next[i] += 1;
-                    queue.push_back(next);
-                }
-            }
-        }
-
-        result.into_iter()
-    }
 }
 
 impl std::fmt::Display for Equation {
@@ -406,8 +373,13 @@ impl Machine {
             log::info!("Equation: {eq}");
         }
 
-        loop {
-            println!("Expanding equations, count={}", equations.len());
+        let mut known_values = vec![None; self.buttons.len()];
+
+        for _i in 0.. {
+            if _i >= 3 {
+                break; // DEBUG
+            }
+            println!("Expanding equations, iter={_i}, count={}", equations.len());
 
             let initial_equations = equations.clone();
             let initial_size = equations.len();
@@ -433,6 +405,33 @@ impl Machine {
                 .collect();
 
             println!("Found {} single-variable equations", single_var_eqs.len());
+            for eq in single_var_eqs.iter() {
+                println!("  {eq}");
+            }
+
+            // Record known values
+            for eq in single_var_eqs.iter() {
+                let xi = eq
+                    .coefficients
+                    .iter()
+                    .position(|&c| c != 0)
+                    .unwrap();
+
+                known_values[xi] = Some(eq.constant as usize);
+            }
+            println!("Known values so far: {:?}", known_values);
+
+
+            // Remove all equations that use only known values
+            equations = equations
+                .into_iter()
+                .filter(|eq| {
+                    eq.coefficients
+                        .iter()
+                        .enumerate()
+                        .any(|(i, &c)| c != 0 && known_values[i].is_none())
+                })
+                .collect();
 
             // Look for any equations with exactly two values and constant = 0
             let two_var_zero_eqs: Vec<Equation> = equations
@@ -444,17 +443,7 @@ impl Machine {
             println!("Found {} two-variable", two_var_zero_eqs.len());
             for eq in two_var_zero_eqs {
                 println!("  {eq}");
-
-                for vals in eq.iter_values() {
-                    println!("    {vals:?}");
-                }
             }
-
-            break; // DEBUG
-        }
-
-        for eq in &equations {
-            log::info!("Equation: {eq}");
         }
 
         panic!()
