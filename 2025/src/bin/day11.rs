@@ -116,6 +116,9 @@ fn part2_memo(input: &str) -> impl Into<String> {
             return cached;
         }
 
+        // If we're at the dst, we're done either way
+        // If we did visit all the targets, this is a valid path
+        // If not, this is not a valid path, so recur up a zero!
         if src == dst {
             if targets.is_empty() {
                 return 1;
