@@ -119,6 +119,7 @@ dependencies = [
  "itertools",
  "log",
  "num",
+ "rand",
  "rayon",
  "tempfile",
  "tracing",

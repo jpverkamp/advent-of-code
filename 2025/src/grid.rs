@@ -1,4 +1,4 @@
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq, Hash)]
 pub struct Grid<T> {
     width: isize,
     height: isize,
@@ -9,6 +9,14 @@ impl<T> Grid<T>
 where
     T: Copy,
 {
+    pub fn new(width: usize, height: usize, default: T) -> Grid<T> {
+        Grid {
+            width: width as isize,
+            height: height as isize,
+            data: vec![default; width * height],
+        }
+    }
+
     pub fn read(s: &str, f: impl Fn(char) -> T) -> Grid<T> {
         let mut width = 0;
         let mut height = 0;
@@ -101,5 +109,31 @@ where
         [(0_isize, -1_isize), (-1, 0), (1, 0), (0, 1)]
             .into_iter()
             .map(move |(xd, yd)| self.get(x + xd, y + yd))
+    }
+
+    pub fn drop_row(&mut self, row: isize) {
+        assert!(row >= 0 && row < self.height, "Row out of bounds");
+
+        for y in row..(self.height - 1) {
+            for x in 0..self.width {
+                let v = self.get(x, y + 1).unwrap();
+                self.set(x, y, v);
+            }
+        }
+
+        self.height -= 1;
+    }
+
+    pub fn drop_column(&mut self, col: isize) {
+        assert!(col >= 0 && col < self.width, "Column out of bounds");
+
+        for x in col..(self.width - 1) {
+            for y in 0..self.height {
+                let v = self.get(x + 1, y).unwrap();
+                self.set(x, y, v);
+            }
+        }
+
+        self.width -= 1;
     }
 }

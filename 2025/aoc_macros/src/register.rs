@@ -19,7 +19,13 @@ pub fn register_impl(_attr: TokenStream, item: TokenStream) -> TokenStream {
         #func
 
         #[doc(hidden)]
-        fn #shim_ident(input: &str) -> String { #fn_name(input).into() }
+        fn #shim_ident(input: &str) -> String {
+            let start = std::time::Instant::now();
+            let result = #fn_name(input).into();
+            let elapsed = start.elapsed();
+            log::info!("{} took {:?}", stringify!(#fn_name), elapsed);
+            result
+        }
 
         #[doc(hidden)]
         static #entry_ident: crate::__aoc::Entry = crate::__aoc::Entry { day: crate::__aoc::DAY, name: #name_lit, func: #shim_ident };
