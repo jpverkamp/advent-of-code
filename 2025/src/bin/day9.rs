@@ -1,6 +1,8 @@
+use aoc2025::grid::Grid;
 use aoc2025::line2d::Line2D;
 use aoc2025::point2d::Point2D;
 use aoc2025::polygon::Polygon;
+use itertools::Itertools;
 
 aoc::main!(day9);
 
@@ -327,6 +329,229 @@ fn part2_svg(input: &str) {
             }
         }
     }
+}
+
+#[aoc::register_render]
+fn part2_compress_render(input: &str) {
+    let points = input.lines().map(Point2D::from).collect::<Vec<_>>();
+
+    let x_points = points
+        .iter()
+        .map(|p| p.x)
+        .sorted()
+        .unique()
+        .collect::<Vec<_>>();
+    let y_points = points
+        .iter()
+        .map(|p| p.y)
+        .sorted()
+        .unique()
+        .collect::<Vec<_>>();
+
+    let compressed_points = points
+        .iter()
+        .map(|p| {
+            Point2D::new(
+                x_points.iter().position(|&x| x == p.x).unwrap() as isize,
+                y_points.iter().position(|&y| y == p.y).unwrap() as isize,
+            )
+        })
+        .collect::<Vec<_>>();
+
+    #[derive(Debug, Copy, Clone, PartialEq, Eq)]
+    enum Cell {
+        Unknown,
+        Outside,
+        Inside,
+        Wall,
+    }
+
+    impl Cell {
+        fn color(&self) -> (u8, u8, u8) {
+            match self {
+                Cell::Unknown => (0, 0, 0),
+                Cell::Outside => (255, 255, 255),
+                Cell::Inside => (200, 200, 200),
+                Cell::Wall => (0, 127, 0),
+            }
+        }
+    }
+
+    let mut grid = Grid::new(x_points.len() + 2, y_points.len() + 2, Cell::Unknown);
+
+    // Each point is a corner as are all points bewtween them
+    // This does assume that either x or y does not change
+    for (p1, p2) in compressed_points.iter().tuple_combinations() {
+        if p1.x == p2.x {
+            let x = p1.x + 1;
+            let y_start = p1.y.min(p2.y) + 1;
+            let y_end = p1.y.max(p2.y) + 1;
+            for y in y_start..=y_end {
+                grid.set(x, y, Cell::Wall);
+            }
+        } else if p1.y == p2.y {
+            let y = p1.y + 1;
+            let x_start = p1.x.min(p2.x) + 1;
+            let x_end = p1.x.max(p2.x) + 1;
+            for x in x_start..=x_end {
+                grid.set(x, y, Cell::Wall);
+            }
+        }
+    }
+
+    // Flood fill from (0,0) to mark outside
+    let mut stack = vec![(0isize, 0isize)];
+    while let Some((x, y)) = stack.pop() {
+        if grid.get(x, y) != Some(Cell::Unknown) {
+            continue;
+        }
+        grid.set(x, y, Cell::Outside);
+
+        for nx in (x - 1)..=(x + 1) {
+            for ny in (y - 1)..=(y + 1) {
+                if (nx == x || ny == y) && grid.get(nx, ny) == Some(Cell::Unknown) {
+                    stack.push((nx, ny));
+                }
+            }
+        }
+    }
+
+    // Now any points that are still Unknown are Inside
+    for x in 0..grid.width() {
+        for y in 0..grid.height() {
+            if grid.get(x, y) == Some(Cell::Unknown) {
+                grid.set(x, y, Cell::Inside);
+            }
+        }
+    }
+
+    aoc::render_image!(inside, grid.width(), grid.height(), |x, y| {
+        grid.get(x, y).unwrap().color()
+    });
+}
+
+#[aoc::register]
+fn part2_compress(input: &str) -> impl Into<String> {
+    let points = input.lines().map(Point2D::from).collect::<Vec<_>>();
+
+    let x_points = points
+        .iter()
+        .map(|p| p.x)
+        .sorted()
+        .unique()
+        .collect::<Vec<_>>();
+    let y_points = points
+        .iter()
+        .map(|p| p.y)
+        .sorted()
+        .unique()
+        .collect::<Vec<_>>();
+
+    let compressed_points = points
+        .iter()
+        .map(|p| {
+            Point2D::new(
+                x_points.iter().position(|&x| x == p.x).unwrap() as isize,
+                y_points.iter().position(|&y| y == p.y).unwrap() as isize,
+            )
+        })
+        .collect::<Vec<_>>();
+
+    #[derive(Debug, Copy, Clone, PartialEq, Eq)]
+    enum Cell {
+        Unknown,
+        Outside,
+        Inside,
+        Wall,
+    }
+
+    let mut grid = Grid::new(x_points.len() + 2, y_points.len() + 2, Cell::Unknown);
+
+    // Each point is a corner as are all points bewtween them
+    // This does assume that either x or y does not change
+    for (p1, p2) in compressed_points.iter().tuple_combinations() {
+        if p1.x == p2.x {
+            let x = p1.x + 1;
+            let y_start = p1.y.min(p2.y) + 1;
+            let y_end = p1.y.max(p2.y) + 1;
+            for y in y_start..=y_end {
+                grid.set(x, y, Cell::Wall);
+            }
+        } else if p1.y == p2.y {
+            let y = p1.y + 1;
+            let x_start = p1.x.min(p2.x) + 1;
+            let x_end = p1.x.max(p2.x) + 1;
+            for x in x_start..=x_end {
+                grid.set(x, y, Cell::Wall);
+            }
+        }
+    }
+
+    // Flood fill from (0,0) to mark outside
+    let mut stack = vec![(0isize, 0isize)];
+    while let Some((x, y)) = stack.pop() {
+        if grid.get(x, y) != Some(Cell::Unknown) {
+            continue;
+        }
+        grid.set(x, y, Cell::Outside);
+
+        for nx in (x - 1)..=(x + 1) {
+            for ny in (y - 1)..=(y + 1) {
+                if (nx == x || ny == y) && grid.get(nx, ny) == Some(Cell::Unknown) {
+                    stack.push((nx, ny));
+                }
+            }
+        }
+    }
+
+    // Now any points that are still Unknown are Inside
+    for x in 0..grid.width() {
+        for y in 0..grid.height() {
+            if grid.get(x, y) == Some(Cell::Unknown) {
+                grid.set(x, y, Cell::Inside);
+            }
+        }
+    }
+
+    // For each pair of points, verify that all points in the rectangle are Inside or Wall
+    // Then calculate their area (uncompressed) and track the max
+    let mut max_area = 0;
+    for i in 0..compressed_points.len() {
+        for j in i + 1..compressed_points.len() {
+            let xd = (points[i].x - points[j].x).abs() + 1;
+            let yd = (points[i].y - points[j].y).abs() + 1;
+            let area = xd * yd;
+
+            if area <= max_area {
+                continue;
+            }
+
+            let x_start = compressed_points[i].x.min(compressed_points[j].x) + 1;
+            let x_end = compressed_points[i].x.max(compressed_points[j].x) + 1;
+            let y_start = compressed_points[i].y.min(compressed_points[j].y) + 1;
+            let y_end = compressed_points[i].y.max(compressed_points[j].y) + 1;
+
+            let mut valid = true;
+            'invalidate: for x in x_start..=x_end {
+                for y in y_start..=y_end {
+                    match grid.get(x, y) {
+                        Some(Cell::Inside) | Some(Cell::Wall) => {}
+                        _ => {
+                            valid = false;
+                            break 'invalidate;
+                        }
+                    }
+                }
+            }
+            if !valid {
+                continue;
+            }
+
+            max_area = area;
+        }
+    }
+
+    max_area.to_string()
 }
 
 aoc::test!(

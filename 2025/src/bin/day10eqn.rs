@@ -293,9 +293,7 @@ impl Machine {
                         Bound::Unknown => unreachable!("Should not have unknown here"),
                     })
                     .product::<usize>();
-                log::debug!(
-                    "[{machine_id}] Estimated total possibilities: {total_possibilities}"
-                );
+                log::debug!("[{machine_id}] Estimated total possibilities: {total_possibilities}");
 
                 if previous_possibilities == total_possibilities {
                     tracing::debug!("[{machine_id}] No change in possibilities, stopping");
@@ -393,9 +391,10 @@ impl Machine {
                     let mut sum_known = 0isize;
                     for (i, &coef) in eq.coefficients.iter().enumerate() {
                         if i != xi
-                            && let Some(p) = presses[i] {
-                                sum_known += coef * (p as isize);
-                            }
+                            && let Some(p) = presses[i]
+                        {
+                            sum_known += coef * (p as isize);
+                        }
                     }
 
                     let required_xi = (eq.constant - sum_known) / eq.coefficients[xi];
@@ -411,12 +410,7 @@ impl Machine {
                     log::debug!(
                         "[{machine_id}] Applying equation {eq}, {presses:?} => {new_presses:?}"
                     );
-                    return helper(
-                        machine,
-                        &new_presses,
-                        bounds,
-                        equations,
-                    );
+                    return helper(machine, &new_presses, bounds, equations);
                 }
             }
 
@@ -451,12 +445,7 @@ impl Machine {
                     for value in 0.. {
                         let mut next_presses = presses.clone();
                         next_presses[current_idx] = Some(value as usize);
-                        let result = helper(
-                            machine,
-                            &next_presses,
-                            bounds,
-                            equations,
-                        );
+                        let result = helper(machine, &next_presses, bounds, equations);
 
                         if best.is_none() {
                             best = result;
@@ -469,12 +458,7 @@ impl Machine {
                     for value in lo..=hi {
                         let mut next_presses = presses.clone();
                         next_presses[current_idx] = Some(value as usize);
-                        let result = helper(
-                            machine,
-                            &next_presses,
-                            bounds,
-                            equations,
-                        );
+                        let result = helper(machine, &next_presses, bounds, equations);
 
                         if best.is_none() {
                             best = result;
@@ -486,12 +470,7 @@ impl Machine {
                 Bound::Known(v) => {
                     let mut next_presses = presses.clone();
                     next_presses[current_idx] = Some(v as usize);
-                    best = helper(
-                        machine,
-                        &next_presses,
-                        bounds,
-                        equations,
-                    );
+                    best = helper(machine, &next_presses, bounds, equations);
                 }
             }
 
@@ -501,12 +480,7 @@ impl Machine {
         let machine_id = self.id;
 
         tracing::info!("[{machine_id}] Starting recursive search");
-        let result = helper(
-            self,
-            &vec![None; self.buttons.len()],
-            &bounds,
-            &equations,
-        );
+        let result = helper(self, &vec![None; self.buttons.len()], &bounds, &equations);
 
         log::info!("[{machine_id}] Found answer: {result:?}");
         result.expect("Didn't find an answer?")
